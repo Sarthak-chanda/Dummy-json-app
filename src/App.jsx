@@ -92,26 +92,26 @@ const App = () => {
   }
 
   // STEP 3: If logged in AND welcomed, show the full Store app
-  return (
-    <div className="app-shell">
-      <Nav
-        cart={cart}
-        setSearchResult={setSearchResult}
-        setShowCart={setShowCart}
-        setLoading={setLoading}
-        setNotFound={setNotFound}
-      />
+ // App.jsx - Updated rendering section
+return (
+  <div className="app-shell">
+    <Nav
+      cart={cart}
+      setSearchResult={setSearchResult}
+      setShowCart={setShowCart}
+      setLoading={setLoading}
+      setNotFound={setNotFound}
+    />
 
-      {activeView === 'loading' && <Loading />}
-      {activeView === 'notfound' && <NotFound />}
-
-      <div
-        className="home-stage"
-        style={{ display: activeView === 'home' ? 'block' : 'none' }}
-      >
-        <Products addToCart={addToCart} />
+    {/* Global Loading Overlay instead of replacing the content */}
+    {loading && (
+      <div className="global-loader">
+        <Loading />
       </div>
+    )}
 
+    <main className="main-content">
+      {/* Search results take priority if they exist */}
       {activeView === 'search' && (
         <SearchResult
           searchResult={searchResult}
@@ -124,6 +124,13 @@ const App = () => {
         />
       )}
 
+      {/* Home view (Products) - only hide if another view is active, but NOT during loading */}
+      {activeView === 'home' && (
+        <div className="home-stage">
+          <Products addToCart={addToCart} />
+        </div>
+      )}
+
       {activeView === 'cart' && (
         <CartPage
           cart={cart}
@@ -131,8 +138,11 @@ const App = () => {
           setShowCart={setShowCart}
         />
       )}
-    </div>
-  )
+
+      {activeView === 'notfound' && <NotFound />}
+    </main>
+  </div>
+);
 }
 
 export default App

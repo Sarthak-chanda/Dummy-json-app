@@ -17,27 +17,31 @@ const Searchbar = ({ setSearchResult, setLoading, setNotFound ,setShowCart }) =>
 
 
 
-  const searching = async (name) => {
-    setLoading(true)
-    const url = `https://dummyjson.com/products/search?q=${encodeURIComponent(name)}`;
+  // Searchbar.jsx - Update the searching function
+const searching = async (name) => {
+  setLoading(true); // This now shows the overlay in App.jsx
+  const url = `https://dummyjson.com/products/search?q=${encodeURIComponent(name)}`;
 
-    try {
-      const response = await fetch(url);
-      const result = await response.json();
-      setSearchResult(result?.products || [])
-      setName('')
-      console.log(result.products)
-
-
-    } catch (error) {
-      // alert(error);
+  try {
+    const response = await fetch(url);
+    const result = await response.json();
+    
+    // Switch view only AFTER data is received to prevent flickering
+    if (result.products && result.products.length > 0) {
+      setSearchResult(result.products);
+      setNotFound(false);
+    } else {
       setSearchResult([]);
-      setNotFound(true)
-
-    } finally {
-      setLoading(false)
+      setNotFound(true);
     }
+    setName('');
+  } catch (error) {
+    setSearchResult([]);
+    setNotFound(true);
+  } finally {
+    setLoading(false);
   }
+};
   return (
     <div className="searchbar">
       <form onSubmit={handleSubmit}>
