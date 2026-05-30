@@ -1,4 +1,8 @@
-export default function CartPage({ cart = [], setCart, setShowCart }) {
+import { useNavigate } from 'react-router-dom'
+
+export default function CartPage({ cart = [], setCart }) {
+  const navigate = useNavigate()
+
   const increaseQty = (id) => {
     setCart(
       cart.map((item) =>
@@ -20,20 +24,19 @@ export default function CartPage({ cart = [], setCart, setShowCart }) {
   }
 
   const removeFromCart = (id) => setCart(cart.filter((item) => item.id !== id))
+
   const cartTotal = cart.reduce(
     (sum, item) => sum + item.price * (item.quantity || 1),
     0
   )
 
-  const handleBack = () => {
-    setShowCart(false)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
   return (
     <div className="cart-page">
       <div className="cart-page-top">
-        <button className="simple-back-btn" onClick={handleBack}>
+        <button
+          className="simple-back-btn"
+          onClick={() => navigate('/')}
+        >
           ← Back
         </button>
         <h1 className="cart-page-title">My Cart</h1>

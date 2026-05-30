@@ -1,25 +1,23 @@
-import ProductCard from "./ProductCard";
+import ProductCard from './ProductCard'
+import { useNavigate } from 'react-router-dom'
 
+const SearchResult = ({ searchResult, addToCart, clearSearch }) => {
+  const navigate = useNavigate()
 
+  const handleBack = () => {
+    if (clearSearch) clearSearch()
+    navigate('/')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
-const SearchResult = ({
-  searchResult,
-  addToCart,
-  clearSearch,
-}) => {
   return (
     <div className="search-page">
       <div className="search-page-top">
-        <button
-          className="simple-back-btn"
-          onClick={clearSearch}
-        >
+        <button className="simple-back-btn" onClick={handleBack}>
           ← Back
         </button>
 
-        <h1 className="cart-page-title">
-          Search Results
-        </h1>
+        <h1 className="cart-page-title">Search Results</h1>
       </div>
 
       {searchResult.length === 0 ? (
@@ -38,7 +36,7 @@ const SearchResult = ({
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default SearchResult;
+export default SearchResult
