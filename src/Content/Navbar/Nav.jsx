@@ -4,7 +4,7 @@ import Logo from './Logo'
 import Profile from './Profile'
 import Searchbar from './Searchbar'
 
-const Nav = ({ cart, setSearchResult, setLoading, setNotfound }) => {
+const Nav = ({ cart, setSearchResult, setLoading, setNotfound , userdet }) => {
   const navigate = useNavigate()
   const cart_count = cart.length
 
@@ -20,9 +20,9 @@ const Nav = ({ cart, setSearchResult, setLoading, setNotfound }) => {
         setNotfound={setNotfound}
       />
 
-      <Cart cart_count={cart_count} />
+      <Cart cart_count={cart_count} userdet={userdet}  />
 
-      <div onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }}>
+      <div onClick={() => navigate(`/${userdet.username}/profile`)} style={{ cursor: 'pointer' }}>
         <Profile />
       </div>
     </div>

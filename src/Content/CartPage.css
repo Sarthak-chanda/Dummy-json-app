@@ -1,0 +1,402 @@
+/* ==========================================================================
+   SOFT PREMIUM COMPACT MINI-APP CART DESIGN
+   ========================================================================== */
+
+   .pet-cart-page {
+    min-height: 100vh;
+    background-color: #f7f9fa; /* Uniform pale environment backdrop */
+    padding: 40px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1a1a1a;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  .pet-cart-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 32px;
+    padding: 32px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+    border: 1px solid #f0f2f5;
+  }
+  
+  /* ==========================================================================
+     APP HEADER BAR (REPLICATING PHONE CONTROL PROFILE)
+     ========================================================================== */
+  
+  .pet-cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    padding: 4px 0;
+  }
+  
+  .header-back-btn,
+  .header-more-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid #edf0f2;
+    color: #111111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    transition: all 0.2s ease;
+  }
+  
+  .header-back-btn:hover,
+  .header-more-btn:hover {
+    background: #f8fafc;
+    border-color: #d1d5db;
+  }
+  
+  .pet-cart-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  
+  /* ==========================================================================
+     RESPONSIVE LAYOUT TRACK CONTEXT
+     ========================================================================== */
+  
+  .pet-cart-layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 40px;
+    align-items: start;
+  }
+  
+  .pet-cart-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  /* ==========================================================================
+     DASHBOARD CARD ITEM UNITS
+     ========================================================================== */
+  
+  .pet-cart-item-card {
+    background: #ffffff;
+    border: 1px solid #f1f3f5;
+    border-radius: 24px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 24px;
+    align-items: center;
+    transition: border-color 0.2s ease;
+  }
+  
+  .pet-cart-item-card:hover {
+    border-color: #e2e8f0;
+  }
+  
+  /* Rounded, tinted canvas container behind products */
+  .pet-cart-image-frame {
+    width: 140px;
+    height: 140px;
+    border-radius: 20px;
+    background-color: #f1f3f2; /* Soft clay tint layer */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  }
+  
+  /* Dynamic color presets mapping to the aesthetic */
+  .pet-cart-item-card:nth-child(2n) .pet-cart-image-frame {
+    background-color: #e2ebd5; /* Green tone preset matching cat mix packaging */
+  }
+  
+  .pet-cart-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  
+  /* TYPOGRAPHY BLOCKS */
+  .pet-cart-item-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: 4px 0;
+  }
+  
+  .item-meta-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .pet-item-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.3;
+  }
+  
+  .pet-item-brand {
+    font-size: 0.9rem;
+    color: #52b69a; /* Bright teal theme label colors */
+    font-weight: 500;
+  }
+  
+  .pet-item-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-top: 4px;
+  }
+  
+  /* ==========================================================================
+     ORANGE RETRO STEPPER ACCENT CONTROL
+     ========================================================================== */
+  
+  .item-interactive-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+  }
+  
+  .pet-quantity-stepper {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    padding: 4px;
+    gap: 12px;
+  }
+  
+  .stepper-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+  }
+  
+  .stepper-btn.minus {
+    background: #ffffff;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .stepper-btn.minus:hover:not(:disabled) {
+    background: #f1f5f9;
+    color: #0f172a;
+  }
+  
+  .stepper-btn.minus:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  
+  .stepper-btn.plus {
+    background: #ff6f43; /* Bright custom orange accent injection */
+    color: #ffffff;
+  }
+  
+  .stepper-btn.plus:hover {
+    background: #e95b30;
+    box-shadow: 0 4px 12px rgba(255, 111, 67, 0.25);
+  }
+  
+  .stepper-btn:active {
+    transform: scale(0.92);
+  }
+  
+  .stepper-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f172a;
+    min-width: 16px;
+    text-align: center;
+  }
+  
+  .inline-remove-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+  
+  .inline-remove-btn:hover {
+    color: #ef4444;
+    background-color: #fef2f2;
+  }
+  
+  /* ==========================================================================
+     INVOICE METRIC BLOCK (BOTTOM PANEL)
+     ========================================================================== */
+  
+  .pet-cart-summary-card {
+    background: #ffffff;
+    border: 1px solid #f1f3f5;
+    border-radius: 28px;
+    padding: 24px;
+  }
+  
+  .summary-invoice-sheet {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .invoice-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .invoice-label {
+    font-size: 1.05rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+  
+  .invoice-value {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  
+  /* Perfectly calculated clean interface dots separator rules */
+  .invoice-divider-dotted {
+    width: 100%;
+    height: 1px;
+    border-top: 2px dotted #cbd5e1;
+    margin: 8px 0;
+  }
+  
+  .invoice-row.total-row {
+    margin-bottom: 8px;
+  }
+  
+  .invoice-label-bold {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+  }
+  
+  .invoice-value-bold {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #0f172a;
+  }
+  
+  /* SOLID STRETCH CHECKOUT INTERACTION CONTAINER */
+  .pet-checkout-primary-btn {
+    width: 100%;
+    background: #ff6f43; /* Uniform interface conversion orange */
+    color: #ffffff;
+    padding: 16px;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 24px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255, 111, 67, 0.15);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .pet-checkout-primary-btn:hover {
+    background: #e95b30;
+    box-shadow: 0 8px 24px rgba(255, 111, 67, 0.3);
+    transform: translateY(-1px);
+  }
+  
+  .pet-checkout-primary-btn:active {
+    transform: translateY(1px);
+  }
+  
+  /* ==========================================================================
+     EMPTY CONTEXT FALLBACK WRAPPER
+     ========================================================================== */
+  
+  .pet-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+  }
+  
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 16px;
+  }
+  
+  .pet-empty-state h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+  }
+  
+  .pet-empty-state p {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+  }
+  
+  .shop-now-btn {
+    background: #111827;
+    color: #ffffff;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+  
+  /* ==========================================================================
+     MEDIA QUERIES FOR FLUID RESPONSIVE CONTAINMENT
+     ========================================================================== */
+  
+  @media (max-width: 900px) {
+    .pet-cart-layout-grid {
+      grid-template-columns: 1fr; /* Stack into uniform block waterfall column */
+      gap: 32px;
+    }
+    
+    .pet-cart-container {
+      padding: 20px;
+      border-radius: 24px;
+    }
+  }
+  
+  @media (max-width: 550px) {
+    .pet-cart-page {
+      padding: 12px 8px;
+    }
+  
+    .pet-cart-item-card {
+      grid-template-columns: 1fr; /* Drop horizontal tracking structure on mobile files */
+      gap: 16px;
+    }
+  
+    .pet-cart-image-frame {
+      width: 100%;
+      height: 160px;
+    }
+  }

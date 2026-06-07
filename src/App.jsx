@@ -6,11 +6,12 @@ import Nav from './Content/Navbar/Nav'
 import SearchResult from './Content/SearchResult'
 import Loading from './Loading'
 import NotFound from './NotFound'
-import CartPage from './Content/Cartpage'
+import Cartpage from './Content/Cartpage.jsx'
 import Products from './Content/Products'
 import Login from './Login/Login.jsx'
 import WelcomePage from './Login/Welcome.jsx'
-import Profile from './Content/Profile.jsx'
+import ProfilePage from './Content/ProfilePage.jsx'
+import ProductPage from './Content/ProductPage.jsx'
 
 const getSavedCart = () => {
   try {
@@ -27,6 +28,7 @@ const App = () => {
   const [searchResult, setSearchResult] = useState([])
   const [hasSeenWelcome, setHasSeenWelcome] = useState(false)
   const [notfound , setNotfound] = useState(false)
+ 
 
   const [userdet, setUserdet] = useState({
     id: '',
@@ -83,6 +85,7 @@ const App = () => {
   return (
     <div className="app-shell">
       <Nav
+        userdet={userdet}
         cart={cart}
         setSearchResult={setSearchResult}
         setLoading={setLoading}
@@ -93,20 +96,21 @@ const App = () => {
         <Route path="/" element={<Products addToCart={addToCart} />} />
         <Route path="/home" element={<Navigate to="/" replace />} />
         <Route
-          path="/search"
+          path="/searchresult/:p_name"
           element={
             <SearchResult
-              
+             
               searchResult={searchResult}
               addToCart={addToCart}
               clearSearch={() => setSearchResult([])}
             />
           }
         />
-        <Route path="/cart" element={<CartPage cart={cart} setCart={setCart} />} />
-        <Route path="/profile" element={<Profile userdet={userdet} />} />
+        <Route path="/:userid/:username/cart" element={<Cartpage cart={cart} setCart={setCart} />} />
+        <Route path="/p/:p_name/:p_id" element={<ProductPage addToCart={addToCart} />} />
+        <Route path="/:username/profile" element={<ProfilePage userdet={userdet} />} />
         <Route path="/login" element={<Login setUserdet={setUserdet} />} />
-        <Route path="/welcome" element={<Navigate to="/" replace />} />
+        <Route path="/welcome" element={<WelcomePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 

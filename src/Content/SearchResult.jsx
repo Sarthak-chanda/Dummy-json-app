@@ -6,7 +6,7 @@ const SearchResult = ({ searchResult, addToCart, clearSearch }) => {
 
   const handleBack = () => {
     if (clearSearch) clearSearch()
-    navigate('/')
+    navigate(-1)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 

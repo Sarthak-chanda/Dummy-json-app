@@ -1,11 +1,12 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
-const Cart = ({ cart_count }) => {
+const Cart = ({ cart_count , userdet }) => {
   const navigate = useNavigate()
+  const {userid , username} = useParams()
 
   return (
     <div className="cart">
-      <button type="button" onClick={() => navigate('/cart')}>
+      <button type="button" onClick={() => navigate(`/${userdet.id}/${userdet.username}/cart`)}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"

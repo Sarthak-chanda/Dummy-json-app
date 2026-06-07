@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate , useParams } from 'react-router-dom'
 
 const Searchbar = ({ setSearchResult, setLoading , setNotfound }) => {
   const [name, setName] = useState('')
   const navigate = useNavigate()
+  const  {p_name}  = useParams();
 
   const searching = async (query) => {
     setLoading(true)
@@ -14,8 +15,8 @@ const Searchbar = ({ setSearchResult, setLoading , setNotfound }) => {
       const result = await response.json()
 
       setSearchResult(result.products || [])
-      setName('')
-      navigate('/search')
+      // setName('')
+      navigate(`/searchresult/product_name-${encodeURIComponent(query)}`) // Navigate to search results page
     } catch (error) {
       setNotfound(true)
       setSearchResult([])
