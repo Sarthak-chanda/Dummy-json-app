@@ -6,5 +6,5 @@ import react from '@vitejs/plugin-react'
 // vite.config.js
 export default defineConfig({
   plugins: [react()],
-  base: '/Dummy-json-app/', 
+  // base: '/Dummy-json-app/', 
 })
