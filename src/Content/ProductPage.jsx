@@ -19,69 +19,143 @@ const ProductPage = ({ addToCart }) => {
       });
   }, [p_id]);
 
-  if (loading) return <div className="product-loading">Loading details...</div>;
+  if (loading) return (
+    <div className="pp-loading-screen">
+      <div className="pp-spinner"></div>
+      <p>Loading premium details...</p>
+    </div>
+  );
 
-  const originalPrice = (product.price / (1 - product.discountPercentage/100)).toFixed(2);
+  const originalPrice = (product.price / (1 - product.discountPercentage / 100)).toFixed(2);
 
   return (
-    <div className="product-page">
-      <div className="product-container">
-        <button className="back-btn" onClick={() => navigate(-1)}>← Back to Shop</button>
+    <div className="premium-product-page">
+      
+      {/* Floating Glass Back Button (Aligned to Nav Bounds) */}
+      <div className="pp-back-btn-container">
+        <div className="pp-back-btn-wrapper">
+          <button className="pp-back-btn" onClick={() => navigate(-1)}>
+            <svg className="pp-back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+            Back
+          </button>
+        </div>
+      </div>
 
-        <section className="product-hero">
-          <div className="gallery-section">
-            <div className="image-list">
-              {product.images?.map((img, i) => (
-                <img key={i} src={img} className={selectedImage === img ? "active-thumb" : ""} onClick={() => setSelectedImage(img)} />
-              ))}
-            </div>
-            <div className="main-image">
+      <div className="pp-container">
+        
+        {/* ================= HERO SECTION ================= */}
+        <section className="pp-hero-section">
+          {/* Left: Gallery */}
+          <div className="pp-gallery-card">
+            <div className="pp-main-image-frame">
               <img src={selectedImage} alt={product.title} />
+            </div>
+            <div className="pp-thumbnail-strip">
+              {product.images?.map((img, i) => (
+                <button 
+                  key={i} 
+                  className={`pp-thumb-btn ${selectedImage === img ? "active" : ""}`} 
+                  onClick={() => setSelectedImage(img)}
+                >
+                  <img src={img} alt={`Thumbnail ${i}`} />
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="details-section">
-            <p className="brand-name">{product.brand} | SKU: {product.sku}</p>
-            <h1>{product.title}</h1>
+          {/* Right: Details */}
+          <div className="pp-details-card">
+            <div className="pp-badge-row">
+              <span className="pp-brand-badge">{product.brand || "Premium"}</span>
+              <span className="pp-stock-badge">{product.availabilityStatus}</span>
+            </div>
             
-            <div className="price-row">
-              <span className="current-price">${product.price.toFixed(2)}</span>
-              <span className="original-price">${originalPrice}</span>
-              <span className="discount-tag">{Math.round(product.discountPercentage)}% OFF</span>
-            </div>
-
-            <p className="description">{product.description}</p>
+            <h1 className="pp-title">{product.title}</h1>
             
-            {/* Added technical specs from the data */}
-            <div className="specs-grid">
-               <p><strong>Weight:</strong> {product.weight}kg</p>
-               <p><strong>Warranty:</strong> {product.warrantyInformation}</p>
-               <p><strong>Shipping:</strong> {product.shippingInformation}</p>
+            <div className="pp-price-block">
+              <span className="pp-current-price">${product.price.toFixed(2)}</span>
+              <span className="pp-original-price">${originalPrice}</span>
+              <span className="pp-discount-tag">{Math.round(product.discountPercentage)}% OFF</span>
             </div>
 
-            <div className="purchase-cta">
-              <button className="ec-pc-add-to-cart-btn" onClick={() => addToCart(product)}>Add to Cart</button>
+            <div className="pp-section-block">
+              <h3 className="pp-section-heading">Product Overview</h3>
+              <p className="pp-description">{product.description}</p>
             </div>
 
-            <div className="trust-badges">
-              <span>{product.availabilityStatus}</span>
-              <span>{product.returnPolicy}</span>
+            <div className="pp-action-block">
+              <button className="pp-add-cart-btn" onClick={() => addToCart(product)}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
+                  <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+                </svg>
+                Add to Cart
+              </button>
+            </div>
+            
+            <div className="pp-trust-row">
+              <div className="pp-trust-item">
+                <span className="icon">🛡️</span> {product.warrantyInformation}
+              </div>
+              <div className="pp-trust-item">
+                <span className="icon">📦</span> {product.shippingInformation}
+              </div>
+              <div className="pp-trust-item">
+                <span className="icon">↩️</span> {product.returnPolicy}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Customer Reviews Section */}
-        <section className="reviews-section">
-          <h2>Customer Reviews ({product.reviews?.length})</h2>
-          <div className="reviews-grid">
+        {/* ================= SPECIFICATIONS ================= */}
+        <section className="pp-specs-section">
+          <h2 className="pp-main-heading">Technical Specifications</h2>
+          <div className="pp-specs-grid">
+            <div className="pp-spec-card">
+              <span className="pp-spec-label">Weight</span>
+              <span className="pp-spec-value">{product.weight} kg</span>
+            </div>
+            <div className="pp-spec-card">
+              <span className="pp-spec-label">SKU</span>
+              <span className="pp-spec-value">{product.sku}</span>
+            </div>
+            <div className="pp-spec-card">
+              <span className="pp-spec-label">Dimensions</span>
+              <span className="pp-spec-value">
+                {product.dimensions ? `${product.dimensions.width} x ${product.dimensions.height} x ${product.dimensions.depth} cm` : 'N/A'}
+              </span>
+            </div>
+            <div className="pp-spec-card">
+              <span className="pp-spec-label">Minimum Order</span>
+              <span className="pp-spec-value">{product.minimumOrderQuantity} units</span>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= REVIEWS ================= */}
+        <section className="pp-reviews-section">
+          <h2 className="pp-main-heading">Customer Reviews <span>({product.reviews?.length || 0})</span></h2>
+          <div className="pp-reviews-grid">
             {product.reviews?.map((r, i) => (
-              <div key={i} className="review-card">
-                <strong>{r.reviewerName}</strong> <span>★ {r.rating}</span>
-                <p>{r.comment}</p>
+              <div key={i} className="pp-review-card">
+                <div className="pp-review-header">
+                  <div className="pp-reviewer-info">
+                    <div className="pp-avatar">{r.reviewerName.charAt(0)}</div>
+                    <strong>{r.reviewerName}</strong>
+                  </div>
+                  <div className="pp-star-rating">
+                    ★ {r.rating}
+                  </div>
+                </div>
+                <p className="pp-review-text">"{r.comment}"</p>
+                <span className="pp-review-date">{new Date(r.date).toLocaleDateString()}</span>
               </div>
             ))}
           </div>
         </section>
+
       </div>
     </div>
   );

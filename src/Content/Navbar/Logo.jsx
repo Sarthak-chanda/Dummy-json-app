@@ -1,8 +1,8 @@
-
+import logo from '/image/logo.png'; 
 
 const Logo = () => {
   return (
-    <div className="logo"><img src="/image/logo.png" alt="logo" /></div>
+    <div className="logo"><img src={logo} alt="logo" /></div>
   )
 }
 

@@ -1,0 +1,304 @@
+/* ==============================
+   NAVBAR BASE & SCROLLED STATE
+============================== */
+
+.nav {
+    width: 100%;
+    height: 72px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #e2e4e8;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    margin: 0 auto; 
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: 0;
+    
+    /* ADDED: Bottom border when at the top */
+    border: 1px solid transparent;
+    border-bottom: 1px solid #cbd5e1; 
+    overflow: hidden;
+  }
+  
+  .nav.scrolled {
+    top: 16px; 
+    width: 80%; 
+    max-width: 1200px; 
+    border-radius: 50px; 
+    background: rgba(255, 255, 255, 0.65); 
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px); 
+    
+    /* ADDED: Visible border around the pill shape */
+    border: 1px solid #cbd5e1; 
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08); 
+    padding: 0 24px;
+  }
+  
+  /* ==============================
+     LAYOUT SECTIONS
+  ============================== */
+  
+  .nav-left {
+    flex: 0 0 auto;
+    z-index: 2;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  
+  .nav-center {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    max-width: 720px;
+    margin: 0 20px;
+    z-index: 5;
+    transition: all 0.3s ease;
+  }
+  
+  .nav-right {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 2;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  
+  /* ==============================
+     LOGO 
+  ============================== */
+  
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo img {
+    height: 56px; 
+    width: auto;
+    object-fit: contain;
+  }
+  
+  /* ==============================
+     SEARCHBAR
+  ============================== */
+  
+  .searchbar {
+    width: 100%;
+  }
+  
+  .searchbar form {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .searchbar input[type="text"],
+  .searchbar input[type="search"] {
+    flex: 1 1 auto;
+    width: 100%;
+    height: 42px; 
+    padding: 0 16px;
+    border-radius: 12px;
+    border: 1px solid #dbe2ea;
+    background: #fff;
+    color: #111827;
+    font-size: 14px;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03);
+  }
+  
+  .searchbar input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+  }
+  
+  /* Bulletproof Centered Search Button using Grid */
+  .searchbar button {
+    width: 38px;  
+    height: 38px; 
+    min-width: 38px; 
+    padding: 0 !important; 
+    margin: 0;  
+    border: none; 
+    border-radius: 10px;
+    background: linear-gradient(180deg, #34a853 0%, #24963e 100%);
+    color: #fff;
+    box-shadow: 0 6px 12px rgba(36, 150, 62, 0.15); 
+    cursor: pointer;
+    display: grid !important; 
+    place-items: center !important; 
+  }
+  
+  .searchbar button svg {
+    display: block;
+    width: 18px; 
+    height: 18px;
+    margin: 0 !important;
+    padding: 0 !important;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    fill: none;
+    line-height: 0; 
+  }
+  
+  .searchbar button::before {
+    display: none; 
+  }
+  
+  .mobile-search-btn,
+  .close-search-btn {
+    display: none; 
+  }
+  
+  /* ==============================
+     CART & PROFILE (Transparent, Border)
+  ============================== */
+  
+  .cart button,
+  .profile {
+    height: 38px; 
+    min-width: 38px;
+    padding: 0 12px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    background: transparent;
+    color: #111827;
+    border: 1.5px solid #dbe2ea;
+    box-shadow: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .cart button:hover,
+  .profile:hover {
+    background: rgba(0, 0, 0, 0.04); 
+    border-color: #cbd5e1;
+  }
+  
+  .cart button svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .profile img {
+    width: 20px; 
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block; 
+  }
+  
+  /* ==============================
+     TABLET & MOBILE (MORPHING LOGIC)
+  ============================== */
+  
+  @media (max-width: 992px) {
+    
+    .logo img {
+      height: 48px; 
+    }
+  
+    .nav {
+      padding: 0 14px;
+    }
+  
+    .nav.scrolled {
+      width: 94%; 
+      padding: 0 16px;
+      border-radius: 50px;
+    }
+  
+    .nav:not(.search-mode) .nav-center {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-10px) scale(0.95);
+    }
+  
+    .mobile-search-btn {
+      width: 38px; 
+      height: 38px;
+      min-width: 38px;
+      padding: 0 !important;
+      margin: 0;
+      border-radius: 10px;
+      background: transparent;
+      border: 1.5px solid #dbe2ea;
+      color: #111827;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: grid !important;
+      place-items: center !important;
+    }
+    
+    .mobile-search-btn svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+  
+    .mobile-search-btn:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+  
+    .nav.search-mode .nav-left,
+    .nav.search-mode .nav-right {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+    }
+  
+    .nav.search-mode .nav-center {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: 0;
+      padding: 0 14px;
+      background: rgba(255, 255, 255, 0.98); 
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0) scale(1);
+      z-index: 10;
+    }
+  
+    .nav.scrolled.search-mode .nav-center {
+      background: transparent;
+      padding: 0 16px;
+    }
+  
+    .close-search-btn {
+      width: 38px;
+      height: 38px;
+      min-width: 38px;
+      padding: 0 !important;
+      background: transparent;
+      border: none;
+      color: #4b5563;
+      margin-right: 8px;
+      cursor: pointer;
+      display: grid !important;
+      place-items: center !important;
+    }
+  
+    @media (max-width: 500px) {
+      .cart button h4 {
+        display: none;
+      }
+    }
+  }
