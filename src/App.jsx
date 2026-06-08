@@ -13,6 +13,7 @@ import WelcomePage from './Login/Welcome.jsx'
 import ProfilePage from './Content/ProfilePage.jsx'
 import ProductPage from './Content/ProductPage.jsx'
 
+// Safe local storage initialization helper for Cart
 const getSavedCart = () => {
   try {
     const saved = localStorage.getItem('cart')
@@ -22,15 +23,30 @@ const getSavedCart = () => {
   }
 }
 
-const App = () => {
-  const [loading, setLoading] = useState(false)
-  const [cart, setCart] = useState(getSavedCart)
-  const [searchResult, setSearchResult] = useState([])
-  const [hasSeenWelcome, setHasSeenWelcome] = useState(false)
-  const [notfound , setNotfound] = useState(false)
- 
-
-  const [userdet, setUserdet] = useState({
+// FIX: Safe, synchronous initial hydration helper for authenticating User Data
+const getSavedUserDet = () => {
+  try {
+    const saved = localStorage.getItem('userdet')
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Map properties cleanly to match the shape expected throughout your routing structures
+      return {
+        id: parsed.userId || parsed.id || '',
+        username: parsed.username || '',
+        email: parsed.email || '',
+        firstName: parsed.firstName || '',
+        lastName: parsed.lastName || '',
+        gender: parsed.gender || '',
+        image: parsed.image || '',
+        accessToken: parsed.accessToken || '',
+        refreshToken: parsed.refreshToken || '',
+      }
+    }
+  } catch (error) {
+    console.error("Failed parsing user session from local storage:", error)
+  }
+  
+  return {
     id: '',
     username: '',
     email: '',
@@ -40,17 +56,43 @@ const App = () => {
     image: '',
     accessToken: '',
     refreshToken: '',
+  }
+}
+
+const App = () => {
+  const [loading, setLoading] = useState(false)
+  const [cart, setCart] = useState(getSavedCart)
+  const [searchResult, setSearchResult] = useState([])
+  const [hasSeenWelcome, setHasSeenWelcome] = useState(false)
+  const [notfound , setNotfound] = useState(false)
+  
+  // FIX: Initialize user data synchronously directly from localStorage on load
+  const [userdet, setUserdet] = useState(getSavedUserDet)
+  
+  // Initialize logindata using parsed user profile structure directly
+  const [logindata, setLogindata] = useState(() => {
+    try {
+      const saved = localStorage.getItem('userdet')
+      return saved ? JSON.parse(saved) : null
+    } catch {
+      return null
+    }
   })
 
+  // Sync cart adjustments to disk
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart))
   }, [cart])
 
+  // Synchronize state values if the active user profile changes or clears out
   useEffect(() => {
     if (!userdet.id) {
       setHasSeenWelcome(false)
+      setLogindata(null)
+    } else {
+      setLogindata(userdet)
     }
-  }, [userdet.id])
+  }, [userdet])
 
   const addToCart = (product) => {
     setCart((prevCart) => {
@@ -68,6 +110,7 @@ const App = () => {
     })
   }
 
+  // Intercept layout if user credentials do not exist on the client machine
   if (!userdet.id) {
     return <Login setUserdet={setUserdet} />
   }
@@ -99,7 +142,6 @@ const App = () => {
           path="/searchresult/:p_name"
           element={
             <SearchResult
-             
               searchResult={searchResult}
               addToCart={addToCart}
               clearSearch={() => setSearchResult([])}
@@ -116,7 +158,7 @@ const App = () => {
 
       {loading && (
         <div className="global-loader">
-          {loading && <Loading />}
+          <Loading />
           {notfound && <NotFound />}
         </div>
       )}

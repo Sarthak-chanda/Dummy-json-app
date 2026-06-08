@@ -1,109 +1,262 @@
-/* WelcomePage.css */
+/* ==========================================================================
+   FLUID & RESPONSIVE WELCOME PAGE SYSTEM
+   ========================================================================== */
 
-.welcome-wrapper {
-  height: 100vh;
-  width: 100%;
-  background: radial-gradient(circle at top right, #1e293b, #0f172a);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Inter', system-ui, sans-serif;
-}
-
-.welcome-glass-card {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 28px;
-  padding: 50px 40px;
-  text-align: center;
-  max-width: 480px;
-  width: 90%;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
-  animation: fadeInDown 0.6s ease-out;
-}
-
-.welcome-badge {
-  display: inline-block;
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
-  padding: 6px 16px;
-  border-radius: 100px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 20px;
-}
-
-.welcome-greeting {
-  color: white;
-  font-size: 2.5rem;
-  margin-bottom: 15px;
-  font-weight: 800;
-}
-
-.user-name {
-  background: linear-gradient(to right, #60a5fa, #a855f7);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.welcome-info {
-  color: #94a3b8;
-  line-height: 1.6;
-  margin-bottom: 35px;
-}
-
-.welcome-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.btn-primary {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 16px;
-  border-radius: 14px;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
-}
-
-.btn-primary:hover {
-  background: #2563eb;
-  transform: translateY(-2px);
-  box-shadow: 0 15px 25px rgba(59, 130, 246, 0.4);
-}
-
-.btn-secondary {
-  background: transparent;
-  color: #64748b;
-  border: 1px solid #334155;
-  padding: 14px;
-  border-radius: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
-  border-color: #475569;
-}
-
-@keyframes fadeInDown {
-  from {
+   .welcome-page-wrapper {
+    /* Using dvh (dynamic viewport height) fixes mobile Safari/Chrome address bar jumping */
+    min-height: 100dvh; 
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    padding: clamp(16px, 4vw, 24px); /* Fluid padding preventing edge-touching */
+    box-sizing: border-box;
+    position: relative;
+    overflow-x: hidden; /* Prevents background animations from breaking mobile width */
+  }
+  
+  .welcome-bg-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(240, 244, 248, 0.45);
+    z-index: 1;
+  }
+  
+  /* ==========================================================================
+     GLASSMORPHISM WELCOME CARD 
+     ========================================================================== */
+  
+  .welcome-glass-card {
+    position: relative;
+    z-index: 2;
+    
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    
+    border-radius: clamp(20px, 5vw, 24px);
+    box-shadow: 0 20px 50px rgba(10, 79, 91, 0.08), 
+                0 4px 12px rgba(0, 0, 0, 0.02);
+    
+    /* Fluid padding: Shrinks smoothly on smaller screens */
+    padding: clamp(36px, 8vw, 56px) clamp(24px, 6vw, 44px);
+    width: 100%;
+    max-width: 480px;
+    text-align: center;
+    box-sizing: border-box;
+    
+    transform: translateY(25px) scale(0.97);
     opacity: 0;
-    transform: translateY(-20px);
+    transition: all 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  to {
+  
+  .welcome-page-wrapper.active .welcome-glass-card {
+    transform: translateY(0) scale(1);
     opacity: 1;
-    transform: translateY(0);
   }
-}
+  
+  /* ==========================================================================
+     OPTIMIZED TYPOGRAPHY & HEADER ALIGNMENT
+     ========================================================================== */
+  
+  .welcome-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: clamp(24px, 6vw, 32px);
+  }
+  
+  .logo-center-frame {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Extra bottom margin to give the enlarged logo breathing room */
+    margin-bottom: clamp(24px, 6vw, 36px); 
+  }
+  
+  .welcome-logo {
+    /* Significantly enlarged logo with fluid scaling */
+    height: clamp(76px, 15vw, 100px); 
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.05));
+  }
+  
+  /* Active Session Badge */
+  .session-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(236, 253, 245, 0.9);
+    color: #059669;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: clamp(0.7rem, 2.5vw, 0.75rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(167, 243, 208, 0.5);
+  }
+  
+  .session-badge .dot {
+    width: 6px;
+    height: 6px;
+    background-color: #059669;
+    border-radius: 50%;
+    position: relative;
+  }
+  
+  .session-badge .dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background-color: #059669;
+    animation: pulseBadgeAura 2s infinite ease-out;
+  }
+  
+  @keyframes pulseBadgeAura {
+    0% { transform: scale(1); opacity: 0.5; }
+    70% { transform: scale(2.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 0; }
+  }
+  
+  /* Fluid Heading */
+  .welcome-header h1 {
+    font-size: clamp(1.7rem, 6vw, 2.1rem); /* Scales beautifully down to iPhone SE size */
+    font-weight: 800;
+    line-height: 1.2;
+    color: #111111;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+  
+  .welcome-header h1 span {
+    color: #00c0a5; 
+  }
+  
+  /* Optimized Body Text */
+  .welcome-header p {
+    color: #556270;
+    font-size: clamp(0.9rem, 3vw, 0.95rem);
+    line-height: 1.6; /* Increased line-height for better mobile readability */
+    margin: 0 auto;
+    max-width: 95%; /* Prevents text from hugging the exact edge of the card */
+  }
+  
+  /* ==========================================================================
+     USER DATA PARAMETER BOX
+     ========================================================================== */
+  
+  .user-details-box {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    border-radius: 14px;
+    padding: clamp(16px, 4vw, 20px);
+    margin-bottom: clamp(24px, 6vw, 32px);
+  }
+  
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap; /* Allows safe breaking on incredibly narrow screens */
+    gap: 8px;
+  }
+  
+  .detail-row:last-child {
+    margin-bottom: 0;
+  }
+  
+  .detail-row .label {
+    color: #8a94a6;
+    font-size: clamp(0.75rem, 2.5vw, 0.8rem);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  
+  .detail-row .value {
+    color: #111111;
+    font-weight: 600;
+    font-size: clamp(0.85rem, 3vw, 0.95rem);
+    word-break: break-all; /* Prevents long emails from breaking the layout */
+    text-align: right;
+  }
+  
+  .success-text {
+    color: #059669 !important;
+  }
+  
+  /* ==========================================================================
+     TOUCH-OPTIMIZED CALL TO ACTIONS
+     ========================================================================== */
+  
+  .welcome-actions {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(12px, 4vw, 16px);
+  }
+  
+  .welcome-actions .primary-btn {
+    width: 100%;
+    margin: 0;
+    height: clamp(48px, 12vw, 52px); /* Ensures a large, comfortable touch target */
+    background-color: #0a4f5b;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-size: clamp(0.95rem, 3vw, 1rem);
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(10, 79, 91, 0.15);
+    transition: background-color 0.2s ease, transform 0.15s ease;
+  }
+  
+  .welcome-actions .primary-btn:hover {
+    background-color: #0d6575;
+  }
+  
+  .welcome-actions .primary-btn:active {
+    transform: scale(0.98);
+  }
+  
+  .logout-link {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: clamp(0.9rem, 3vw, 0.95rem);
+    align-self: center;
+    padding: 8px 16px; /* Added padding to increase the invisible touch area */
+    transition: color 0.15s ease;
+  }
+  
+  .logout-link:hover {
+    color: #b91c1c;
+  }
+  
+  /* ==========================================================================
+     MICRO-DEVICE SAFETY NET (E.g., Galaxy Fold front screen)
+     ========================================================================== */
+  
+  @media (max-width: 350px) {
+    .detail-row {
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+    }
+    .detail-row .value {
+      text-align: left;
+    }
+  }

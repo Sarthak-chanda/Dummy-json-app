@@ -1,297 +1,192 @@
-import { useState } from "react";
-import "./Login.css";
-import { supabase } from './supabaseClient'; //
+import { useState } from 'react';
+import { supabase } from './supabaseClient';
+import loginBg from '/image/login-bg.png';
+import bannerImg from '/image/login-right.png'; // The neon cart image
+import './Login.css';
 
-const Login = ({ setUserdet = () => {} }) => {
+const Login = ({ setUserdet }) => {
   const [isRegister, setIsRegister] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const [loginData, setLoginData] = useState({
-    email: "",
-    password: "",
-  });
-
-  const [registerData, setRegisterData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  const [loginError, setLoginError] = useState("");
-  const [registerError, setRegisterError] = useState("");
-  const [registerSuccess, setRegisterSuccess] = useState("");
-
-  const [popup, setPopup] = useState({
-    show: false,
-    type: "",
-    message: "",
-  });
-
-  const passwordsMatch = registerData.password === registerData.confirmPassword;
-
-  const isRegisterValid =
-    registerData.name.trim() &&
-    registerData.email.trim() &&
-    registerData.password.trim() &&
-    registerData.confirmPassword.trim() &&
-    passwordsMatch;
+  const [loginData, setLoginData] = useState({ email: '', password: '' });
+  const [registerData, setRegisterData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
 
   const handleLoginChange = (e) => {
-    const { name, value } = e.target;
-    setLoginData((prev) => ({ ...prev, [name]: value }));
-    if (loginError) setLoginError("");
+    setLoginData({ ...loginData, [e.target.name]: e.target.value });
+    if (errorMessage) setErrorMessage('');
   };
 
   const handleRegisterChange = (e) => {
-    const { name, value } = e.target;
-    setRegisterData((prev) => ({ ...prev, [name]: value }));
-    if (registerError) setRegisterError("");
-    if (registerSuccess) setRegisterSuccess("");
+    setRegisterData({ ...registerData, [e.target.name]: e.target.value });
+    if (errorMessage) setErrorMessage('');
   };
 
-  // --- SUPABASE LOGIN LOGIC ---
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    setLoginError("");
+    setLoading(true);
+    setErrorMessage('');
+    setSuccessMessage('');
 
     try {
-      // Use Supabase signInWithPassword
       const { data, error } = await supabase.auth.signInWithPassword({
         email: loginData.email,
         password: loginData.password,
       });
 
-      if (error) {
-        setPopup({
-          show: true,
-          type: "error",
-          message: error.message,
-        });
-        return;
-      }
+      if (error) throw error;
+      setSuccessMessage('Logged in successfully!');
 
-      setPopup({
-        show: true,
-        type: "success",
-        message: "Login successful",
-      });
+      const mappedData = {
+        id: data.user.id,
+        username: data.user.user_metadata?.full_name || 'Marketplace User',
+        email: data.user.email,
+        image: data.user.user_metadata?.avatar_url || '',
+        accessToken: data.session.access_token,
+      };
 
-      // Update App.jsx state with user data
-      setTimeout(() => {
-        setUserdet({
-          id: data.user.id,
-          email: data.user.email,
-          username: data.user.user_metadata?.full_name || "",
-          accessToken: data.session.access_token,
-        });
-      }, 1200);
-
-    } catch (err) {
-      setPopup({ show: true, type: "error", message: "Something went wrong" });
+      localStorage.setItem('userdet', JSON.stringify(mappedData));
+      setUserdet(mappedData);
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // --- SUPABASE REGISTER LOGIC ---
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    setRegisterError("");
-    setRegisterSuccess("");
+    setLoading(true);
+    setErrorMessage('');
+    setSuccessMessage('');
 
-    if (!passwordsMatch) {
-      setRegisterError("Passwords do not match");
+    if (registerData.password !== registerData.confirmPassword) {
+      setErrorMessage('Passwords do not match.');
+      setLoading(false);
       return;
     }
 
     try {
-      // Use Supabase signUp with metadata for the name
       const { data, error } = await supabase.auth.signUp({
         email: registerData.email,
         password: registerData.password,
-        options: {
-          data: {
-            full_name: registerData.name,
-          }
-        }
+        options: { data: { full_name: registerData.name } },
       });
 
-      if (error) {
-        setRegisterError(error.message);
-        return;
-      }
-
-      setRegisterSuccess("Registration successful! Check your email for confirmation.");
-      setPopup({
-        show: true,
-        type: "success",
-        message: "Check your email!",
-      });
-
-      setIsRegister(false);
-      setRegisterData({ name: "", email: "", password: "", confirmPassword: "" });
-    } catch (err) {
-      setRegisterError("Something went wrong");
+      if (error) throw error;
+      setSuccessMessage('Registration successful! Please check your email to verify.');
+      setRegisterData({ name: '', email: '', password: '', confirmPassword: '' });
+      setTimeout(() => setIsRegister(false), 3000); // Slide back to login on success
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleForgotPassword = () => {
-    setPopup({
-      show: true,
-      type: "error",
-      message: "Forgot password is not connected yet",
-    });
-    setTimeout(() => {
-      setPopup({ show: false, type: "", message: "" });
-    }, 1800);
-  };
-
   return (
-    <div className="auth-page">
-      {popup.show && (
-        <div className={`auth-popup ${popup.type === "success" ? "auth-popup-success" : "auth-popup-error"}`}>
-          <div className="auth-popup-icon">{popup.type === "success" ? "✓" : "✕"}</div>
-          <p className="auth-popup-text">{popup.message}</p>
+    <div 
+      className="auth-page-wrapper" 
+      style={{ backgroundImage: `url(${loginBg})` }}
+    >
+      <div className={`auth-sliding-container ${isRegister ? 'right-panel-active' : ''}`}>
+        
+        {/* SIGN UP FORM (Hidden initially, slides to right) */}
+        <div className="form-container sign-up-container">
+          <form onSubmit={handleRegisterSubmit}>
+            <h1>Create Account</h1>
+            <span className="subtitle">Register to explore the marketplace</span>
+            
+            {errorMessage && <div className="status-msg error">{errorMessage}</div>}
+            {successMessage && <div className="status-msg success">{successMessage}</div>}
+
+            <div className="input-group">
+              <input type="text" name="name" value={registerData.name} onChange={handleRegisterChange} required placeholder=" " />
+              <label>Full Name</label>
+            </div>
+            <div className="input-group">
+              <input type="email" name="email" value={registerData.email} onChange={handleRegisterChange} required placeholder=" " />
+              <label>Email Address</label>
+            </div>
+            <div className="input-group">
+              <input type="password" name="password" value={registerData.password} onChange={handleRegisterChange} required placeholder=" " />
+              <label>Password</label>
+            </div>
+            <div className="input-group">
+              <input type="password" name="confirmPassword" value={registerData.confirmPassword} onChange={handleRegisterChange} required placeholder=" " />
+              <label>Confirm Password</label>
+            </div>
+
+            <button type="submit" className="primary-btn" disabled={loading}>
+              {loading ? 'Creating...' : 'Sign Up'}
+            </button>
+
+            {/* Mobile Only Toggle */}
+            <p className="mobile-toggle-text">
+              Already have an account? <span onClick={() => setIsRegister(false)}>Sign In</span>
+            </p>
+          </form>
         </div>
-      )}
 
-      <div className="auth-container">
-        <div className="auth-card">
-          <div className="auth-header">
-            <h1 className="auth-title">{isRegister ? "Create Account" : "Welcome Back"}</h1>
-            <p className="auth-subtitle">
-              {isRegister ? "Register your account to continue." : "Login with your email and password."}
+        {/* SIGN IN FORM (Visible initially on left) */}
+        <div className="form-container sign-in-container">
+          <form onSubmit={handleLoginSubmit}>
+            <h1>Sign In</h1>
+            <span className="subtitle">Welcome back to e CART</span>
+
+            {errorMessage && <div className="status-msg error">{errorMessage}</div>}
+            {successMessage && <div className="status-msg success">{successMessage}</div>}
+
+            <div className="input-group">
+              <input type="email" name="email" value={loginData.email} onChange={handleLoginChange} required placeholder=" " />
+              <label>Email Address</label>
+            </div>
+            <div className="input-group">
+              <input type="password" name="password" value={loginData.password} onChange={handleLoginChange} required placeholder=" " />
+              <label>Password</label>
+            </div>
+
+            <button type="submit" className="primary-btn" disabled={loading}>
+              {loading ? 'Authenticating...' : 'Sign In'}
+            </button>
+
+            {/* Mobile Only Toggle */}
+            <p className="mobile-toggle-text">
+              New to our marketplace? <span onClick={() => setIsRegister(true)}>Sign Up</span>
             </p>
-          </div>
+          </form>
+        </div>
 
-          <div className="auth-social-login">
-            <button type="button" className="auth-social-btn auth-google-btn">Continue with Google</button>
-            <button type="button" className="auth-social-btn auth-facebook-btn">Continue with Facebook</button>
-          </div>
+        {/* THE SLIDING BANNER OVERLAY */}
+        <div className="overlay-container">
+          <div 
+            className="overlay" 
+            style={{ 
+              backgroundImage: `url(${bannerImg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          >
+            {/* Dark gradient to ensure text is readable over the banner image */}
+            <div className="overlay-dark-fade"></div>
 
-          <div className="auth-divider">
-            <span className="auth-divider-text">or continue with email</span>
-          </div>
-
-          {!isRegister ? (
-            <form className="auth-form" onSubmit={handleLoginSubmit}>
-              <div className="auth-field-group">
-                <label className="auth-label" htmlFor="login-email">Email</label>
-                <input
-                  className="auth-input"
-                  type="email"
-                  id="login-email"
-                  name="email"
-                  placeholder="Enter your email"
-                  value={loginData.email}
-                  onChange={handleLoginChange}
-                  required
-                />
-              </div>
-
-              <div className="auth-field-group">
-                <label className="auth-label" htmlFor="login-password">Password</label>
-                <input
-                  className="auth-input"
-                  type="password"
-                  id="login-password"
-                  name="password"
-                  placeholder="Enter your password"
-                  value={loginData.password}
-                  onChange={handleLoginChange}
-                  required
-                />
-              </div>
-
-              {loginError ? <p className="auth-error-text">{loginError}</p> : null}
-
-              <div className="auth-actions">
-                <label className="auth-remember">
-                  <input className="auth-checkbox" type="checkbox" />
-                  <span>Remember me</span>
-                </label>
-                <button type="button" className="auth-forgot-btn" onClick={handleForgotPassword}>
-                  Forgot Password?
-                </button>
-              </div>
-
-              <button type="submit" className="auth-submit-btn">Login</button>
-            </form>
-          ) : (
-            <form className="auth-form" onSubmit={handleRegisterSubmit}>
-              <div className="auth-field-group">
-                <label className="auth-label" htmlFor="register-name">Full Name</label>
-                <input
-                  className="auth-input"
-                  type="text"
-                  id="register-name"
-                  name="name"
-                  placeholder="Enter your full name"
-                  value={registerData.name}
-                  onChange={handleRegisterChange}
-                  required
-                />
-              </div>
-
-              <div className="auth-field-group">
-                <label className="auth-label" htmlFor="register-email">Email</label>
-                <input
-                  className="auth-input"
-                  type="email"
-                  id="register-email"
-                  name="email"
-                  placeholder="Enter your email"
-                  value={registerData.email}
-                  onChange={handleRegisterChange}
-                  required
-                />
-              </div>
-
-              <div className="auth-field-group">
-                <label className="auth-label" htmlFor="register-password">Password</label>
-                <input
-                  className="auth-input"
-                  type="password"
-                  id="register-password"
-                  name="password"
-                  placeholder="Create a password"
-                  value={registerData.password}
-                  onChange={handleRegisterChange}
-                  required
-                />
-              </div>
-
-              <div className="auth-field-group">
-                <label className="auth-label" htmlFor="register-confirm-password">Confirm Password</label>
-                <input
-                  className={`auth-input ${!passwordsMatch && registerData.confirmPassword ? "auth-input-error" : ""}`}
-                  type="password"
-                  id="register-confirm-password"
-                  name="confirmPassword"
-                  placeholder="Confirm your password"
-                  value={registerData.confirmPassword}
-                  onChange={handleRegisterChange}
-                  required
-                />
-              </div>
-
-              {!passwordsMatch && registerData.confirmPassword ? <p className="auth-error-text">Passwords do not match</p> : null}
-              {registerError ? <p className="auth-error-text">{registerError}</p> : null}
-              {registerSuccess ? <p className="auth-success-text">{registerSuccess}</p> : null}
-
-              <button type="submit" className="auth-submit-btn" disabled={!isRegisterValid}>
-                Register
-              </button>
-            </form>
-          )}
-
-          <div className="auth-toggle">
-            <p className="auth-toggle-text">
-              {isRegister ? "Already have an account?" : "New user?"}{" "}
-              <button type="button" className="auth-toggle-btn" onClick={() => setIsRegister((prev) => !prev)}>
-                {isRegister ? "Login" : "Register"}
-              </button>
-            </p>
+            {/* This panel is visible when the user is on the Sign UP form, offering them a way back to Sign IN */}
+            <div className="overlay-panel overlay-left">
+              <h1>Already registered?</h1>
+              <p>Welcome back! Please sign in with your details to access your account.</p>
+              <button className="ghost-btn" onClick={() => setIsRegister(false)}>Sign In</button>
+            </div>
+            
+            {/* This panel is visible when the user is on the Sign IN form, offering them a way to Sign UP */}
+            <div className="overlay-panel overlay-right">
+              <h1>New to e CART?</h1>
+              <p>Hello there! Create an account today to start your shopping journey.</p>
+              <button className="ghost-btn" onClick={() => setIsRegister(true)}>Sign Up</button>
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   );

@@ -1,346 +1,190 @@
 /* =========================
-   PRODUCTS PAGE
+   PRODUCTS PAGE LAYOUT
 ========================= */
 
 .products-container {
-    width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 1.5rem;
+  width: 100%;
+  min-height: 100vh;
+  padding: clamp(1rem, 3vw, 2rem);
   
-    background: #f8fafc;
+  /* Modern Texture Setup */
+  background-color: #f8fafc;
+  background-image: radial-gradient(rgba(148, 163, 184, 0.35) 1.5px, transparent 1.5px);
+  background-size: 28px 28px; /* Spacing of the dots */
+}
+
+/* Restricts the width of the content but lets the background bleed infinitely */
+.products-content-wrapper {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* =========================
+   HERO BANNER
+========================= */
+
+.products-hero {
+  height: 350px;
+  border-radius: 24px;
+  margin-bottom: 3rem;
+  overflow: hidden;
+  position: relative;
+  background:
+    linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+    url("https://images.unsplash.com/photo-1441986300917-64674bd600d8");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.products-hero-content {
+  padding-left: 4rem;
+  color: white;
+}
+
+.products-hero-content h1 {
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  margin-bottom: 1rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.products-hero-content p {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  max-width: 600px;
+  line-height: 1.5;
+  color: #e2e8f0;
+}
+
+/* =========================
+   CATEGORY SECTIONS
+========================= */
+
+.category-group {
+  margin-bottom: 4rem;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.category-header h1 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  color: #0f172a;
+  text-transform: capitalize;
+  letter-spacing: -0.5px;
+}
+
+.category-toggle-btn {
+  border: none;
+  background: #0ea5a5;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.category-toggle-btn:hover {
+  background: #0b8282;
+  transform: translateY(-2px);
+}
+
+/* =========================
+   SCROLLABLE PRODUCT ROW (Default view)
+========================= */
+
+.products-row-container {
+  display: flex;
+  gap: 1.5rem;
+  
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 1rem 0.25rem;
+  
+  /* Native scrolling behavior */
+  scroll-behavior: smooth;
+  cursor: grab;
+  
+  /* CRITICAL FOR MOBILE: 
+     Allows native browser horizontal swipes and 
+     prevents locking up the vertical page scroll */
+  touch-action: pan-y pan-x;
+  
+  /* Hide scrollbar for clean UI */
+  scrollbar-width: none; 
+  -ms-overflow-style: none;
+}
+
+.products-row-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* When actively dragging with the mouse */
+.products-row-container:active {
+  cursor: grabbing;
+  scroll-behavior: auto; /* Disables smooth scroll for instant 1:1 drag tracking */
+}
+
+/* CRITICAL: Prevents accidental Link clicks or Add-to-cart clicks while dragging the row */
+.products-row-container.dragging * {
+  user-select: none;
+  pointer-events: none;
+}
+
+/* =========================
+   EXPANDED GRID VIEW (When "View All" is clicked)
+========================= */
+
+.products-grid {
+  display: grid;
+  /* Auto-fills the row with cards, maintaining their minimum width constraints */
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 0.25rem;
+}
+
+/* =========================
+   RESPONSIVE ADAPTATIONS
+========================= */
+
+@media (max-width: 768px) {
+  .products-container {
+    padding: 12px;
   }
-  
-  /* =========================
-     HERO BANNER
-  ========================= */
-  
   .products-hero {
-    height: 350px;
-  
-    border-radius: 24px;
-  
-    margin-bottom: 2rem;
-  
-    overflow: hidden;
-  
-    position: relative;
-  
-    background:
-      linear-gradient(
-        rgba(0,0,0,.35),
-        rgba(0,0,0,.35)
-      ),
-      url("https://images.unsplash.com/photo-1441986300917-64674bd600d8");
-  
-    background-size: cover;
-    background-position: center;
-  
-    display: flex;
-    align-items: center;
-  }
-  
-  .products-hero-content {
-    padding-left: 4rem;
-    color: white;
-  }
-  
-  .products-hero-content h1 {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-  }
-  
-  .products-hero-content p {
-    font-size: 1.2rem;
-    max-width: 600px;
-  }
-  
-  /* =========================
-     CATEGORY SECTIONS
-  ========================= */
-  
-  .category-group {
-    margin-bottom: 4rem;
-  }
-  
-  .category-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  
-    margin-bottom: 1.5rem;
-  }
-  
-  .category-header h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #111827;
-  
-    text-transform: capitalize;
-  }
-  
-  .category-toggle-btn {
-    border: none;
-  
-    background: #2563eb;
-    color: white;
-  
-    padding: 0.8rem 1.2rem;
-  
-    border-radius: 12px;
-  
-    cursor: pointer;
-  
-    font-weight: 600;
-  
-    transition: .3s;
-  }
-  
-  .category-toggle-btn:hover {
-    background: #1d4ed8;
-  }
-  
-  /* =========================
-     PRODUCT ROW
-  ========================= */
-  
-  .products-row-container {
-    display: flex;
-    gap: 1.5rem;
-  
-    overflow-x: auto;
-    overflow-y: hidden;
-  
-    padding: 1rem 0.25rem;
-  
-    scroll-behavior: smooth;
-  
-    cursor: grab;
-  }
-  
-  .products-row-container.dragging {
-    cursor: grabbing;
-  }
-  
-  .products-row-container::-webkit-scrollbar {
-    height: 8px;
-  }
-  
-  .products-row-container::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  .products-row-container::-webkit-scrollbar-thumb {
-    background: #d1d5db;
-    border-radius: 50px;
-  }
-  
-  /* =========================
-     PRODUCT CARD
-  ========================= */
-  
-  .product-card {
-    min-width: 280px;
-    width: 280px;
-  
-    background: white;
-  
-    border-radius: 20px;
-  
-    overflow: hidden;
-  
-    transition: all 0.3s ease;
-  
-    box-shadow:
-      0 1px 2px rgba(0,0,0,.04),
-      0 4px 12px rgba(0,0,0,.06);
-  
-    flex-shrink: 0;
-  }
-  
-  .product-card:hover {
-    transform: translateY(-6px);
-  
-    box-shadow:
-      0 10px 30px rgba(0,0,0,.12);
-  }
-  
-  .product-card-image {
     height: 250px;
-  
-    background: #f8fafc;
-  
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  
-    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+  .products-hero-content {
+    padding-left: 2rem;
+  }
+  .products-row-container {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .products-hero {
+    height: 200px;
+    border-radius: 16px;
+  }
+  .products-hero-content {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
   
-  .product-card-image img {
-    width: 100%;
-    height: 100%;
-  
-    object-fit: contain;
-  
-    transition: .3s;
+  /* Shrinks the grid for the compacted mobile card sizes */
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
   }
-  
-  .product-card:hover img {
-    transform: scale(1.05);
-  }
-  
-  .product-card-content {
-    padding: 1rem;
-  }
-  
-  .product-card-title {
-    font-size: 1rem;
-    font-weight: 600;
-  
-    color: #111827;
-  
-    margin-bottom: 0.6rem;
-  
-    line-height: 1.4;
-  
-    min-height: 44px;
-  }
-  
-  .product-card-brand {
-    color: #6b7280;
-    margin-bottom: 0.5rem;
-  }
-  
-  .product-card-rating {
-    color: #f59e0b;
-    font-weight: 600;
-  
-    margin-bottom: 0.75rem;
-  }
-  
-  .product-card-price {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  
-  .product-card-price h3 {
-    font-size: 1.4rem;
-    color: #111827;
-  }
-  
-  .discount-badge {
-    background: #dcfce7;
-  
-    color: #15803d;
-  
-    padding: 0.25rem 0.6rem;
-  
-    border-radius: 999px;
-  
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-  
-  /* =========================
-     ADD TO CART BUTTON
-  ========================= */
-  
-  .add-cart-btn {
-    width: 100%;
-  
-    margin-top: 1rem;
-  
-    padding: 0.9rem;
-  
-    border: none;
-  
-    background: #111827;
-    color: white;
-  
-    border-radius: 12px;
-  
-    cursor: pointer;
-  
-    font-weight: 600;
-  
-    transition: .3s;
-  }
-  
-  .add-cart-btn:hover {
-    background: #2563eb;
-  }
-  
-  /* =========================
-     LOADING
-  ========================= */
-  
-  .loading {
-    min-height: 60vh;
-  
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  
-    font-size: 1.4rem;
-    font-weight: 600;
-  }
-  
-  /* =========================
-     RESPONSIVE
-  ========================= */
-  
-  @media (max-width: 1200px) {
-    .products-hero-content h1 {
-      font-size: 3rem;
-    }
-  }
-  
-  @media (max-width: 768px) {
-  
-    .products-container {
-      padding: 1rem;
-    }
-  
-    .products-hero {
-      height: 250px;
-    }
-  
-    .products-hero-content {
-      padding-left: 2rem;
-    }
-  
-    .products-hero-content h1 {
-      font-size: 2rem;
-    }
-  
-    .category-header h1 {
-      font-size: 1.5rem;
-    }
-  
-    .product-card {
-      min-width: 240px;
-      width: 240px;
-    }
-  }
-  
-  @media (max-width: 480px) {
-  
-    .products-hero {
-      height: 220px;
-    }
-  
-    .products-hero-content h1 {
-      font-size: 1.7rem;
-    }
-  
-    .products-hero-content p {
-      font-size: .9rem;
-    }
-  
-    .product-card {
-      min-width: 210px;
-      width: 210px;
-    }
-  }
+}
