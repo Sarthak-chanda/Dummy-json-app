@@ -233,14 +233,14 @@
      UNIFIED MONOCHROME ACTIONS FOOTER BUTTONS
      ========================================================================== */
   
-  .profile-page .purchase-buttons {
+  .profile-page .profile-actions {
     display: flex;
     gap: 12px;
     margin-top: 8px;
   }
   
-  .profile-page .add-cart-btn,
-  .profile-page .buy-now-btn {
+  .profile-page .edit-profile-btn,
+  .profile-page .logout-btn {
     flex: 1;
     padding: 14px;
     border-radius: 8px;
@@ -251,24 +251,24 @@
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  .profile-page .add-cart-btn {
+  .profile-page .edit-profile-btn {
     background: #111111;
     color: #ffffff;
     border: 1px solid #111111;
   }
   
-  .profile-page .add-cart-btn:hover {
+  .profile-page .edit-profile-btn:hover {
     background: #262626;
     border-color: #262626;
   }
   
-  .profile-page .buy-now-btn {
+  .profile-page .logout-btn {
     background: #ffffff;
     color: #b12704; /* Clean premium delete accent matching urgent flags */
     border: 1px solid #d4d4d4;
   }
   
-  .profile-page .buy-now-btn:hover {
+  .profile-page .logout-btn:hover {
     background: #fdf2f2;
     border-color: #dc2626;
   }
@@ -299,7 +299,7 @@
       gap: 16px;
     }
   
-    .profile-page .purchase-buttons {
+    .profile-page .profile-actions {
       flex-direction: column;
     }
   }

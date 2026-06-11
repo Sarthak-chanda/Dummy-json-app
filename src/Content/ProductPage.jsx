@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./ProductPage.css";
 
-const ProductPage = ({ addToCart }) => {
+const ProductPage = ({ addToCart, cart = [], wishlist = [], toggleWishlist }) => {
   const { p_id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
@@ -27,6 +27,8 @@ const ProductPage = ({ addToCart }) => {
   );
 
   const originalPrice = (product.price / (1 - product.discountPercentage / 100)).toFixed(2);
+  const isAdded = cart.some(item => item.id === parseInt(p_id));
+  const isLiked = wishlist.some(item => item.id === parseInt(p_id));
 
   return (
     <div className="premium-product-page">
@@ -86,12 +88,25 @@ const ProductPage = ({ addToCart }) => {
             </div>
 
             <div className="pp-action-block">
-              <button className="pp-add-cart-btn" onClick={() => addToCart(product)}>
+              <button 
+                className={`pp-add-cart-btn ${isAdded ? 'added' : ''}`} 
+                onClick={() => addToCart(product)}
+              >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
                   <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
                 </svg>
-                Add to Cart
+                {isAdded ? "Added to Cart" : "Add to Cart"}
+              </button>
+
+              <button 
+                className={`pp-wishlist-btn ${isLiked ? 'active' : ''}`} 
+                onClick={() => toggleWishlist(product)}
+              >
+                <svg viewBox="0 0 24 24" width="20" height="20" fill={isLiked ? "#ff4d4f" : "none"} stroke={isLiked ? "#ff4d4f" : "currentColor"} strokeWidth="2.5">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                {isLiked ? "Wishlisted" : "Add to Wishlist"}
               </button>
             </div>
             

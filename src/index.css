@@ -1,0 +1,13 @@
+:root {
+  user-select: none;
+}
+
+/* Allow selection for informational text */
+h1, h2, h3, h4, h5, h6, p, span, b, strong, i, em, .user-email-text, .detail-value, .pp-description, .pp-review-text {
+  user-select: text;
+}
+
+/* Ensure inputs and buttons behave naturally */
+input, textarea, button {
+  user-select: auto;
+}

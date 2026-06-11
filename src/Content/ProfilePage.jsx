@@ -1,55 +1,45 @@
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../Login/supabaseClient";
 import "./ProfilePage.css";
 
-const demoUser = {
-  name: "Tapojay Sardar",
-  email: "tapojay@example.com",
-  role: "Full-Stack Developer",
-  location: "West Bengal, India",
-  bio: "Building robust architecture, fast applications, and interactive web interfaces.",
-  avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
-  stats: [
-    { label: "Projects", value: "14" },
-    { label: "Orders placed", value: "28" },
-    { label: "Reviews left", value: "9" },
-  ],
-  details: [
-    { label: "Username", value: "tapojay_dev" },
-    { label: "Account Tier", value: "Premium Member" },
-    { label: "Joined Date", value: "January 2026" }
-  ],
-  recentActivity: [
-    "Optimized search layout performance",
-    "Integrated core context state elements",
-    "Updated user authentication profiles",
-  ],
-};
-
-export default function Profile({ userdet }) {
+export default function Profile({ userdet, cart = [], wishlist = [] }) {
   const navigate = useNavigate();
   
-  // Resolve runtime profile data gracefully with fallback to demo user
-  const user = userdet?.id
-    ? {
-        name: `${userdet.firstName || ""} ${userdet.lastName || ""}`.trim() || userdet.username || "User",
-        email: userdet.email || "Not provided",
-        role: "Customer Account",
-        location: "India",
-        bio: "Managing active storefront preferences, checkout routes, and shopping history.",
-        avatar: userdet.image || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80",
-        stats: [
-          { label: "Orders placed", value: "3" },
-          { label: "Wishlist items", value: "12" },
-          { label: "Active Cart", value: "2" },
-        ],
-        details: [
-          { label: "Username", value: userdet.username || "N/A" },
-          { label: "Account Tier", value: "Standard Member" },
-          { label: "Joined Date", value: "Recent" }
-        ],
-        recentActivity: ["Logged in securely", "Added items to your cart"],
-      }
-    : demoUser;
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      localStorage.removeItem('userdet');
+      localStorage.removeItem('cart');
+      window.location.href = "/"; // Force reload to clear all states
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+  };
+
+  // Resolve runtime profile data gracefully
+  const user = {
+    name: `${userdet.firstName || ""} ${userdet.lastName || ""}`.trim() || userdet.username || "Marketplace User",
+    email: userdet.email || "Not provided",
+    role: "Verified Member",
+    location: "India",
+    bio: "Manage your shopping experience, track orders, and update your preferences.",
+    avatar: userdet.image || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80",
+    stats: [
+      { label: "Active Cart", value: cart.length },
+      { label: "Wishlist", value: wishlist.length },
+      { label: "Joined", value: "2026" },
+    ],
+    details: [
+      { label: "Full Name", value: `${userdet.firstName || ""} ${userdet.lastName || ""}`.trim() || userdet.username },
+      { label: "Email", value: userdet.email },
+      { label: "User ID", value: userdet.id.slice(0, 8) + '...' }
+    ],
+    recentActivity: [
+      "Secured session established",
+      "Synced cart with cloud storage",
+      "Profile information updated",
+    ],
+  };
 
   return (
     <div className="profile-page">
@@ -57,7 +47,7 @@ export default function Profile({ userdet }) {
         
         {/* Consistent Back Button Action */}
         <button className="back-btn" onClick={() => navigate(-1)}>
-          ← Back
+          ← Back to Shop
         </button>
 
         {/* Dashboard Grid Layout */}
@@ -75,7 +65,6 @@ export default function Profile({ userdet }) {
                 <span className="category-tag">{user.role}</span>
                 <h2>{user.name}</h2>
                 <p className="user-email-text">{user.email}</p>
-                <p className="user-location-text">{user.location}</p>
               </div>
             </div>
             
@@ -108,30 +97,17 @@ export default function Profile({ userdet }) {
               </div>
             </section>
 
-            {/* Live Operations Trace Log */}
-            <section className="section-card">
-              <h2>Recent Account Activity</h2>
-              <div className="info-grid">
-                {user.recentActivity.map((activity, idx) => (
-                  <div key={idx} className="activity-log-item">
-                    <h4>Operation #{idx + 1}</h4>
-                    <p>{activity}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
             {/* Dashboard Footer Control Group */}
-            <div className="purchase-buttons">
+            <div className="profile-actions">
               <button 
-                className="add-cart-btn" 
-                onClick={() => alert("Redirecting to Settings panel...")}
+                className="edit-profile-btn" 
+                onClick={() => alert("Profile editing will be available soon!")}
               >
-                Modify Settings
+                Edit Profile
               </button>
               <button 
-                className="buy-now-btn" 
-                onClick={() => navigate("/")}
+                className="logout-btn" 
+                onClick={handleLogout}
               >
                 Logout Account
               </button>

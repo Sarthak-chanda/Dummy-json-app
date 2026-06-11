@@ -2,7 +2,7 @@ import ProductCard from './ProductCard'
 import { useNavigate } from 'react-router-dom'
 import './SearchResult.css'
 
-const SearchResult = ({ searchResult, addToCart, clearSearch }) => {
+const SearchResult = ({ searchResult, addToCart, cart, wishlist, toggleWishlist, clearSearch }) => {
   const navigate = useNavigate()
 
   const handleBack = () => {
@@ -40,6 +40,9 @@ const SearchResult = ({ searchResult, addToCart, clearSearch }) => {
               key={product.id}
               product={product}
               addToCart={addToCart}
+              cart={cart}
+              wishlist={wishlist}
+              toggleWishlist={toggleWishlist}
             />
           ))}
         </div>

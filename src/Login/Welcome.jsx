@@ -70,7 +70,10 @@ const WelcomePage = ({ userdet, setUserdet, onContinue }) => {
         </div>
 
         <div className="welcome-actions">
-          <button className="primary-btn" onClick={onContinue}>
+          <button className="primary-btn" onClick={() => {
+            onContinue();
+            navigate('/');
+          }}>
             Enter E-Cart →
           </button>
           <button className="logout-link" onClick={handleLogout}>

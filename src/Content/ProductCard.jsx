@@ -2,14 +2,16 @@ import { useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./ProductCard.css";
 
-const ProductCard = ({ product, addToCart }) => {
+const ProductCard = ({ product, addToCart, cart = [], wishlist = [], toggleWishlist }) => {
   const {p_name ,p_id} = useParams();
   const navigate = useNavigate();
-  const [isAdded, setIsAdded] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
+  
+  const isAdded = cart.some(item => item.id === product.id);
+  const isLiked = wishlist.some(item => item.id === product.id);
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
+  const lastTap = useRef(0);
 
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
@@ -20,17 +22,25 @@ const ProductCard = ({ product, addToCart }) => {
 
   const handleCartClick = (e) => {
     e.preventDefault();
-    e.stopPropagation(); // Prevents the card click from firing when adding to cart
+    e.stopPropagation();
     addToCart(product);
-    setIsAdded(true);
     if ('vibrate' in navigator) navigator.vibrate(50);
-    setTimeout(() => setIsAdded(false), 2000);
   };
 
   const handleLikeClick = (e) => {
     e.preventDefault();
-    e.stopPropagation(); // Prevents the card click from firing when liking
-    setIsLiked(!isLiked);
+    e.stopPropagation();
+    toggleWishlist(product);
+  };
+
+  const handleDoubleTap = (e) => {
+    const now = Date.now();
+    const DOUBLE_PRESS_DELAY = 300;
+    if (now - lastTap.current < DOUBLE_PRESS_DELAY) {
+      toggleWishlist(product);
+      if ('vibrate' in navigator) navigator.vibrate([50, 30, 50]);
+    }
+    lastTap.current = now;
   };
 
   // --- Optimized Touch Logic ---
@@ -88,6 +98,7 @@ const ProductCard = ({ product, addToCart }) => {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onClick={handleDoubleTap}
       >
         {product.discountPercentage > 0 && (
           <div className="ec-pc-badge discount">

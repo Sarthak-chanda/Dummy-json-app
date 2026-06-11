@@ -3,7 +3,43 @@ import ProductCard from "./ProductCard";
 import "./Products.css";
 import Loading from "../Loading";
 
-const Products = ({ addToCart }) => {
+const banners = [
+  {
+    title: "Discover Amazing Products",
+    subtitle: "Shop electronics, beauty, fashion, groceries and more at the best prices. Everything you need in one place.",
+    bg: "#1e293b",
+    img: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80"
+  },
+  {
+    title: "Summer Sale is Live!",
+    subtitle: "Get up to 50% off on all seasonal fashion and accessories. Refresh your wardrobe today.",
+    bg: "#0f172a",
+    img: "https://images.unsplash.com/photo-1523381235208-25917a12c349?auto=format&fit=crop&w=1200&q=80"
+  },
+  {
+    title: "Next-Gen Tech",
+    subtitle: "Explore the latest smartphones, laptops, and gadgets from top brands. Stay ahead with innovation.",
+    bg: "#1e1b4b",
+    img: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+  }
+];
+
+const funzoneBanners = [
+  {
+    title: "🎮 Gamer's Haven",
+    subtitle: "Level up your setup with premium peripherals.",
+    img: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80",
+    bg: "#4338ca"
+  },
+  {
+    title: "💄 Beauty Bliss",
+    subtitle: "Glow up with our exclusive skincare collection.",
+    img: "https://images.unsplash.com/photo-1596462502278-27bfdc4033c8?auto=format&fit=crop&w=1200&q=80",
+    bg: "#db2777"
+  }
+];
+
+const Products = ({ addToCart, cart, wishlist, toggleWishlist }) => {
   const [products, setProducts] = useState(() => {
     try {
       const saved = sessionStorage.getItem("products");
@@ -14,6 +50,15 @@ const Products = ({ addToCart }) => {
   });
 
   const [loading, setLoading] = useState(products.length === 0);
+  const [currentBanner, setCurrentBanner] = useState(0);
+  const [showBannerText, setShowBannerText] = useState(true);
+
+  useEffect(() => {
+    const bannerInterval = setInterval(() => {
+      setCurrentBanner((prev) => (prev + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(bannerInterval);
+  }, []);
 
   useEffect(() => {
     if (products.length > 0) {
@@ -50,33 +95,74 @@ const Products = ({ addToCart }) => {
     return acc;
   }, {});
 
+  const hotDeals = products.filter(p => p.discountPercentage > 15).slice(0, 15);
+
   if (loading) {
     return <Loading />;
   }
+
+  const categoryEntries = Object.entries(groupedProducts);
 
   return (
     <div className="products-container">
       <div className="products-content-wrapper">
         
         {/* Hero Banner */}
-        <div className="products-hero">
-          <div className="products-hero-content">
-            <h1>Discover Amazing Products</h1>
-            <p>
-              Shop electronics, beauty, fashion, groceries and more at the best
-              prices.
-            </p>
+        <div className="products-hero" style={{ backgroundColor: banners[currentBanner].bg }}>
+          <img src={banners[currentBanner].img} alt="banner" className="hero-bg-img" />
+          <div className="hero-overlay" />
+          <div className={`products-hero-content ${showBannerText ? 'visible' : 'hidden'}`}>
+            <h1>{banners[currentBanner].title}</h1>
+            <p>{banners[currentBanner].subtitle}</p>
+            <button className="banner-cta">Shop Collection</button>
+          </div>
+          
+          <button className="banner-toggle-btn" onClick={() => setShowBannerText(!showBannerText)}>
+            {showBannerText ? "Hide Text" : "Show Text"}
+          </button>
+
+          <div className="banner-indicators">
+            {banners.map((_, i) => (
+              <span key={i} className={`indicator ${i === currentBanner ? 'active' : ''}`} />
+            ))}
           </div>
         </div>
 
-        {/* Categories Grid Rows */}
-        {Object.entries(groupedProducts).map(([category, categoryProducts]) => (
+        {/* Hot Deals Section */}
+        {hotDeals.length > 0 && (
           <CategoryRow
-            key={category}
-            category={category}
-            products={categoryProducts}
+            category="🔥 Hot Deals"
+            products={hotDeals}
             addToCart={addToCart}
+            cart={cart}
+            wishlist={wishlist}
+            toggleWishlist={toggleWishlist}
           />
+        )}
+
+        {/* Categories Grid Rows with Interstitial Banners */}
+        {categoryEntries.map(([category, categoryProducts], index) => (
+          <div key={category}>
+            <CategoryRow
+              category={category}
+              products={categoryProducts}
+              addToCart={addToCart}
+              cart={cart}
+              wishlist={wishlist}
+              toggleWishlist={toggleWishlist}
+            />
+            {/* Inject a funzone banner every 4 categories */}
+            {(index + 1) % 4 === 0 && funzoneBanners[Math.floor(index / 4) % funzoneBanners.length] && (
+              <div className="funzone-banner" style={{ backgroundColor: funzoneBanners[Math.floor(index / 4) % funzoneBanners.length].bg }}>
+                <img src={funzoneBanners[Math.floor(index / 4) % funzoneBanners.length].img} alt="funzone" />
+                <div className="funzone-content">
+                  <h2>{funzoneBanners[Math.floor(index / 4) % funzoneBanners.length].title}</h2>
+                  <p>{funzoneBanners[Math.floor(index / 4) % funzoneBanners.length].subtitle}</p>
+                  <button>Explore Funzone</button>
+                </div>
+              </div>
+            )}
+          </div>
         ))}
 
       </div>
@@ -84,7 +170,7 @@ const Products = ({ addToCart }) => {
   );
 };
 
-function CategoryRow({ category, products, addToCart }) {
+function CategoryRow({ category, products, addToCart, cart, wishlist, toggleWishlist }) {
   const [expanded, setExpanded] = useState(false);
   
   // Use Refs for tracking coordinates to prevent massive re-render spam
@@ -161,6 +247,9 @@ function CategoryRow({ category, products, addToCart }) {
             key={product.id}
             product={product}
             addToCart={addToCart}
+            cart={cart}
+            wishlist={wishlist}
+            toggleWishlist={toggleWishlist}
           />
         ))}
       </div>

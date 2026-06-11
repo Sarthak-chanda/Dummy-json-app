@@ -2,11 +2,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 const Cart = ({ cart_count , userdet }) => {
   const navigate = useNavigate()
-  const {userid , username} = useParams()
 
   return (
-    <div className="cart">
-      <button type="button" onClick={() => navigate(`/${userdet.id}/${userdet.username}/cart`)}>
+    <div className="cart nav-icon-wrapper">
+      <button type="button" className="nav-icon-btn" onClick={() => navigate(`/${userdet.emailPrefix}/cart`)}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -23,7 +22,7 @@ const Cart = ({ cart_count , userdet }) => {
           <circle cx="19" cy="21" r="1" />
           <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
         </svg>
-        <h4>{cart_count}</h4>
+        {cart_count > 0 && <span className="nav-icon-badge">{cart_count}</span>}
       </button>
     </div>
   )
