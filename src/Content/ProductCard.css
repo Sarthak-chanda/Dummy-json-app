@@ -29,7 +29,7 @@
     transition: box-shadow 0.3s ease, transform 0.3s ease;
     display: flex;
     flex-direction: column;
-    border: 1px solid #f1f5f9;
+    border: 1px solid #d1d5db;
     flex-shrink: 0; 
     cursor: pointer; /* Makes the entire card show the pointer cursor */       
   }

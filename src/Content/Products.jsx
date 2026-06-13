@@ -6,37 +6,28 @@ import Loading from "../Loading";
 
 const banners = [
   {
-    title: "Discover Amazing Products",
-    subtitle: "Shop electronics, beauty, fashion, and more.",
-    bg: "#020617",
-    img: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1600&q=80"
+    title: "New Season Arrivals",
+    subtitle: "Discover the latest trends in modern fashion and lifestyle essentials.",
+    bg: "#1e293b",
+    img: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1600&q=80",
+    gradient: "rgba(15, 23, 42, 0.95)",
+    cta: "Explore Now"
   },
   {
     title: "Summer Sale is Live!",
-    subtitle: "Get up to 50% off on all seasonal fashion.",
+    subtitle: "Get up to 50% off on all seasonal fashion and accessories.",
     bg: "#0c0a09",
-    img: "https://images.pexels.com/photos/5868272/pexels-photo-5868272.jpeg?auto=compress&cs=tinysrgb&w=1600"
+    img: "https://images.pexels.com/photos/5868272/pexels-photo-5868272.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    gradient: "rgba(69, 10, 10, 0.95)",
+    cta: "Get the Deal"
   },
   {
     title: "Next-Gen Tech",
-    subtitle: "Explore the latest smartphones and gadgets.",
+    subtitle: "Explore the latest smartphones and gadgets from top brands.",
     bg: "#020617",
-    img: "https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=1600&q=80"
-  }
-];
-
-const funzoneBanners = [
-  {
-    title: "🎮 Gamer's Haven",
-    subtitle: "Level up your setup with premium peripherals.",
-    img: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80",
-    bg: "#4338ca"
-  },
-  {
-    title: "💄 Beauty Bliss",
-    subtitle: "Glow up with our exclusive skincare collection.",
-    img: "https://images.unsplash.com/photo-1596462502278-27bfdc4033c8?auto=format&fit=crop&w=1200&q=80",
-    bg: "#db2777"
+    img: "https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=1600&q=80",
+    gradient: "rgba(2, 6, 23, 0.95)",
+    cta: "Upgrade Now"
   }
 ];
 
@@ -104,22 +95,141 @@ const Products = ({ addToCart, cart, wishlist, toggleWishlist }) => {
 
   const categoryEntries = Object.entries(groupedProducts);
 
+  // Helper to render diverse interstitial banners without repetition
+  const renderInterstitial = (index) => {
+    const variant = Math.floor(index / 5) % 4; 
+    
+    switch(variant) {
+      case 0: {
+        const data = {
+          title: "Highly Rated",
+          subtitle: "Top products loved by our community with 4.5+ stars.",
+          img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80",
+          gradient: "rgba(15, 23, 42, 0.95)"
+        };
+        return (
+          <div className="interstitial-banner rating">
+            <img src={data.img} alt="highly rated" className="banner-bg-img" />
+            <div className="banner-overlay" style={{ background: `linear-gradient(90deg, ${data.gradient} 0%, rgba(15, 23, 42, 0.4) 100%)` }} />
+            <div className="banner-inner-content">
+              <div className="banner-text-area">
+                <h2 className="banner-main-title">{data.title}</h2>
+                <p className="banner-sub-text">{data.subtitle}</p>
+              </div>
+              <div className="banner-cta-area">
+                <button className="banner-cta" onClick={() => navigate(`/offer/${encodeURIComponent(data.title)}`, { state: { banner: data } })}>
+                  View Best Sellers
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+      case 1: {
+        const data = {
+          title: "Budget Friendly",
+          subtitle: "Find amazing value products at every price point.",
+          img: "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&fit=crop&w=1200&q=80",
+          gradient: "rgba(255, 255, 255, 0.95)"
+        };
+        return (
+          <div className="interstitial-banner filter">
+            <img src={data.img} alt="budget friendly" className="banner-bg-img" />
+            <div className="banner-overlay" style={{ background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.5) 40%, rgba(255, 255, 255, 0) 100%)' }} />
+            <div className="banner-inner-content">
+              <div className="banner-text-area">
+                <h2 className="banner-main-title">{data.title}</h2>
+                <p className="banner-sub-text">{data.subtitle}</p>
+              </div>
+              <div className="banner-cta-area price-pills">
+                <button className="pill-btn" onClick={() => navigate(`/offer/${encodeURIComponent(data.title)}`, { state: { banner: data } })}>Under $20</button>
+                <button className="pill-btn" onClick={() => navigate(`/offer/${encodeURIComponent(data.title)}`, { state: { banner: data } })}>$20 - $50</button>
+                <button className="pill-btn" onClick={() => navigate(`/offer/${encodeURIComponent(data.title)}`, { state: { banner: data } })}>$50 - $100</button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+      case 2: {
+        const data = {
+          title: "Exclusive Perks",
+          subtitle: "Join our rewards program for early access to sales.",
+          img: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1200&q=80",
+          gradient: "rgba(2, 6, 23, 0.95)"
+        };
+        return (
+          <div className="interstitial-banner perks">
+            <img src={data.img} alt="exclusive perks" className="banner-bg-img" />
+            <div className="banner-overlay" style={{ background: `linear-gradient(90deg, ${data.gradient} 0%, rgba(2, 6, 23, 0.4) 100%)` }} />
+            <div className="banner-inner-content">
+              <div className="banner-text-area">
+                <h2 className="banner-main-title">{data.title}</h2>
+                <p className="banner-sub-text">{data.subtitle}</p>
+              </div>
+              <div className="banner-cta-area">
+                <button className="banner-cta" onClick={() => navigate(`/offer/${encodeURIComponent(data.title)}`, { state: { banner: data } })}>
+                  Learn More
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+      case 3: {
+        const data = {
+          title: "Self-Care Sunday",
+          subtitle: "Premium beauty and wellness essentials for your routine.",
+          img: "https://images.unsplash.com/photo-1540555700478-4be289fbecee?auto=format&fit=crop&w=1200&q=80",
+          gradient: "rgba(17, 24, 39, 0.95)"
+        };
+        return (
+          <div className="interstitial-banner wellness">
+            <img src={data.img} alt="self care" className="banner-bg-img" />
+            <div className="banner-overlay" style={{ background: `linear-gradient(90deg, ${data.gradient} 0%, rgba(17, 24, 39, 0.4) 100%)` }} />
+            <div className="banner-inner-content">
+              <div className="banner-text-area">
+                <h2 className="banner-main-title">{data.title}</h2>
+                <p className="banner-sub-text">{data.subtitle}</p>
+              </div>
+              <div className="banner-cta-area">
+                <button className="banner-cta" onClick={() => navigate(`/offer/${encodeURIComponent(data.title)}`, { state: { banner: data } })}>
+                  Shop Beauty
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+      default: return null;
+    }
+  };
+
   return (
     <div className="products-container">
       
-      {/* Hero Banner - Full Width with 2-Row Layout */}
+      {/* Hero Banner - FULL WIDTH DEMO STYLE */}
       <div className="products-hero" style={{ backgroundColor: banners[currentBanner].bg }}>
         <img src={banners[currentBanner].img} alt="banner" className="hero-bg-img" />
-        <div className="hero-overlay" />
+        <div 
+          className="hero-overlay" 
+          style={{ 
+            background: `linear-gradient(90deg, ${banners[currentBanner].gradient} 0%, rgba(15, 23, 42, 0.6) 35%, rgba(15, 23, 42, 0.1) 100%)` 
+          }} 
+        />
         <div className="hero-inner-content">
-          <h1 className="banner-main-title">{banners[currentBanner].title}</h1>
-          
-          <div className="banner-bottom-row">
+          <div className="banner-text-area">
+            <h1 className="banner-main-title">{banners[currentBanner].title}</h1>
             <p className="banner-sub-text">{banners[currentBanner].subtitle}</p>
-            <button className="banner-cta" onClick={() => navigate("/offers")}>
-              Explore
+          </div>
+
+          <div className="banner-cta-area">
+            <button className="banner-cta" onClick={() => navigate(`/offer/${encodeURIComponent(banners[currentBanner].title)}`, { state: { banner: banners[currentBanner] } })}>
+              {banners[currentBanner].cta}
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                <polyline points="9 18 15 12 9 6"/>
               </svg>
             </button>
           </div>
@@ -160,36 +270,7 @@ const Products = ({ addToCart, cart, wishlist, toggleWishlist }) => {
             {/* Inject dynamic interstitial sections every 5-6 categories */}
             {(index + 1) % 5 === 0 && (
               <div className="interstitial-section">
-                {Math.floor(index / 5) % 3 === 0 ? (
-                  <div className="interstitial-rating-banner">
-                    <div className="rating-info">
-                      <h2>Highly Rated</h2>
-                      <p>Top products loved by our community with 4.5+ stars.</p>
-                      <button onClick={() => navigate("/offers")}>View Best Sellers</button>
-                    </div>
-                    <div className="rating-stars">
-                      {"★".repeat(5)}
-                    </div>
-                  </div>
-                ) : Math.floor(index / 5) % 3 === 1 ? (
-                  <div className="interstitial-price-filter">
-                    <h3>Budget Friendly?</h3>
-                    <div className="price-pills">
-                      <button onClick={() => navigate("/offers")}>Under $20</button>
-                      <button onClick={() => navigate("/offers")}>$20 - $50</button>
-                      <button onClick={() => navigate("/offers")}>$50 - $100</button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="funzone-banner alternative">
-                    <img src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&fit=crop&w=800&q=80" alt="offers" />
-                    <div className="funzone-content">
-                      <h2>Exclusive Perks</h2>
-                      <p>Join our rewards program for early access to sales.</p>
-                      <button onClick={() => navigate("/offers")}>Learn More</button>
-                    </div>
-                  </div>
-                )}
+                {renderInterstitial(index)}
               </div>
             )}
           </div>
@@ -202,13 +283,10 @@ const Products = ({ addToCart, cart, wishlist, toggleWishlist }) => {
 function CategoryRow({ category, products, addToCart, cart, wishlist, toggleWishlist }) {
   const [expanded, setExpanded] = useState(false);
   
-  // Use Refs for tracking coordinates to prevent massive re-render spam
   const rowRef = useRef(null);
   const isDown = useRef(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
-  
-  // Only trigger state when we are SURE it's a drag, not a click
   const [isDragging, setIsDragging] = useState(false); 
 
   const displayedProducts = expanded ? products : products.slice(0, 12);
@@ -227,7 +305,6 @@ function CategoryRow({ category, products, addToCart, cart, wishlist, toggleWish
 
   const handleMouseUp = () => {
     isDown.current = false;
-    // Tiny timeout ensures the click event has time to fire before pointer-events are restored
     setTimeout(() => setIsDragging(false), 50);
   };
 
@@ -238,12 +315,10 @@ function CategoryRow({ category, products, addToCart, cart, wishlist, toggleWish
     const x = e.pageX - rowRef.current.offsetLeft;
     const walk = (x - startX.current);
     
-    // DRAG THRESHOLD: Only block clicks if the mouse actually moves more than 5 pixels
     if (Math.abs(walk) > 5 && !isDragging) {
       setIsDragging(true);
     }
     
-    // If we passed the threshold, scroll the container
     if (isDragging) {
       rowRef.current.scrollLeft = scrollLeft.current - walk * 2;
     }

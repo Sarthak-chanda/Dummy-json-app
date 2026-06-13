@@ -14,17 +14,16 @@
 .products-content-wrapper {
   max-width: 1600px;
   margin: 0 auto;
-  padding: clamp(1rem, 3vw, 2rem);
+  padding: 0 1.5rem 5rem 1.5rem;
 }
 
 /* =========================
-   HERO BANNER (Full Width)
+   HERO BANNER (Full Width Demo Style)
 ========================= */
 
 .products-hero {
-  width: 100%;
-  height: 380px; 
-  min-height: 380px;
+  width: 100%; /* FORCED FULL WIDTH */
+  height: clamp(350px, 50vh, 500px); 
   margin-bottom: 2rem;
   overflow: hidden;
   position: relative;
@@ -33,7 +32,7 @@
   transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.hero-bg-img {
+.hero-bg-img, .banner-bg-img {
   position: absolute;
   top: 0;
   left: 0;
@@ -43,231 +42,292 @@
   z-index: 1;
 }
 
-.hero-overlay {
+.hero-overlay, .banner-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, 
-    rgba(15, 23, 42, 0.9) 0%, 
-    rgba(15, 23, 42, 0.6) 40%, 
-    rgba(15, 23, 42, 0.1) 100%);
   z-index: 2;
 }
 
-.hero-inner-content {
+.hero-inner-content, .banner-inner-content {
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 0 4rem;
+  padding: 0 4rem 4rem 4rem; 
   position: relative;
   z-index: 5;
   height: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: flex-end; 
+}
+
+.banner-text-area {
+  text-align: left;
+  max-width: 750px;
 }
 
 .banner-main-title {
   color: white;
-  font-size: clamp(2rem, 5vw, 3.8rem);
-  margin-bottom: 1.5rem;
+  font-size: clamp(1.8rem, 6vw, 4rem); 
+  margin-bottom: 0.8rem;
   font-weight: 900;
-  letter-spacing: -1.5px;
-  line-height: 1.1;
-  text-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  text-align: left;
-}
-
-.banner-bottom-row {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 1.5rem;
-  justify-content: flex-start;
+  letter-spacing: -2px;
+  line-height: 1;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
 .banner-sub-text {
-  font-size: clamp(0.9rem, 1.5vw, 1.1rem);
-  color: #cbd5e1;
+  font-size: clamp(0.85rem, 2vw, 1.1rem); 
+  color: rgba(255, 255, 255, 0.95);
   max-width: 500px;
-  opacity: 0.9;
+  margin: 0 0 2rem 0;
   line-height: 1.4;
-  margin: 0;
-  text-align: left;
+  font-weight: 500;
+}
+
+.banner-cta-area {
+  flex-shrink: 0;
 }
 
 .banner-cta {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 18px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 30px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  gap: 10px;
+  padding: 12px 28px;
+  background: #ffffff;
+  color: #0f172a;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
 .banner-cta:hover {
+  transform: translateY(-5px) scale(1.02);
   background: #34a853;
-  border-color: #34a853;
-  transform: translateY(-2px);
+  color: white;
 }
 
 .banner-indicators-bottom {
   position: absolute;
-  bottom: 30px;
+  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 12px;
+  gap: 10px;
   z-index: 10;
 }
 
 .indicator {
   width: 30px;
   height: 4px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 2px;
   transition: all 0.4s ease;
 }
 
 .indicator.active {
   background: #ffffff;
-  width: 50px;
+  width: 60px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
 /* =========================
-   INTERSTITIAL SECTIONS
+   INTERSTITIAL BANNERS (Unified Design)
 ========================= */
 
 .interstitial-section {
-  margin: 3rem 0;
+  margin: 4rem 0;
   width: 100%;
 }
 
-.interstitial-rating-banner {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  border-radius: 24px;
-  padding: 3rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: white;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+.interstitial-banner {
+  width: 100%;
+  height: 350px;
+  border-radius: 32px;
   overflow: hidden;
   position: relative;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
 }
 
-.interstitial-rating-banner .rating-info h2 {
-  font-size: 2.2rem;
-  font-weight: 800;
-  margin-bottom: 0.5rem;
+.interstitial-banner.filter .banner-main-title {
+  color: #0f172a;
+  text-shadow: none;
 }
 
-.interstitial-rating-banner .rating-info p {
-  color: #94a3b8;
-  margin-bottom: 1.5rem;
-  max-width: 400px;
-}
-
-.interstitial-rating-banner .rating-info button {
-  padding: 10px 20px;
-  background: #34a853;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.rating-stars {
-  font-size: 4rem;
-  color: #fbbf24;
-  letter-spacing: 5px;
-  opacity: 0.5;
-  transform: rotate(-10deg);
-}
-
-.interstitial-price-filter {
-  background: #ffffff;
-  border: 2px solid #f1f5f9;
-  border-radius: 24px;
-  padding: 2.5rem;
-  text-align: center;
-}
-
-.interstitial-price-filter h3 {
-  font-size: 1.4rem;
-  color: #1e293b;
-  margin-bottom: 1.5rem;
-  font-weight: 800;
+.interstitial-banner.filter .banner-sub-text {
+  color: #475569;
 }
 
 .price-pills {
   display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
+  gap: 0.6rem;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0.5rem 0;
+  -webkit-overflow-scrolling: touch;
 }
 
-.price-pills button {
-  padding: 10px 24px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  color: #475569;
+.price-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.pill-btn {
+  padding: 10px 20px;
+  background: #0f172a;
+  border: none;
+  border-radius: 50px;
+  color: white;
   font-weight: 700;
+  font-size: 0.85rem; 
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.price-pills button:hover {
+.pill-btn:hover {
   background: #34a853;
-  color: white;
-  border-color: #34a853;
   transform: translateY(-2px);
 }
 
-.funzone-banner.alternative {
-  background: #020617;
-  height: 320px;
-  border-radius: 24px;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  padding: 0 4rem;
+/* =========================
+   UNIVERSAL MOBILE RESPONSIVENESS
+========================= */
+
+@media (max-width: 768px) {
+  .hero-inner-content, .banner-inner-content {
+    flex-direction: column !important;
+    justify-content: flex-end !important; /* FORCED BOTTOM */
+    align-items: flex-start !important;
+    padding: 2rem 1.5rem 5rem 1.5rem !important; 
+    gap: 1.2rem !important;
+    height: 100% !important;
+  }
+
+  .banner-text-area {
+    margin: 0 !important;
+    width: 100% !important;
+    text-align: left !important;
+  }
+
+  .banner-main-title {
+    font-size: 2.2rem !important;
+    letter-spacing: -1px !important;
+    margin-bottom: 0.6rem !important;
+    text-align: left !important;
+  }
+
+  .banner-sub-text {
+    font-size: 0.95rem !important;
+    margin-bottom: 0 !important;
+    max-width: 100% !important;
+    text-align: left !important;
+  }
+
+  .banner-cta-area {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .price-pills {
+    width: calc(100% + 3rem) !important;
+    margin-left: -1.5rem !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    margin-bottom: -1rem !important; 
+  }
+
+  .pill-btn {
+    padding: 10px 18px !important; 
+    font-size: 0.8rem !important;
+  }
 }
 
-.funzone-banner img {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 50%;
-  height: 100%;
-  object-fit: cover;
-  mask-image: linear-gradient(to left, rgba(0,0,0,1) 60%, rgba(0,0,0,0));
-  -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 60%, rgba(0,0,0,0));
+@media (max-width: 480px) {
+  .products-hero, .interstitial-banner {
+    height: 420px !important;
+    min-height: 420px !important;
+  }
+  
+  .hero-inner-content, .banner-inner-content {
+    padding: 1.5rem 1.2rem 4.5rem 1.2rem !important;
+    gap: 0.8rem !important;
+  }
+
+  .banner-main-title {
+    font-size: 1.8rem !important;
+    margin-bottom: 0.4rem !important;
+  }
+
+  .banner-sub-text {
+    font-size: 0.85rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .price-pills {
+    width: calc(100% + 2.4rem) !important;
+    margin-left: -1.2rem !important;
+    padding-left: 1.2rem !important;
+    padding-right: 1.2rem !important;
+  }
+
+  .pill-btn {
+    padding: 8px 16px !important;
+    font-size: 0.75rem !important;
+  }
+  
+  .banner-cta {
+    padding: 10px 20px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .banner-indicators-bottom {
+    bottom: 16px !important; 
+  }
 }
 
-.funzone-content {
-  position: relative;
-  z-index: 5;
-  color: white;
-  max-width: 500px;
+/* FIX FOR 320PX MOBILE SCREENS */
+@media (max-width: 330px) {
+  .products-hero, .interstitial-banner {
+    min-height: 380px !important;
+  }
+
+  .hero-inner-content, .banner-inner-content {
+    padding: 0 1rem 4rem 1rem !important;
+    gap: 0.6rem !important;
+  }
+
+  .banner-main-title {
+    font-size: 1.5rem !important;
+  }
+
+  .banner-sub-text {
+    font-size: 0.75rem !important;
+    -webkit-line-clamp: 3 !important;
+  }
+
+  .banner-cta {
+    padding: 8px 16px !important;
+  }
 }
 
 /* =========================
-   CATEGORY SECTIONS
+   REST OF THE PAGE
 ========================= */
 
 .category-group {
@@ -306,10 +366,6 @@
   transform: translateY(-2px);
 }
 
-/* =========================
-   SCROLLABLE PRODUCT ROW
-========================= */
-
 .products-row-container {
   display: flex;
   gap: 1.5rem;
@@ -327,19 +383,10 @@
   display: none;
 }
 
-.products-row-container:active {
-  cursor: grabbing;
-  scroll-behavior: auto;
-}
-
 .products-row-container.dragging * {
   user-select: none;
   pointer-events: none;
 }
-
-/* =========================
-   EXPANDED GRID VIEW
-========================= */
 
 .products-grid {
   display: grid;
@@ -347,77 +394,4 @@
   gap: 1.5rem;
   padding: 1rem 0.25rem;
   justify-content: center; 
-}
-
-/* =========================
-   RESPONSIVE ADAPTATIONS
-========================= */
-
-@media (max-width: 1024px) {
-  .hero-inner-content {
-    padding: 0 3rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .products-hero {
-    height: 380px;
-    min-height: 380px;
-  }
-  
-  .hero-overlay {
-    background: linear-gradient(180deg, 
-      rgba(15, 23, 42, 0.85) 0%, 
-      rgba(15, 23, 42, 0.95) 100%);
-  }
-
-  .hero-inner-content {
-    padding: 2rem;
-    text-align: left;
-  }
-
-  .banner-main-title {
-    font-size: 2.8rem;
-    margin-bottom: 1rem;
-  }
-
-  .banner-bottom-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .funzone-banner {
-    height: auto;
-    flex-direction: column;
-    padding: 3rem 2rem;
-    text-align: center;
-  }
-
-  .funzone-banner img {
-    position: relative;
-    width: 100%;
-    height: 200px;
-    mask-image: none;
-    -webkit-mask-image: none;
-    border-radius: 16px;
-    margin-top: 2rem;
-    order: 2;
-  }
-}
-
-@media (max-width: 480px) {
-  .products-hero {
-    height: 340px;
-    min-height: 340px;
-  }
-
-  .banner-main-title {
-    font-size: 2.2rem;
-  }
-
-  .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1rem;
-  }
 }

@@ -1,15 +1,25 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import ProductCard from "./ProductCard";
 import "./OfferPage.css";
 import Loading from "../Loading";
 
 const OfferPage = ({ addToCart, cart, wishlist, toggleWishlist }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { offerValue } = useParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [showAllCategories, setShowAllCategories] = useState(false);
+
+  // Retrieve the passed banner data from location state, or use a default based on the URL parameter
+  const activeBanner = location.state?.banner || {
+    title: offerValue ? decodeURIComponent(offerValue) : "Unlock Extraordinary Savings",
+    subtitle: "Curated deals across all categories. Up to 40% off for a limited time.",
+    img: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1600&q=80",
+    gradient: "rgba(15, 23, 42, 0.95)"
+  };
 
   useEffect(() => {
     const fetchOffers = async () => {
@@ -50,13 +60,23 @@ const OfferPage = ({ addToCart, cart, wishlist, toggleWishlist }) => {
 
   return (
     <div className="offer-page-container">
-      {/* Top Banner - Clickable */}
+      {/* Top Banner - Sync with Home Page Selection */}
       <div className="offer-hero-banner" onClick={() => navigate("/")}>
-        <div className="offer-hero-overlay" />
+        <img src={activeBanner.img} alt="offer banner" className="hero-bg-img" />
+        <div 
+          className="offer-hero-overlay" 
+          style={{ 
+            background: `linear-gradient(90deg, ${activeBanner.gradient} 0%, rgba(15, 23, 42, 0.6) 35%, rgba(15, 23, 42, 0.1) 100%)` 
+          }} 
+        />
         <div className="offer-hero-content">
-          <div className="offer-badge">Flash Sale</div>
-          <h1>Unlock Extraordinary Savings</h1>
-          <p>Curated deals across all categories. Up to 40% off for a limited time.</p>
+          <div className="banner-text-area">
+            <div className="offer-badge">Flash Sale</div>
+            <h1>{activeBanner.title}</h1>
+            <p>{activeBanner.subtitle}</p>
+          </div>
+          
+          {/* Back to Home removed as requested */}
         </div>
       </div>
 

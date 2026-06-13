@@ -240,7 +240,7 @@ const App = () => {
 
       <Routes>
         <Route path="/" element={<Products addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
-        <Route path="/offers" element={<OfferPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+        <Route path="/offer/:offerValue" element={<OfferPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
         <Route path="/category/:categoryName" element={<CategoryPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
         <Route path="/home" element={<Navigate to="/" replace />} />
         <Route

@@ -4,17 +4,26 @@
   background-color: #f8fafc;
 }
 
+/* FULL WIDTH SYNCED BANNER */
 .offer-hero-banner {
   width: 100%;
-  height: 350px;
+  height: clamp(300px, 40vh, 450px);
   position: relative;
   overflow: hidden;
   cursor: pointer;
   display: flex;
   align-items: center;
-  background-image: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1600&q=80');
-  background-size: cover;
-  background-position: center;
+  transition: all 0.4s ease;
+}
+
+.offer-hero-banner .hero-bg-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
 }
 
 .offer-hero-overlay {
@@ -23,16 +32,21 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.4) 100%);
-  z-index: 1;
+  z-index: 2;
 }
 
 .offer-hero-content {
   position: relative;
   z-index: 5;
-  padding: 0 4rem;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 4rem 4rem 4rem;
   color: white;
-  max-width: 800px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 100%;
 }
 
 .offer-badge {
@@ -40,31 +54,30 @@
   color: white;
   display: inline-block;
   padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 }
 
 .offer-hero-content h1 {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(2rem, 5vw, 3.2rem);
   font-weight: 900;
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.5rem;
   letter-spacing: -1.5px;
+  line-height: 1.1;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
 .offer-hero-content p {
-  font-size: 1.1rem;
-  color: #cbd5e1;
-  margin-bottom: 0;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  color: rgba(255, 255, 255, 0.95);
+  max-width: 500px;
+  line-height: 1.4;
 }
 
-/* =========================
-   MODERN CATEGORY BAR
-========================= */
-
+/* CATEGORY BAR */
 .offer-filter-wrapper {
   max-width: 1400px;
   margin: 2rem auto;
@@ -73,119 +86,85 @@
 
 .offer-category-bar {
   display: flex;
-  flex-wrap: nowrap; /* Force 1 row */
+  flex-wrap: nowrap;
   gap: 12px;
   overflow-x: auto;
   padding-bottom: 10px;
-  scrollbar-width: none; 
-  -ms-overflow-style: none;
-  align-items: center;
+  scrollbar-width: none;
 }
 
 .offer-category-bar::-webkit-scrollbar {
   display: none;
 }
 
-/* Keep it a single row even when expanded (more items shown in row) */
-.offer-category-bar.expanded {
-  flex-wrap: nowrap; 
-}
-
 .cat-pill {
-  padding: 10px 20px;
-  border-radius: 30px;
-  background: #ffffff;
+  padding: 10px 22px;
+  border-radius: 50px;
+  background: white;
   border: 1px solid #e2e8f0;
   color: #475569;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.cat-pill:hover {
-  border-color: #34a853;
-  color: #34a853;
-}
-
-.cat-pill.active {
-  background: #34a853;
-  border-color: #34a853;
-  color: white;
-  box-shadow: 0 4px 12px rgba(52, 168, 83, 0.2);
-}
-
-.cat-show-more {
-  background: transparent;
-  border: 1px dashed #cbd5e1;
-  color: #64748b;
-  padding: 10px 20px;
-  border-radius: 30px;
-  font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s ease;
-  flex-shrink: 0;
 }
 
-.cat-show-more:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-  border-color: #94a3b8;
+.cat-pill.active {
+  background: #0f172a;
+  color: white;
+  border-color: #0f172a;
 }
 
-/* =========================
-   OFFER GRID - CENTRED CARDS
-========================= */
-
+/* GRID - CENTERED CARDS */
 .offer-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 2rem;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 0 2rem 4rem 2rem;
-  justify-content: center; /* Center cards */
-  justify-items: center; /* Center items in track */
-}
-
-.no-offers {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 5rem 2rem;
-  background: white;
-  border-radius: 24px;
-  border: 2px dashed #e2e8f0;
+  justify-content: center; /* Center cards horizontally */
 }
 
 @media (max-width: 768px) {
   .offer-hero-banner {
-    height: 300px;
+    height: 400px;
   }
+  
   .offer-hero-content {
-    padding: 0 2rem;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 2rem 2rem 4.5rem 2rem;
   }
+
+  .offer-hero-content h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .offer-hero-content p {
+    font-size: 0.95rem;
+  }
+
   .offer-grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    padding: 0 1rem 3rem 1rem;
+    /* Keep cards at their natural size but centered */
+    grid-template-columns: repeat(auto-fill, 280px);
+    justify-content: center;
     gap: 1.5rem;
-  }
-  .offer-filter-wrapper {
-    padding: 0 1rem;
-    margin: 1.5rem auto;
+    padding: 0 1.5rem 4rem 1.5rem;
   }
 }
 
 @media (max-width: 480px) {
+  .offer-grid {
+    grid-template-columns: repeat(auto-fill, 280px); /* Strictly maintain card size */
+    justify-content: center;
+    gap: 1.2rem;
+    padding: 0 1rem 4rem 1rem;
+  }
+  
   .offer-hero-content h1 {
     font-size: 1.8rem;
-  }
-  .offer-hero-content p {
-    font-size: 0.95rem;
-  }
-  .offer-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   }
 }

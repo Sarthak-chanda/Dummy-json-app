@@ -4,8 +4,9 @@ import "./ProductCard.css";
 
 const ProductCard = ({ product, addToCart, cart = [], wishlist = [], toggleWishlist }) => {
   const navigate = useNavigate();
-  // State for the dynamically sampled center color
+  // State for the dynamically sampled dominant color
   const [accentColor, setAccentColor] = useState("rgba(0, 0, 0, 0.05)");
+  const [solidAccent, setSolidAccent] = useState("#d1d5db");
   
   const isAdded = cart.some(item => item.id === product.id);
   const isLiked = wishlist.some(item => item.id === product.id);
@@ -63,12 +64,15 @@ const ProductCard = ({ product, addToCart, cart = [], wishlist = [], toggleWishl
         // If no dominant color found (e.g. all white image), fallback to center sample
         if (maxCount === 0) {
           const pixel = ctx.getImageData(size/2, size/2, 1, 1).data;
-          setAccentColor(`rgba(${pixel[0]}, ${pixel[1]}, ${pixel[2]}, 0.2)`);
+          setAccentColor(`rgba(${pixel[0]}, ${pixel[1]}, ${pixel[2]}, 0.1)`);
+          setSolidAccent(`rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`);
         } else {
-          setAccentColor(`rgba(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]}, 0.2)`);
+          setAccentColor(`rgba(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]}, 0.1)`);
+          setSolidAccent(`rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`);
         }
       } catch (e) {
         setAccentColor("rgba(0, 0, 0, 0.04)");
+        setSolidAccent("#d1d5db");
       }
     };
   }, [product.thumbnail]);
@@ -132,9 +136,12 @@ const ProductCard = ({ product, addToCart, cart = [], wishlist = [], toggleWishl
       className="ec-product-card" 
       onClick={handleCardClick}
       style={{ 
-        // 45deg from top-left is 135deg in CSS. 
-        // Gradients from sampled center color to a variable theme background.
-        background: `linear-gradient(135deg, ${accentColor} 0%, var(--ec-card-bg, #ffffff) 100%)` 
+        // DUAL GRADIENT: Inner background + Opposite Border Gradient (50% Opacity)
+        background: `
+          linear-gradient(135deg, ${accentColor} 0%, var(--ec-card-bg, #ffffff) 100%) padding-box, 
+          linear-gradient(315deg, ${solidAccent.replace('rgb', 'rgba').replace(')', ', 0.5)')} 0%, rgba(255, 255, 255, 0.5) 100%) border-box
+        `,
+        border: '1.5px solid transparent'
       }}
     >
       
