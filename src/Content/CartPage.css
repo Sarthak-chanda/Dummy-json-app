@@ -33,7 +33,6 @@
     padding: 4px 0;
   }
   
-  .header-back-btn,
   .header-more-btn {
     width: 44px;
     height: 44px;
@@ -49,7 +48,6 @@
     transition: all 0.2s ease;
   }
   
-  .header-back-btn:hover,
   .header-more-btn:hover {
     background: #f8fafc;
     border-color: #d1d5db;
@@ -103,7 +101,7 @@
     width: 140px;
     height: 140px;
     border-radius: 20px;
-    background-color: #f1f3f2; /* Soft clay tint layer */
+    background-color: transparent; /* Soft clay tint layer */
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -113,7 +111,7 @@
   
   /* Dynamic color presets mapping to the aesthetic */
   .pet-cart-item-card:nth-child(2n) .pet-cart-image-frame {
-    background-color: #e2ebd5; /* Green tone preset matching cat mix packaging */
+    background-color: transparent; /* Green tone preset matching cat mix packaging */
   }
   
   .pet-cart-img {

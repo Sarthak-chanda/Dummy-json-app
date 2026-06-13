@@ -44,11 +44,6 @@ export default function Profile({ userdet, cart = [], wishlist = [] }) {
   return (
     <div className="profile-page">
       <div className="profile-container">
-        
-        {/* Consistent Back Button Action */}
-        <button className="back-btn" onClick={() => navigate(-1)}>
-          ← Back to Shop
-        </button>
 
         {/* Dashboard Grid Layout */}
         <div className="profile-grid">

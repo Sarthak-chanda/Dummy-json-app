@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import ProductCard from "./ProductCard";
 import "./Products.css";
 import Loading from "../Loading";
@@ -6,21 +7,21 @@ import Loading from "../Loading";
 const banners = [
   {
     title: "Discover Amazing Products",
-    subtitle: "Shop electronics, beauty, fashion, groceries and more at the best prices. Everything you need in one place.",
-    bg: "#1e293b",
-    img: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80"
+    subtitle: "Shop electronics, beauty, fashion, and more.",
+    bg: "#020617",
+    img: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1600&q=80"
   },
   {
     title: "Summer Sale is Live!",
-    subtitle: "Get up to 50% off on all seasonal fashion and accessories. Refresh your wardrobe today.",
-    bg: "#0f172a",
-    img: "https://images.unsplash.com/photo-1523381235208-25917a12c349?auto=format&fit=crop&w=1200&q=80"
+    subtitle: "Get up to 50% off on all seasonal fashion.",
+    bg: "#0c0a09",
+    img: "https://images.pexels.com/photos/5868272/pexels-photo-5868272.jpeg?auto=compress&cs=tinysrgb&w=1600"
   },
   {
     title: "Next-Gen Tech",
-    subtitle: "Explore the latest smartphones, laptops, and gadgets from top brands. Stay ahead with innovation.",
-    bg: "#1e1b4b",
-    img: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80"
+    subtitle: "Explore the latest smartphones and gadgets.",
+    bg: "#020617",
+    img: "https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=1600&q=80"
   }
 ];
 
@@ -40,6 +41,7 @@ const funzoneBanners = [
 ];
 
 const Products = ({ addToCart, cart, wishlist, toggleWishlist }) => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState(() => {
     try {
       const saved = sessionStorage.getItem("products");
@@ -51,7 +53,6 @@ const Products = ({ addToCart, cart, wishlist, toggleWishlist }) => {
 
   const [loading, setLoading] = useState(products.length === 0);
   const [currentBanner, setCurrentBanner] = useState(0);
-  const [showBannerText, setShowBannerText] = useState(true);
 
   useEffect(() => {
     const bannerInterval = setInterval(() => {
@@ -105,29 +106,33 @@ const Products = ({ addToCart, cart, wishlist, toggleWishlist }) => {
 
   return (
     <div className="products-container">
-      <div className="products-content-wrapper">
-        
-        {/* Hero Banner */}
-        <div className="products-hero" style={{ backgroundColor: banners[currentBanner].bg }}>
-          <img src={banners[currentBanner].img} alt="banner" className="hero-bg-img" />
-          <div className="hero-overlay" />
-          <div className={`products-hero-content ${showBannerText ? 'visible' : 'hidden'}`}>
-            <h1>{banners[currentBanner].title}</h1>
-            <p>{banners[currentBanner].subtitle}</p>
-            <button className="banner-cta">Shop Collection</button>
-          </div>
+      
+      {/* Hero Banner - Full Width with 2-Row Layout */}
+      <div className="products-hero" style={{ backgroundColor: banners[currentBanner].bg }}>
+        <img src={banners[currentBanner].img} alt="banner" className="hero-bg-img" />
+        <div className="hero-overlay" />
+        <div className="hero-inner-content">
+          <h1 className="banner-main-title">{banners[currentBanner].title}</h1>
           
-          <button className="banner-toggle-btn" onClick={() => setShowBannerText(!showBannerText)}>
-            {showBannerText ? "Hide Text" : "Show Text"}
-          </button>
+          <div className="banner-bottom-row">
+            <p className="banner-sub-text">{banners[currentBanner].subtitle}</p>
+            <button className="banner-cta" onClick={() => navigate("/offers")}>
+              Explore
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+            </button>
+          </div>
 
-          <div className="banner-indicators">
+          <div className="banner-indicators-bottom">
             {banners.map((_, i) => (
               <span key={i} className={`indicator ${i === currentBanner ? 'active' : ''}`} />
             ))}
           </div>
         </div>
+      </div>
 
+      <div className="products-content-wrapper">
         {/* Hot Deals Section */}
         {hotDeals.length > 0 && (
           <CategoryRow
@@ -151,20 +156,44 @@ const Products = ({ addToCart, cart, wishlist, toggleWishlist }) => {
               wishlist={wishlist}
               toggleWishlist={toggleWishlist}
             />
-            {/* Inject a funzone banner every 4 categories */}
-            {(index + 1) % 4 === 0 && funzoneBanners[Math.floor(index / 4) % funzoneBanners.length] && (
-              <div className="funzone-banner" style={{ backgroundColor: funzoneBanners[Math.floor(index / 4) % funzoneBanners.length].bg }}>
-                <img src={funzoneBanners[Math.floor(index / 4) % funzoneBanners.length].img} alt="funzone" />
-                <div className="funzone-content">
-                  <h2>{funzoneBanners[Math.floor(index / 4) % funzoneBanners.length].title}</h2>
-                  <p>{funzoneBanners[Math.floor(index / 4) % funzoneBanners.length].subtitle}</p>
-                  <button>Explore Funzone</button>
-                </div>
+            
+            {/* Inject dynamic interstitial sections every 5-6 categories */}
+            {(index + 1) % 5 === 0 && (
+              <div className="interstitial-section">
+                {Math.floor(index / 5) % 3 === 0 ? (
+                  <div className="interstitial-rating-banner">
+                    <div className="rating-info">
+                      <h2>Highly Rated</h2>
+                      <p>Top products loved by our community with 4.5+ stars.</p>
+                      <button onClick={() => navigate("/offers")}>View Best Sellers</button>
+                    </div>
+                    <div className="rating-stars">
+                      {"★".repeat(5)}
+                    </div>
+                  </div>
+                ) : Math.floor(index / 5) % 3 === 1 ? (
+                  <div className="interstitial-price-filter">
+                    <h3>Budget Friendly?</h3>
+                    <div className="price-pills">
+                      <button onClick={() => navigate("/offers")}>Under $20</button>
+                      <button onClick={() => navigate("/offers")}>$20 - $50</button>
+                      <button onClick={() => navigate("/offers")}>$50 - $100</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="funzone-banner alternative">
+                    <img src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&fit=crop&w=800&q=80" alt="offers" />
+                    <div className="funzone-content">
+                      <h2>Exclusive Perks</h2>
+                      <p>Join our rewards program for early access to sales.</p>
+                      <button onClick={() => navigate("/offers")}>Learn More</button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
         ))}
-
       </div>
     </div>
   );

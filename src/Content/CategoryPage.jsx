@@ -36,9 +36,6 @@ const CategoryPage = ({ addToCart, cart, wishlist, toggleWishlist }) => {
     <div className="category-page">
       <div className="category-page-container">
         <header className="category-page-header">
-          <button className="back-btn" onClick={() => navigate(-1)}>
-            ← Back
-          </button>
           <h1>{categoryName.replace("-", " ")}</h1>
           <p>{products.length} Products Found</p>
         </header>

@@ -16,69 +16,6 @@
   }
   
   /* ==========================================================================
-     BACK BUTTON (PERFECTLY ALIGNED TO NAV, BIGGER ON DESKTOP)
-     ========================================================================== */
-  
-  .pp-back-btn-container {
-    position: fixed;
-    top: 96px; /* Sits just below the 72px pill nav + margin */
-    left: 0;
-    width: 100%;
-    z-index: 990;
-    pointer-events: none; /* Let's user click through the invisible bounding box */
-  }
-  
-  .pp-back-btn-wrapper {
-    /* This mirrors your Nav.css bounds exactly to force left-alignment */
-    width: 80%; 
-    max-width: 1200px; 
-    margin: 0 auto; 
-    display: flex;
-    justify-content: flex-start;
-  }
-  
-  .pp-back-btn {
-    pointer-events: auto; /* Re-enables clicking on the button itself */
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    
-    /* Glassmorphism Effect */
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    
-    /* UPDATED: Border matching the pill navbar */
-    border: 1px solid #cbd5e1;
-    
-    /* Larger Size for Desktop & Laptop */
-    color: #4b5563;
-    padding: 12px 24px;
-    border-radius: 50px; 
-    font-size: 1.05rem; 
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  
-  .pp-back-icon {
-    width: 20px;
-    height: 20px;
-  }
-  
-  .pp-back-btn:hover {
-    background: rgba(255, 255, 255, 0.85);
-    color: #111827;
-    transform: translateY(-2px); 
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
-  }
-  
-  .pp-back-btn:active {
-    transform: translateY(0);
-  }
-  
-  /* ==========================================================================
      HERO SECTION (GALLERY & DETAILS)
      ========================================================================== */
   

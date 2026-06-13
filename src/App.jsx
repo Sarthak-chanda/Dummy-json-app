@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { supabase } from './Login/supabaseClient'
 import './App.css'
 
@@ -11,6 +11,7 @@ import Cartpage from './Content/Cartpage.jsx'
 import WishlistPage from './Content/WishlistPage.jsx'
 import CategoryPage from './Content/CategoryPage.jsx'
 import Products from './Content/Products'
+import OfferPage from './Content/OfferPage'
 import Login from './Login/Login.jsx'
 import WelcomePage from './Login/Welcome.jsx'
 import ProfilePage from './Content/ProfilePage.jsx'
@@ -74,6 +75,14 @@ const getSavedUserDet = () => {
     refreshToken: '',
   }
 }
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
 
 const App = () => {
   const [loading, setLoading] = useState(true)
@@ -172,16 +181,6 @@ const App = () => {
     return () => clearTimeout(timeoutId);
   }, [wishlist, userdet.id]);
 
-  // Initialize logindata using parsed user profile structure directly
-  const [logindata, setLogindata] = useState(() => {
-    try {
-      const saved = localStorage.getItem('userdet')
-      return saved ? JSON.parse(saved) : null
-    } catch {
-      return null
-    }
-  })
-
   // Sync states to disk
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart))
@@ -190,16 +189,6 @@ const App = () => {
   useEffect(() => {
     localStorage.setItem('wishlist', JSON.stringify(wishlist))
   }, [wishlist])
-
-  // Synchronize state values if the active user profile changes or clears out
-  useEffect(() => {
-    if (!userdet.id) {
-      setHasSeenWelcome(false)
-      setLogindata(null)
-    } else {
-      setLogindata(userdet)
-    }
-  }, [userdet])
 
   const addToCart = (product) => {
     if (!userdet.id) {
@@ -239,6 +228,7 @@ const App = () => {
 
   return (
     <div className="app-shell">
+      <ScrollToTop />
       <Nav
         userdet={userdet}
         cart={cart}
@@ -250,6 +240,7 @@ const App = () => {
 
       <Routes>
         <Route path="/" element={<Products addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+        <Route path="/offers" element={<OfferPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
         <Route path="/category/:categoryName" element={<CategoryPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
         <Route path="/home" element={<Navigate to="/" replace />} />
         <Route

@@ -10,7 +10,7 @@
 }
 
 body {
-  background: #fcfbf9; /* Unified warm ivory background */
+  background: #f8fafc; /* Unified with marketplace theme */
   color: #111827;
   overflow-x: hidden;
 }
@@ -19,60 +19,4 @@ button {
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-}
-
-/* ==============================
-   PRODUCT CARD
-============================== */
-
-.product-card {
-  background: #ffffff;
-  border: 1px solid #f0efea;
-  border-radius: 24px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-}
-
-.product-top { display: flex; gap: 16px; align-items: flex-start; }
-
-.product-main-image {
-  width: 120px;
-  height: 120px;
-  flex: 0 0 auto;
-  object-fit: contain;
-  background: #fdfaf6;
-  border-radius: 16px;
-  padding: 10px;
-}
-
-.product-summary h2 { font-size: 1.1rem; color: #111827; line-height: 1.3; }
-
-.cart-btn {
-  height: 42px;
-  border-radius: 12px;
-  font-weight: 700;
-  background: linear-gradient(180deg, #34a853 0%, #24963e 100%);
-  color: #fff;
-  width: 100%;
-}
-
-/* ==============================
-   CATEGORY ROWS
-============================== */
-
-.products-row-container {
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  padding: 10px 4px 24px;
-  scrollbar-width: none;
 }

@@ -26,7 +26,6 @@
   padding: 4px 0;
 }
 
-.wishlist-page .header-back-btn,
 .wishlist-page .header-more-btn {
   width: 44px;
   height: 44px;
@@ -69,7 +68,7 @@
   width: 140px;
   height: 140px;
   border-radius: 20px;
-  background-color: #f1f3f2;
+  background-color: transparent;
   overflow: hidden;
   display: flex;
   align-items: center;
