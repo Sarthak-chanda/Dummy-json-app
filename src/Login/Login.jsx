@@ -1,13 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
 import loginBg from '/image/login-bg.png';
 import bannerImg from '/image/login-right.png'; // The neon cart image
 import './Login.css';
 
-const Login = ({ setUserdet }) => {
+const Login = ({ setUserdet, authLoading }) => {
   const navigate = useNavigate();
   const [isRegister, setIsRegister] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && setUserdet && typeof setUserdet === 'function') {
+      const savedUser = localStorage.getItem('userdet');
+      if (savedUser) {
+        navigate('/welcome', { replace: true });
+      }
+    }
+  }, [authLoading, navigate]);
+
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -18,6 +28,20 @@ const Login = ({ setUserdet }) => {
   const handleLoginChange = (e) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
     if (errorMessage) setErrorMessage('');
+  };
+
+  const handleSocialLogin = async (provider) => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+          redirectTo: window.location.origin + '/welcome'
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
   };
 
   const handleRegisterChange = (e) => {
@@ -156,6 +180,50 @@ const Login = ({ setUserdet }) => {
             <button type="submit" className="primary-btn" disabled={loading}>
               {loading ? 'Authenticating...' : 'Sign In'}
             </button>
+
+            {/* OR Divider */}
+            <div className="social-divider">OR</div>
+
+            {/* Social Buttons Container */}
+            <div className="social-buttons-container">
+              <button 
+                type="button" 
+                className="primary-btn" 
+                style={{ 
+                  backgroundColor: '#ffffff', 
+                  color: '#111', 
+                  border: '1px solid #e5e7eb', 
+                  marginTop: 0, 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '12px',
+                  textTransform: 'none' 
+                }}
+                onClick={() => handleSocialLogin('google')}
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.707a5.41 5.41 0 010-3.414V4.961H.957a8.992 8.992 0 000 8.078l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.961L3.964 7.29C4.672 3.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+                Sign in with Google
+              </button>
+              
+              <button 
+                type="button" 
+                className="primary-btn" 
+                style={{ 
+                  backgroundColor: '#1877F2', 
+                  marginTop: 0, 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '12px',
+                  textTransform: 'none'
+                }}
+                onClick={() => handleSocialLogin('facebook')}
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="white"><path d="M18 9.011c0-4.97-4.03-9.011-9-9.011s-9 4.041-9 9.011c0 4.491 3.285 8.219 7.594 8.894v-6.292h-2.285v-2.602h2.285v-1.983c0-2.255 1.343-3.501 3.398-3.501.984 0 2.013.175 2.013.175v2.213h-1.134c-1.118 0-1.467.694-1.467 1.406v1.69h2.494l-.398 2.602h-2.096v6.292c4.309-.675 7.594-4.403 7.594-8.894z"/></svg>
+                Sign in with Facebook
+              </button>
+            </div>
 
             {/* Mobile Only Toggle */}
             <p className="mobile-toggle-text">

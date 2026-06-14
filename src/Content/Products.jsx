@@ -28,6 +28,30 @@ const banners = [
     img: "https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=1600&q=80",
     gradient: "rgba(2, 6, 23, 0.95)",
     cta: "Upgrade Now"
+  },
+  {
+    title: "Beauty & Wellness",
+    subtitle: "Premium skincare and fragrances to elevate your daily routine.",
+    bg: "#2d1b2d",
+    img: "https://images.pexels.com/photos/3762882/pexels-photo-3762882.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    gradient: "rgba(45, 27, 45, 0.95)",
+    cta: "Shop Beauty"
+  },
+  {
+    title: "Home Essentials",
+    subtitle: "Create your perfect space with modern decor and furniture.",
+    bg: "#2a2118",
+    img: "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    gradient: "rgba(42, 33, 24, 0.95)",
+    cta: "Redecorate Now"
+  },
+  {
+    title: "Outdoor Adventures",
+    subtitle: "Gear up for your next journey with our sports collection.",
+    bg: "#062118",
+    img: "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=1600&q=80",
+    gradient: "rgba(6, 33, 24, 0.95)",
+    cta: "Get Ready"
   }
 ];
 
@@ -44,13 +68,63 @@ const Products = ({ addToCart, cart, wishlist, toggleWishlist }) => {
 
   const [loading, setLoading] = useState(products.length === 0);
   const [currentBanner, setCurrentBanner] = useState(0);
+  const touchStartX = useRef(null);
+  const bannerTimerRef = useRef(null);
 
-  useEffect(() => {
-    const bannerInterval = setInterval(() => {
+  const resetBannerTimer = () => {
+    if (bannerTimerRef.current) clearInterval(bannerTimerRef.current);
+    bannerTimerRef.current = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
     }, 5000);
-    return () => clearInterval(bannerInterval);
+  };
+
+  useEffect(() => {
+    resetBannerTimer();
+    return () => {
+      if (bannerTimerRef.current) clearInterval(bannerTimerRef.current);
+    };
   }, []);
+
+  const handleIndicatorClick = (index) => {
+    setCurrentBanner(index);
+    resetBannerTimer();
+  };
+
+  const handleDragStart = (e) => {
+    touchStartX.current = e.touches ? e.touches[0].clientX : e.clientX;
+  };
+
+  const handleDragMove = (e) => {
+    // We don't necessarily need move logic for a simple swipe detection on end, 
+    // but preventing default can help with browser "back" gestures if needed.
+  };
+
+  const handleDragEnd = (e) => {
+    if (touchStartX.current === null) return;
+    
+    // Support both mouse and touch end coordinates
+    const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+    const deltaX = touchStartX.current - clientX;
+    const threshold = 50; // pixels needed to trigger swipe
+
+    if (Math.abs(deltaX) > threshold) {
+      if (deltaX > 0) {
+        // Swipe Left -> Next
+        setCurrentBanner((prev) => (prev + 1) % banners.length);
+      } else {
+        // Swipe Right -> Prev
+        setCurrentBanner((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
+      }
+      resetBannerTimer();
+    }
+    touchStartX.current = null;
+  };
+
+  const handleMouseLeaveBanner = (e) => {
+    if (touchStartX.current !== null) {
+      handleDragEnd(e);
+    }
+  };
 
   useEffect(() => {
     if (products.length > 0) {
@@ -211,12 +285,22 @@ const Products = ({ addToCart, cart, wishlist, toggleWishlist }) => {
     <div className="products-container">
       
       {/* Hero Banner - FULL WIDTH DEMO STYLE */}
-      <div className="products-hero" style={{ backgroundColor: banners[currentBanner].bg }}>
+      <div 
+        className="products-hero" 
+        style={{ backgroundColor: banners[currentBanner].bg }}
+        onMouseDown={handleDragStart}
+        onMouseMove={handleDragMove}
+        onMouseUp={handleDragEnd}
+        onMouseLeave={handleMouseLeaveBanner}
+        onTouchStart={handleDragStart}
+        onTouchMove={handleDragMove}
+        onTouchEnd={handleDragEnd}
+      >
         <img src={banners[currentBanner].img} alt="banner" className="hero-bg-img" />
         <div 
           className="hero-overlay" 
           style={{ 
-            background: `linear-gradient(90deg, ${banners[currentBanner].gradient} 0%, rgba(15, 23, 42, 0.6) 35%, rgba(15, 23, 42, 0.1) 100%)` 
+            background: `linear-gradient(65deg, ${banners[currentBanner].gradient} 0%, rgba(15, 23, 42, 0.4) 40%, rgba(15, 23, 42, 0) 100%)` 
           }} 
         />
         <div className="hero-inner-content">
@@ -236,7 +320,11 @@ const Products = ({ addToCart, cart, wishlist, toggleWishlist }) => {
 
           <div className="banner-indicators-bottom">
             {banners.map((_, i) => (
-              <span key={i} className={`indicator ${i === currentBanner ? 'active' : ''}`} />
+              <span 
+                key={i} 
+                className={`indicator ${i === currentBanner ? 'active' : ''}`} 
+                onClick={() => handleIndicatorClick(i)}
+              />
             ))}
           </div>
         </div>

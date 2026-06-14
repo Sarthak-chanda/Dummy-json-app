@@ -20,3 +20,16 @@ button {
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
+/* Add space at bottom of all pages for the floating bottom nav */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 992px) {
+  .app-shell {
+    padding-bottom: 100px; /* Space for the floating bottom nav */
+  }
+}

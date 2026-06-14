@@ -130,7 +130,7 @@
   
   /* Fluid Heading */
   .welcome-header h1 {
-    font-size: clamp(1.7rem, 6vw, 2.1rem); /* Scales beautifully down to iPhone SE size */
+    font-size: clamp(1.6rem, 7vw, 1.9rem); /* Slightly more aggressive scaling */
     font-weight: 800;
     line-height: 1.2;
     color: #111111;
@@ -145,7 +145,7 @@
   /* Optimized Body Text */
   .welcome-header p {
     color: #556270;
-    font-size: clamp(0.9rem, 3vw, 0.95rem);
+    font-size: clamp(0.85rem, 3.2vw, 0.95rem);
     line-height: 1.6; /* Increased line-height for better mobile readability */
     margin: 0 auto;
     max-width: 95%; /* Prevents text from hugging the exact edge of the card */

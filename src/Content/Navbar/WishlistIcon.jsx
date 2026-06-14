@@ -5,7 +5,17 @@ const WishlistIcon = ({ count, userdet }) => {
 
   return (
     <div className="wishlist-icon nav-icon-wrapper">
-      <button type="button" className="nav-icon-btn" onClick={() => navigate(`/${userdet.emailPrefix}/wishlist`)}>
+      <button 
+        type="button" 
+        className="nav-icon-btn" 
+        onClick={() => {
+          if (userdet?.id) {
+            navigate(`/${userdet.emailPrefix}/wishlist`)
+          } else {
+            navigate('/login')
+          }
+        }}
+      >
         <svg
           viewBox="0 0 24 24"
           width="24"

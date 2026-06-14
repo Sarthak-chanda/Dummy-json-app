@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from './Login/supabaseClient'
 import './App.css'
 
@@ -44,16 +44,15 @@ const getSavedUserDet = () => {
       const parsed = JSON.parse(saved);
       const emailPrefix = parsed.email ? parsed.email.split('@')[0] : '';
       
-      // Map properties cleanly to match the shape expected throughout your routing structures
       return {
-        id: parsed.userId || parsed.id || '',
-        username: parsed.username || '',
+        id: parsed.id || parsed.userId || '',
+        username: parsed.username || parsed.full_name || parsed.name || '',
         email: parsed.email || '',
         emailPrefix: emailPrefix,
         firstName: parsed.firstName || '',
         lastName: parsed.lastName || '',
         gender: parsed.gender || '',
-        image: parsed.image || '',
+        image: parsed.image || parsed.avatar_url || '',
         accessToken: parsed.accessToken || '',
         refreshToken: parsed.refreshToken || '',
       }
@@ -85,6 +84,8 @@ const ScrollToTop = () => {
 };
 
 const App = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true)
   const [cart, setCart] = useState(getSavedCart)
   const [wishlist, setWishlist] = useState(getSavedWishlist)
@@ -94,6 +95,49 @@ const App = () => {
   
   // FIX: Initialize user data synchronously directly from localStorage on load
   const [userdet, setUserdet] = useState(getSavedUserDet)
+  const [authLoading, setAuthLoading] = useState(true)
+
+  // Listen for Auth changes (needed for Social Login redirect)
+  useEffect(() => {
+    const initAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        handleSessionUpdate(session);
+      }
+      setAuthLoading(false);
+    };
+
+    const handleSessionUpdate = (session) => {
+      const user = session.user;
+      const emailPrefix = user.email ? user.email.split('@')[0] : '';
+      const mappedData = {
+        id: user.id,
+        username: user.user_metadata?.full_name || user.user_metadata?.name || 'Marketplace User',
+        email: user.email,
+        emailPrefix: emailPrefix,
+        image: user.user_metadata?.avatar_url || '',
+        accessToken: session.access_token,
+      };
+      localStorage.setItem('userdet', JSON.stringify(mappedData));
+      setUserdet(mappedData);
+    };
+
+    initAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session) {
+        handleSessionUpdate(session);
+        setAuthLoading(false);
+      } else if (event === 'SIGNED_OUT') {
+        setAuthLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Hide Nav on Login and Welcome pages
+  const hideNav = location.pathname === '/login' || location.pathname === '/welcome';
   
   // Initial loading pulse for page refreshes
   useEffect(() => {
@@ -192,7 +236,7 @@ const App = () => {
 
   const addToCart = (product) => {
     if (!userdet.id) {
-      window.location.href = "/login";
+      navigate("/login");
       return;
     }
 
@@ -213,7 +257,7 @@ const App = () => {
 
   const toggleWishlist = (product) => {
     if (!userdet.id) {
-      window.location.href = "/login";
+      navigate("/login");
       return;
     }
 
@@ -229,44 +273,48 @@ const App = () => {
   return (
     <div className="app-shell">
       <ScrollToTop />
-      <Nav
-        userdet={userdet}
-        cart={cart}
-        wishlist={wishlist}
-        setSearchResult={setSearchResult}
-        setLoading={setLoading}
-        setNotfound={setNotfound}
-      />
+      {!hideNav && (
+        <Nav
+          userdet={userdet}
+          cart={cart}
+          wishlist={wishlist}
+          setSearchResult={setSearchResult}
+          setLoading={setLoading}
+          setNotfound={setNotfound}
+        />
+      )}
 
-      <Routes>
-        <Route path="/" element={<Products addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
-        <Route path="/offer/:offerValue" element={<OfferPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
-        <Route path="/category/:categoryName" element={<CategoryPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
-        <Route path="/home" element={<Navigate to="/" replace />} />
-        <Route
-          path="/searchresult/:p_name"
-          element={
-            <SearchResult
-              searchResult={searchResult}
-              addToCart={addToCart}
-              cart={cart}
-              wishlist={wishlist}
-              toggleWishlist={toggleWishlist}
-              clearSearch={() => setSearchResult([])}
-            />
-          }
-        />
-        <Route path="/:emailPrefix/cart" element={<Cartpage cart={cart} setCart={setCart} />} />
-        <Route path="/:emailPrefix/wishlist" element={<WishlistPage wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart} />} />
-        <Route path="/p/:p_name/:p_id" element={<ProductPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
-        <Route 
-          path="/:emailPrefix/profile" 
-          element={userdet.id ? <ProfilePage userdet={userdet} cart={cart} wishlist={wishlist} /> : <Navigate to="/login" replace />} 
-        />
-        <Route path="/login" element={<Login setUserdet={setUserdet} />} />
-        <Route path="/welcome" element={<WelcomePage userdet={userdet} setUserdet={setUserdet} onContinue={() => setHasSeenWelcome(true)} />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <div className={location.pathname !== '/' && !hideNav ? "pt-[60px]" : ""}>
+        <Routes>
+          <Route path="/" element={<Products addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+          <Route path="/offer/:offerValue" element={<OfferPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+          <Route path="/category/:categoryName" element={<CategoryPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+          <Route path="/home" element={<Navigate to="/" replace />} />
+          <Route
+            path="/searchresult/:p_name"
+            element={
+              <SearchResult
+                searchResult={searchResult}
+                addToCart={addToCart}
+                cart={cart}
+                wishlist={wishlist}
+                toggleWishlist={toggleWishlist}
+                clearSearch={() => setSearchResult([])}
+              />
+            }
+          />
+          <Route path="/:emailPrefix/cart" element={<Cartpage cart={cart} setCart={setCart} />} />
+          <Route path="/:emailPrefix/wishlist" element={<WishlistPage wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart} />} />
+          <Route path="/p/:p_name/:p_id" element={<ProductPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+          <Route 
+            path="/:emailPrefix/profile" 
+            element={userdet.id ? <ProfilePage userdet={userdet} cart={cart} wishlist={wishlist} /> : <Navigate to="/login" replace />} 
+          />
+          <Route path="/login" element={<Login setUserdet={setUserdet} authLoading={authLoading} />} />
+          <Route path="/welcome" element={<WelcomePage userdet={userdet} setUserdet={setUserdet} onContinue={() => setHasSeenWelcome(true)} authLoading={authLoading} />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
 
       {loading && (
         <div className="global-loader">

@@ -5,17 +5,19 @@ import loginBg from '/image/login-bg.png';
 import logo from '/image/logo.png'; 
 import './WelcomePage.css';
 
-const WelcomePage = ({ userdet, setUserdet, onContinue }) => {
+const WelcomePage = ({ userdet, setUserdet, onContinue, authLoading }) => {
   const navigate = useNavigate();
   const [animationStarted, setAnimationStarted] = useState(false);
 
   useEffect(() => {
-    if (!userdet?.id) {
-      navigate('/login', { replace: true });
-    } else {
-      setTimeout(() => setAnimationStarted(true), 150);
+    if (!authLoading) {
+      if (!userdet?.id) {
+        navigate('/login', { replace: true });
+      } else {
+        setTimeout(() => setAnimationStarted(true), 150);
+      }
     }
-  }, [userdet, navigate]);
+  }, [userdet, navigate, authLoading]);
 
   const handleLogout = async () => {
     try {

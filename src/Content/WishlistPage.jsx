@@ -67,7 +67,7 @@ const WishlistPage = ({ wishlist, toggleWishlist, addToCart }) => {
                   <div className="item-interactive-footer">
                     <button 
                       className="pet-checkout-primary-btn" 
-                      style={{ marginTop: 0, padding: '8px 16px', width: 'auto', borderRadius: '12px' }}
+                      style={{ marginTop: 0, padding: '8px 16px', borderRadius: '12px' }}
                       onClick={() => handleAddToCart(product)}
                     >
                       Add to Cart

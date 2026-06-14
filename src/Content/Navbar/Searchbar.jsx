@@ -44,21 +44,23 @@ const Searchbar = ({ setSearchResult, setLoading, setNotfound }) => {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        {/* Completely filled out SVG - No placeholders! */}
-        <button type="submit" aria-label="Search">
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2.5" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </button>
+        {/* Only show search button when typing or has value */}
+        {name.trim() && (
+          <button type="submit" aria-label="Search">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        )}
       </form>
     </div>
   )

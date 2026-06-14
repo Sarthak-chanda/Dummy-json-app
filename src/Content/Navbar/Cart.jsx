@@ -5,7 +5,17 @@ const Cart = ({ cart_count , userdet }) => {
 
   return (
     <div className="cart nav-icon-wrapper">
-      <button type="button" className="nav-icon-btn" onClick={() => navigate(`/${userdet.emailPrefix}/cart`)}>
+      <button 
+        type="button" 
+        className="nav-icon-btn" 
+        onClick={() => {
+          if (userdet?.id) {
+            navigate(`/${userdet.emailPrefix}/cart`)
+          } else {
+            navigate('/login')
+          }
+        }}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
