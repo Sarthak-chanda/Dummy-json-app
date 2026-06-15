@@ -18,21 +18,23 @@ import ProfilePage from './Content/ProfilePage.jsx'
 import ProductPage from './Content/ProductPage.jsx'
 
 // Safe local storage initialization helper for Cart
-const getSavedCart = () => {
+const getSavedCart = (emailPrefix) => {
+  if (!emailPrefix) return [];
   try {
-    const saved = localStorage.getItem('cart')
-    return saved ? JSON.parse(saved) : []
+    const saved = localStorage.getItem(`cart_${emailPrefix}`);
+    return saved ? JSON.parse(saved) : [];
   } catch {
-    return []
+    return [];
   }
 }
 
-const getSavedWishlist = () => {
+const getSavedWishlist = (emailPrefix) => {
+  if (!emailPrefix) return [];
   try {
-    const saved = localStorage.getItem('wishlist')
-    return saved ? JSON.parse(saved) : []
+    const saved = localStorage.getItem(`wishlist_${emailPrefix}`);
+    return saved ? JSON.parse(saved) : [];
   } catch {
-    return []
+    return [];
   }
 }
 
@@ -86,16 +88,20 @@ const ScrollToTop = () => {
 const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true)
-  const [cart, setCart] = useState(getSavedCart)
-  const [wishlist, setWishlist] = useState(getSavedWishlist)
-  const [searchResult, setSearchResult] = useState([])
-  const [hasSeenWelcome, setHasSeenWelcome] = useState(false)
-  const [notfound , setNotfound] = useState(false)
+  const [loading, setLoading] = useState(true);
   
   // FIX: Initialize user data synchronously directly from localStorage on load
-  const [userdet, setUserdet] = useState(getSavedUserDet)
-  const [authLoading, setAuthLoading] = useState(true)
+  const initialUserDet = getSavedUserDet();
+  const [userdet, setUserdet] = useState(initialUserDet);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // Initialize cart and wishlist using the parsed emailPrefix
+  const [cart, setCart] = useState(() => getSavedCart(initialUserDet.emailPrefix));
+  const [wishlist, setWishlist] = useState(() => getSavedWishlist(initialUserDet.emailPrefix));
+  
+  const [searchResult, setSearchResult] = useState([]);
+  const [hasSeenWelcome, setHasSeenWelcome] = useState(false);
+  const [notfound , setNotfound] = useState(false);
 
   // Listen for Auth changes (needed for Social Login redirect)
   useEffect(() => {
@@ -120,6 +126,10 @@ const App = () => {
       };
       localStorage.setItem('userdet', JSON.stringify(mappedData));
       setUserdet(mappedData);
+      
+      // Update local storage items based on new user
+      setCart(getSavedCart(emailPrefix));
+      setWishlist(getSavedWishlist(emailPrefix));
     };
 
     initAuth();
@@ -130,6 +140,8 @@ const App = () => {
         setAuthLoading(false);
       } else if (event === 'SIGNED_OUT') {
         setAuthLoading(false);
+        setCart([]);
+        setWishlist([]);
       }
     });
 
@@ -225,14 +237,18 @@ const App = () => {
     return () => clearTimeout(timeoutId);
   }, [wishlist, userdet.id]);
 
-  // Sync states to disk
+  // Sync states to disk using isolated prefix
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart))
-  }, [cart])
+    if (userdet.emailPrefix) {
+      localStorage.setItem(`cart_${userdet.emailPrefix}`, JSON.stringify(cart));
+    }
+  }, [cart, userdet.emailPrefix]);
 
   useEffect(() => {
-    localStorage.setItem('wishlist', JSON.stringify(wishlist))
-  }, [wishlist])
+    if (userdet.emailPrefix) {
+      localStorage.setItem(`wishlist_${userdet.emailPrefix}`, JSON.stringify(wishlist));
+    }
+  }, [wishlist, userdet.emailPrefix]);
 
   const addToCart = (product) => {
     if (!userdet.id) {
@@ -287,7 +303,7 @@ const App = () => {
       <div className={location.pathname !== '/' && !hideNav ? "pt-[60px]" : ""}>
         <Routes>
           <Route path="/" element={<Products addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
-          <Route path="/offer/:offerValue" element={<OfferPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+          <Route path="/offer/:offerId" element={<OfferPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
           <Route path="/category/:categoryName" element={<CategoryPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
           <Route path="/home" element={<Navigate to="/" replace />} />
           <Route
@@ -308,7 +324,7 @@ const App = () => {
           <Route path="/p/:p_name/:p_id" element={<ProductPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
           <Route 
             path="/:emailPrefix/profile" 
-            element={userdet.id ? <ProfilePage userdet={userdet} cart={cart} wishlist={wishlist} /> : <Navigate to="/login" replace />} 
+            element={userdet.id ? <ProfilePage userdet={userdet} setUserdet={setUserdet} cart={cart} wishlist={wishlist} /> : <Navigate to="/login" replace />} 
           />
           <Route path="/login" element={<Login setUserdet={setUserdet} authLoading={authLoading} />} />
           <Route path="/welcome" element={<WelcomePage userdet={userdet} setUserdet={setUserdet} onContinue={() => setHasSeenWelcome(true)} authLoading={authLoading} />} />

@@ -1,83 +1,81 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../Login/supabaseClient";
 
+// --- ICONS ---
+const Icons = {
+  User: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  MapPin: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>,
+  Cart: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>,
+  Heart: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+  CreditCard: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>,
+  LogOut: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
+  Settings: () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+  ChevronDown: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
+  ChevronUp: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+};
+
 // --- SUB-COMPONENTS ---
 
-/**
- * Renders an individual profile detail item in "view" mode.
- */
 const DetailCard = ({ label, value }) => (
-  <div className="p-6 bg-slate-50/50 border border-slate-100 rounded-3xl hover:bg-white hover:shadow-xl hover:shadow-slate-100/50 transition-all duration-300">
-    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>
-    <p className="font-bold text-slate-800 tracking-tight">{value}</p>
+  <div className="p-4 md:p-5 bg-slate-50 border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{label}</p>
+    <p className="font-medium text-slate-900">{value}</p>
   </div>
 );
 
-/**
- * Renders an input field for profile editing.
- */
 const EditField = ({ label, value, onChange, name, disabled = false }) => (
-  <div className="space-y-1">
-    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">{label}</label>
+  <div className="space-y-1.5">
+    <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider ml-1">{label}</label>
     <input 
       value={value} 
       onChange={onChange} 
       name={name} 
       disabled={disabled}
-      className={`w-full p-4 rounded-2xl outline-none transition-all font-bold ${
+      className={`w-full p-3 rounded-xl outline-none transition-all font-medium text-sm md:text-base ${
         disabled 
         ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200" 
-        : "bg-slate-50 border border-slate-200 text-slate-800 focus:ring-2 focus:ring-blue-500 focus:bg-white"
+        : "bg-white border border-slate-300 text-slate-900 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
       }`}
     />
   </div>
 );
 
-/**
- * Placeholder for non-implemented sections to maintain professional look.
- */
 const PlaceholderSection = ({ title, icon: Icon }) => (
-  <div className="animate-slide-in-bottom">
-    <h2 className="text-2xl font-black text-slate-900 mb-6">{title}</h2>
-    <div className="aspect-video bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-8 text-center">
-      <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center mb-4 text-slate-300">
-        {Icon ? <Icon className="w-8 h-8" /> : "🛠️"}
+  <div className="animate-fade-in py-4">
+    <div className="bg-slate-50 rounded-2xl border border-dashed border-slate-300 flex flex-col items-center justify-center p-8 text-center">
+      <div className="text-slate-400 mb-4">
+        {Icon ? <Icon /> : <Icons.Settings />}
       </div>
-      <p className="text-slate-900 font-bold text-lg mb-1">Coming Soon</p>
-      <p className="text-slate-500 text-sm max-w-xs mx-auto">We're building the best experience for your {title.toLowerCase()} management.</p>
+      <p className="text-slate-800 font-semibold text-lg mb-2">{title} is Coming Soon</p>
+      <p className="text-slate-500 text-sm max-w-sm mx-auto">We're actively building the best experience for your {title.toLowerCase()} management.</p>
     </div>
   </div>
 );
 
 // --- MAIN COMPONENT ---
 
-export default function ProfilePage({ userdet, cart = [], wishlist = [] }) {
+export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist = [] }) {
   const navigate = useNavigate();
   
-  // Logic state
   const [activeSection, setActiveSection] = useState("account");
   const [isEditing, setIsEditing] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState(null);
 
-  // Address Book State (Mock)
-  const [addresses, setAddresses] = useState([
-    { id: 1, type: "Home", street: "123 Market St", city: "Mumbai", state: "MH", zip: "400001", isDefault: true },
-    { id: 2, type: "Office", street: "Tech Park, Hitech City", city: "Hyderabad", state: "TS", zip: "500081", isDefault: false }
-  ]);
-
-  // Unified Profile Data
   const initialData = {
     name: userdet.username || userdet.firstName || "Marketplace User",
     email: userdet.email || "not-provided@example.com",
     phone: userdet.phone || "+91 98765 43210",
     location: userdet.location || "Mumbai, India",
     avatar: userdet.image || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80",
-    status: "Verified Member"
+    status: "Verified Member",
+    addresses: userdet.addresses || [
+      { id: 1, type: "Home", street: "123 Market St", city: "Mumbai", state: "MH", zip: "400001", isDefault: true },
+      { id: 2, type: "Office", street: "Tech Park, Hitech City", city: "Hyderabad", state: "TS", zip: "500081", isDefault: false }
+    ]
   };
 
   const [editedData, setEditedData] = useState({ ...initialData });
-
-  // --- ACTIONS ---
 
   const handleLogout = async () => {
     try {
@@ -89,54 +87,111 @@ export default function ProfilePage({ userdet, cart = [], wishlist = [] }) {
     }
   };
 
+  const syncUserDet = (updatedData) => {
+    const newUserDet = {
+      ...userdet,
+      username: updatedData.name,
+      phone: updatedData.phone,
+      location: updatedData.location,
+      addresses: updatedData.addresses
+    };
+    if (setUserdet) {
+      setUserdet(newUserDet);
+      localStorage.setItem('userdet', JSON.stringify(newUserDet));
+    }
+  };
+
   const handleSaveProfile = () => {
-    // API Call would happen here
     setIsEditing(false);
-    alert("Profile updated successfully!");
+    syncUserDet(editedData);
   };
 
   const handleSetDefaultAddress = (id) => {
-    setAddresses(addresses.map(a => ({ ...a, isDefault: a.id === id })));
+    const updatedAddresses = editedData.addresses.map(a => ({ ...a, isDefault: a.id === id }));
+    const newData = { ...editedData, addresses: updatedAddresses };
+    setEditedData(newData);
+    syncUserDet(newData);
   };
 
-  // --- CONFIGURATION ---
+  const handleSaveAddress = (id, newAddressData) => {
+    let updatedAddresses;
+    if (id === 'new') {
+      const newAddr = { ...newAddressData, id: Date.now(), isDefault: editedData.addresses.length === 0 };
+      updatedAddresses = [...editedData.addresses, newAddr];
+    } else {
+      updatedAddresses = editedData.addresses.map(a => a.id === id ? { ...a, ...newAddressData } : a);
+    }
+    const newData = { ...editedData, addresses: updatedAddresses };
+    setEditedData(newData);
+    syncUserDet(newData);
+    setEditingAddressId(null);
+  };
+
+  const handleDeleteAddress = (id) => {
+    const updatedAddresses = editedData.addresses.filter(a => a.id !== id);
+    if (updatedAddresses.length > 0 && !updatedAddresses.some(a => a.isDefault)) {
+      updatedAddresses[0].isDefault = true;
+    }
+    const newData = { ...editedData, addresses: updatedAddresses };
+    setEditedData(newData);
+    syncUserDet(newData);
+  };
+
+  const AddressEditForm = ({ address, onSave, onCancel }) => {
+    const [formData, setFormData] = useState(address || { type: "Home", street: "", city: "", state: "", zip: "" });
+    return (
+      <div className="p-4 md:p-5 rounded-xl border bg-slate-50 border-slate-300 shadow-inner">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+          <EditField label="Type (Home, Office)" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} />
+          <EditField label="Street" value={formData.street} onChange={e => setFormData({...formData, street: e.target.value})} />
+          <EditField label="City" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} />
+          <div className="flex gap-2">
+            <div className="flex-1"><EditField label="State" value={formData.state} onChange={e => setFormData({...formData, state: e.target.value})} /></div>
+            <div className="flex-1"><EditField label="Zip" value={formData.zip} onChange={e => setFormData({...formData, zip: e.target.value})} /></div>
+          </div>
+        </div>
+        <div className="flex gap-2 justify-end">
+          <button onClick={onCancel} className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-300 transition-colors">Cancel</button>
+          <button onClick={() => onSave(formData)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">Save</button>
+        </div>
+      </div>
+    );
+  };
 
   const sections = [
-    { id: "account", label: "Account Settings", icon: "👤" },
-    { id: "address", label: "Address Book", icon: "📍" },
-    { id: "cart", label: "My Cart", icon: "🛒", badge: cart.length, route: `/${userdet.emailPrefix}/cart` },
-    { id: "wishlist", label: "Wishlist", icon: "❤️", badge: wishlist.length, route: `/${userdet.emailPrefix}/wishlist` },
-    { id: "payment", label: "Payment Methods", icon: "💳" },
+    { id: "account", label: "Account Details", icon: <Icons.User /> },
+    { id: "address", label: "Address Book", icon: <Icons.MapPin /> },
+    { id: "cart", label: "My Cart", icon: <Icons.Cart />, badge: cart.length, route: `/${userdet.emailPrefix}/cart` },
+    { id: "wishlist", label: "Wishlist", icon: <Icons.Heart />, badge: wishlist.length, route: `/${userdet.emailPrefix}/wishlist` },
+    { id: "payment", label: "Payment Methods", icon: <Icons.CreditCard /> },
   ];
 
-  // --- RENDER LOGIC ---
-
-  const renderContent = () => {
-    switch (activeSection) {
+  const renderContent = (sectionId) => {
+    switch (sectionId) {
       case "account":
         return (
-          <div className="animate-slide-in-bottom">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
+          <div className="animate-fade-in p-2 md:p-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
               <div>
-                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Account Settings</h2>
-                <p className="text-slate-400 font-medium">Manage your personal identity and reachability.</p>
+                <h2 className="text-lg md:text-xl font-bold text-slate-800">Account Settings</h2>
+                <p className="text-slate-500 text-sm mt-1">Manage your personal details and preferences.</p>
               </div>
               {!isEditing ? (
                 <button 
                   onClick={() => setIsEditing(true)}
-                  className="px-8 py-3 bg-slate-900 text-white rounded-2xl text-sm font-black shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all active:scale-95"
+                  className="px-5 py-2 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 transition-colors"
                 >
                   Edit Profile
                 </button>
               ) : (
-                <div className="flex gap-3">
-                  <button onClick={() => setIsEditing(false)} className="px-6 py-3 bg-slate-100 text-slate-600 rounded-2xl text-sm font-black hover:bg-slate-200 transition-all">Cancel</button>
-                  <button onClick={handleSaveProfile} className="px-6 py-3 bg-blue-600 text-white rounded-2xl text-sm font-black shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all active:scale-95">Save Changes</button>
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <button onClick={() => setIsEditing(false)} className="flex-1 sm:flex-none px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-300 transition-colors">Cancel</button>
+                  <button onClick={handleSaveProfile} className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors">Save Changes</button>
                 </div>
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {isEditing ? (
                 <>
                   <EditField label="Display Name" value={editedData.name} onChange={(e) => setEditedData({...editedData, name: e.target.value})} />
@@ -158,148 +213,243 @@ export default function ProfilePage({ userdet, cart = [], wishlist = [] }) {
 
       case "address":
         return (
-          <div className="animate-slide-in-bottom">
-            <div className="flex justify-between items-center mb-10">
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight">Address Book</h2>
-              <button className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-lg hover:bg-slate-800 transition-all">+</button>
+          <div className="animate-fade-in p-2 md:p-4">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg md:text-xl font-bold text-slate-800">Address Book</h2>
+              {editingAddressId === null && (
+                <button 
+                  onClick={() => setEditingAddressId('new')}
+                  className="px-4 py-2 bg-slate-900 text-white rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-slate-800 transition-colors"
+                >
+                  <span className="text-lg leading-none">+</span> Add New
+                </button>
+              )}
             </div>
-            <div className="space-y-4">
-              {addresses.map(addr => (
-                <div key={addr.id} className={`p-8 rounded-[2.5rem] border transition-all duration-300 ${addr.isDefault ? 'bg-blue-50/50 border-blue-100 ring-2 ring-blue-500/10' : 'bg-white border-slate-100 hover:border-slate-200'}`}>
-                  <div className="flex justify-between items-start">
+            
+            <div className="flex flex-col gap-4">
+              {editingAddressId === 'new' && (
+                <AddressEditForm 
+                  onSave={(data) => handleSaveAddress('new', data)} 
+                  onCancel={() => setEditingAddressId(null)} 
+                />
+              )}
+              
+              {editedData.addresses.map(addr => (
+                editingAddressId === addr.id ? (
+                  <AddressEditForm 
+                    key={addr.id}
+                    address={addr} 
+                    onSave={(data) => handleSaveAddress(addr.id, data)} 
+                    onCancel={() => setEditingAddressId(null)} 
+                  />
+                ) : (
+                  <div key={addr.id} className={`p-4 md:p-5 rounded-xl border transition-all flex flex-col md:flex-row justify-between md:items-center gap-4 ${addr.isDefault ? 'bg-blue-50/50 border-blue-200 shadow-sm ring-1 ring-blue-500' : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'}`}>
                     <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="font-black text-slate-900 text-lg">{addr.type}</span>
-                        {addr.isDefault && <span className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full tracking-widest">DEFAULT</span>}
+                      <div className="flex items-center gap-2 mb-2">
+                        <Icons.MapPin />
+                        <span className="font-semibold text-slate-800">{addr.type}</span>
+                        {addr.isDefault && <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ml-2">Default</span>}
                       </div>
-                      <p className="text-slate-500 font-medium">{addr.street}, {addr.city}</p>
-                      <p className="text-slate-400 text-xs mt-1">{addr.state} • {addr.zip}</p>
+                      <p className="text-slate-600 text-sm">{addr.street}</p>
+                      <p className="text-slate-600 text-sm">{addr.city}, {addr.state} {addr.zip}</p>
                     </div>
-                    {!addr.isDefault && (
-                      <button onClick={() => handleSetDefaultAddress(addr.id)} className="text-xs font-black text-blue-600 uppercase tracking-wider hover:underline">Set Default</button>
-                    )}
+                    <div className="flex flex-wrap gap-2 md:flex-col md:items-end">
+                      {!addr.isDefault && (
+                        <button onClick={() => handleSetDefaultAddress(addr.id)} className="text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">Set as Default</button>
+                      )}
+                      <div className="flex gap-2">
+                        <button onClick={() => setEditingAddressId(addr.id)} className="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 px-3 py-1.5 rounded-lg transition-colors">Edit</button>
+                        <button onClick={() => handleDeleteAddress(addr.id)} className="text-xs font-semibold text-rose-600 hover:text-rose-800 bg-rose-50 px-3 py-1.5 rounded-lg transition-colors">Delete</button>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )
               ))}
+              
+              {editedData.addresses.length === 0 && editingAddressId !== 'new' && (
+                <div className="p-8 text-center text-slate-500 bg-slate-50 rounded-xl border border-slate-200">
+                  <p>You have no addresses saved.</p>
+                </div>
+              )}
             </div>
           </div>
         );
 
       case "cart":
-        return (
-          <div className="animate-slide-in-bottom text-center py-16">
-            <div className="text-6xl mb-6">🛒</div>
-            <h2 className="text-2xl font-black text-slate-900 mb-2">Your Cart ({cart.length} items)</h2>
-            <p className="text-slate-400 mb-8 max-w-sm mx-auto">Ready to complete your purchase? Check your selected items now.</p>
-            <button onClick={() => navigate(`/${userdet.emailPrefix}/cart`)} className="px-10 py-4 bg-green-600 text-white rounded-2xl font-black shadow-xl shadow-green-100 hover:bg-green-700 transition-all active:scale-95">Go to Checkout</button>
-          </div>
-        );
-
       case "wishlist":
-        return (
-          <div className="animate-slide-in-bottom text-center py-16">
-            <div className="text-6xl mb-6">❤️</div>
-            <h2 className="text-2xl font-black text-slate-900 mb-2">My Wishlist ({wishlist.length} items)</h2>
-            <p className="text-slate-400 mb-8 max-w-sm mx-auto">Your saved treasures are waiting for you right here.</p>
-            <button onClick={() => navigate(`/${userdet.emailPrefix}/wishlist`)} className="px-10 py-4 bg-rose-500 text-white rounded-2xl font-black shadow-xl shadow-rose-100 hover:bg-rose-600 transition-all active:scale-95">Open Wishlist</button>
-          </div>
-        );
+        // Since we navigate for these, they won't typically render here, 
+        // but keeping it as a fallback in case they don't have routes set up
+        return null; 
 
       default:
-        return <PlaceholderSection title={sections.find(s => s.id === activeSection)?.label} />;
+        return <PlaceholderSection title={sections.find(s => s.id === sectionId)?.label} />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] text-slate-900 font-sans selection:bg-blue-100 overflow-x-hidden">
-      <div className="max-w-7xl mx-auto px-4 py-8 lg:py-20 flex flex-col lg:flex-row gap-12 items-start">
+    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans selection:bg-blue-100 pb-20 md:pb-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 lg:py-12 flex flex-col gap-6">
         
-        {/* ASIDE: Sidebar (Desktop) / Vertical List Header (Mobile) */}
-        <aside className="w-full lg:w-96 shrink-0 space-y-8 animate-in fade-in slide-in-from-left-8 duration-1000">
+        {/* PROFILE HEADER CARD */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center md:items-start text-center md:text-left gap-6 md:gap-8">
+          <div className="relative shrink-0">
+            <img 
+              src={initialData.avatar} 
+              referrerPolicy="no-referrer" 
+              className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-2 border-white shadow-md" 
+              alt="Avatar" 
+            />
+            <div className="absolute bottom-2 right-2 w-5 h-5 bg-green-500 border-2 border-white rounded-full shadow-sm"></div>
+          </div>
           
-          {/* MOBILE-ONLY HEADER (The Design Style requested) */}
-          <div className="lg:hidden flex flex-col items-center text-center pb-8 border-b border-slate-100">
-            <div className="relative">
-              <div className="absolute -inset-2 bg-gradient-to-tr from-blue-500 to-teal-400 rounded-full blur-md opacity-20"></div>
-              <img 
-                src={initialData.avatar} 
-                referrerPolicy="no-referrer" 
-                className="relative w-36 h-32 rounded-full object-cover border-4 border-white shadow-2xl" 
-                alt="Avatar" 
-              />
-              <div className="absolute bottom-2 right-2 w-8 h-8 bg-green-500 border-4 border-white rounded-full shadow-lg"></div>
-            </div>
-            <h1 className="mt-6 text-4xl font-black tracking-tighter text-slate-900">{initialData.name}</h1>
-            <div className="mt-2 flex items-center gap-3">
-              <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black rounded-full uppercase tracking-widest border border-blue-100/50">{initialData.status}</span>
-              <span className="text-slate-300">/</span>
-              <span className="text-slate-500 text-sm font-medium">{initialData.location}</span>
+          <div className="flex flex-col justify-center flex-1 h-full pt-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-1">{initialData.name}</h1>
+            <p className="text-slate-500 text-sm md:text-base font-medium mb-3">{initialData.email}</p>
+            <div>
+              <span className="px-3 py-1 bg-blue-50 border border-blue-100 text-blue-700 text-xs font-semibold rounded-full shadow-sm inline-flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+                {initialData.status}
+              </span>
             </div>
           </div>
-
-          {/* DESKTOP-ONLY CARD (Modern Expansive UI) */}
-          <div className="hidden lg:block bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm shadow-slate-200/40 text-center">
-            <div className="relative inline-block mb-6">
-              <img 
-                src={initialData.avatar} 
-                referrerPolicy="no-referrer" 
-                className="w-24 h-24 rounded-3xl object-cover border border-slate-100 shadow-inner" 
-                alt="Avatar" 
-              />
-              <div className="absolute -top-3 -right-3 w-8 h-8 bg-green-500 border-4 border-white rounded-full shadow-lg"></div>
-            </div>
-            <h1 className="text-2xl font-black tracking-tight mb-1">{initialData.name}</h1>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-tighter mb-4">{initialData.email}</p>
-            <div className="bg-slate-50 py-3 px-4 rounded-2xl border border-slate-100/50 inline-block">
-               <span className="text-blue-600 font-black text-[10px] uppercase tracking-widest">{initialData.status}</span>
-            </div>
+          
+          {/* DESKTOP LOGOUT BUTTON IN HEADER */}
+          <div className="hidden lg:flex flex-col justify-center">
+             <button 
+                onClick={handleLogout}
+                className="px-6 py-3 bg-white border border-rose-200 rounded-xl shadow-sm text-rose-600 font-semibold hover:bg-rose-50 transition-colors outline-none flex items-center gap-2"
+              >
+                <Icons.LogOut />
+                <span>Sign Out</span>
+              </button>
           </div>
+        </div>
 
-          {/* NAVIGATION LIST (Dual-Mode) */}
-          <nav className="bg-white rounded-[3rem] border border-slate-100 shadow-sm shadow-slate-200/40 p-4 md:p-6 space-y-2">
-            {sections.map(section => (
+        {/* MOBILE / TABLET ACCORDION MENU (< lg) */}
+        <div className="lg:hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-3 md:p-5 flex flex-col gap-2">
+          {sections.map(section => (
+            <div key={section.id} className="flex flex-col">
+              
               <button
-                key={section.id}
-                onClick={() => section.route ? navigate(section.route) : setActiveSection(section.id)}
-                className={`w-full flex items-center gap-5 p-5 rounded-[2rem] transition-all duration-500 group ${
-                  activeSection === section.id 
-                  ? "bg-slate-900 text-white shadow-2xl shadow-slate-400 scale-[1.02]" 
-                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                onClick={() => {
+                  if (section.route) {
+                    navigate(section.route);
+                  } else {
+                    setActiveSection(activeSection === section.id ? null : section.id);
+                  }
+                }}
+                className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all outline-none ${
+                  activeSection === section.id && !section.route
+                  ? "bg-slate-50 border border-slate-200 shadow-sm text-slate-900" 
+                  : "bg-transparent border border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 }`}
               >
-                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-lg transition-all ${
-                  activeSection === section.id ? "bg-white/10 rotate-6" : "bg-slate-100 group-hover:bg-white"
-                }`}>
+                <div className={`text-lg transition-colors ${activeSection === section.id && !section.route ? "text-blue-600" : "text-slate-400"}`}>
                   {section.icon}
                 </div>
-                <span className="font-black text-[0.95rem] tracking-tight">{section.label}</span>
+                
+                <span className={`font-semibold text-sm md:text-base transition-colors ${activeSection === section.id && !section.route ? "text-slate-900" : ""}`}>
+                  {section.label}
+                </span>
+                
                 {section.badge > 0 && (
-                  <span className={`ml-auto px-3 py-0.5 rounded-full text-[10px] font-black ${
-                    activeSection === section.id ? "bg-blue-500" : "bg-blue-100 text-blue-600"
-                  }`}>
+                  <span className="ml-auto mr-2 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700 shadow-inner">
                     {section.badge}
                   </span>
                 )}
-                <div className={`ml-auto transition-all ${activeSection === section.id ? 'opacity-100' : 'opacity-0'}`}>→</div>
+                
+                {!section.route && (
+                  <div className={`ml-auto text-slate-400 transition-transform duration-300 ${activeSection === section.id ? "" : ""}`}>
+                    {activeSection === section.id ? <Icons.ChevronUp /> : <Icons.ChevronDown />}
+                  </div>
+                )}
+                {section.route && (
+                  <div className="ml-auto text-slate-400">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                )}
               </button>
-            ))}
-            
-            <div className="pt-4 mt-4 border-t border-slate-100">
-              <button 
-                onClick={handleLogout}
-                className="w-full flex items-center gap-5 p-5 rounded-[2rem] text-rose-500 font-black hover:bg-rose-50 transition-all active:scale-95"
-              >
-                <div className="w-10 h-10 rounded-2xl bg-rose-50 flex items-center justify-center text-lg">🚪</div>
-                <span>Logout</span>
-              </button>
-            </div>
-          </nav>
-        </aside>
 
-        {/* MAIN CONTENT AREA (Desktop Expansive) */}
-        <main className="w-full lg:flex-1 bg-white rounded-[3.5rem] border border-slate-100 shadow-sm shadow-slate-200/40 p-8 md:p-16 min-h-[650px] animate-in slide-in-from-right-12 duration-1000">
-          {renderContent()}
-        </main>
+              {/* EXPANDED CONTENT AREA */}
+              {!section.route && (
+                <div 
+                  className={`grid transition-all duration-300 ease-in-out ${
+                    activeSection === section.id 
+                    ? "grid-rows-[1fr] opacity-100 mt-2 mb-4 mx-2 border-t border-slate-100 pt-4" 
+                    : "grid-rows-[0fr] opacity-0 m-0 border-transparent border-t"
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    {renderContent(section.id)}
+                  </div>
+                </div>
+              )}
+              
+            </div>
+          ))}
+          
+          {/* MOBILE LOGOUT BUTTON AT BOTTOM OF ACCORDION */}
+          <div className="mt-4 pt-4 border-t border-slate-100">
+            <button 
+              onClick={handleLogout}
+              className="w-full flex justify-center items-center gap-2 p-4 bg-white border border-rose-200 rounded-xl shadow-sm text-rose-600 font-semibold hover:bg-rose-50 hover:border-rose-300 transition-colors outline-none"
+            >
+              <Icons.LogOut />
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </div>
+
+        {/* DESKTOP EXPOSED LAYOUT (>= lg) */}
+        <div className="hidden lg:grid grid-cols-12 gap-8">
+           {/* LEFT COLUMN: Nav Links (Cart/Wishlist etc) & Payment */}
+           <div className="col-span-4 flex flex-col gap-6">
+              {/* Quick Links Card */}
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col gap-2">
+                 <h3 className="font-bold text-slate-800 mb-2 px-2">Quick Links</h3>
+                 {sections.filter(s => s.route).map(section => (
+                    <button
+                      key={section.id}
+                      onClick={() => navigate(section.route)}
+                      className="w-full flex items-center gap-4 p-4 rounded-xl border border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-200 transition-all outline-none"
+                    >
+                      <div className="text-lg text-slate-400">
+                        {section.icon}
+                      </div>
+                      <span className="font-semibold text-sm">
+                        {section.label}
+                      </span>
+                      {section.badge > 0 && (
+                        <span className="ml-auto mr-2 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700 shadow-inner">
+                          {section.badge}
+                        </span>
+                      )}
+                      <div className="ml-auto text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                      </div>
+                    </button>
+                 ))}
+              </div>
+              
+              {/* Payments Card (Placeholder) */}
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                 {renderContent("payment")}
+              </div>
+           </div>
+
+           {/* RIGHT COLUMN: Heavy Content (Account & Addresses) */}
+           <div className="col-span-8 flex flex-col gap-6">
+              {/* Account Details Card */}
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-2">
+                 {renderContent("account")}
+              </div>
+              
+              {/* Address Book Card */}
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-2">
+                 {renderContent("address")}
+              </div>
+           </div>
+        </div>
 
       </div>
     </div>

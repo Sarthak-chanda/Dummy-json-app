@@ -1,483 +1,468 @@
-/* ==========================================================================
-   PREMIUM WARM E-COMMERCE PRODUCT LAYOUT
-   ========================================================================== */
+/* ==============================
+   PRODUCT PAGE - SCREENSHOT REDESIGN
+============================== */
 
-   .premium-product-page {
+.premium-product-page {
     min-height: 100vh;
-    background-color: #fcfbf9; /* Mild warm ivory texture */
-    padding: 16px 16px 80px; /* Reduced top padding so image sits at top */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: #1a1a1a;
-  }
-  
-  .pp-container {
-    max-width: 1100px;
+    background-color: #f8fafc;
+    padding-bottom: 40px; 
+    font-family: 'Inter', sans-serif;
+}
+
+.pp-container {
+    max-width: 1200px;
     margin: 0 auto;
-  }
-  
-  /* ==========================================================================
-     HERO SECTION (GALLERY & DETAILS)
-     ========================================================================== */
-  
-  .pp-hero-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    align-items: start;
-    margin-bottom: 50px;
-  }
-  
-  /* GALLERY CARD */
-  .pp-gallery-card {
-    background: #ffffff;
-    border: 1px solid #f0efea;
-    border-radius: 28px;
-    padding: 20px;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
-  }
-  
-  .pp-main-image-frame {
+}
+
+/* ==============================
+   MOBILE HERO SECTION
+============================== */
+
+.pp-mobile-hero {
+    position: relative;
     width: 100%;
-    aspect-ratio: 1 / 1; 
-    background: #fdfaf6; 
-    border-radius: 20px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.pp-main-image-frame {
+    width: 100%;
+    height: 70vh;
+    max-height: 600px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 16px;
-    overflow: hidden;
-  }
-  
-  .pp-main-image-frame img {
-    max-width: 85%;
-    max-height: 85%;
+    padding: 20px;
+}
+
+.pp-main-image-frame img {
+    max-width: 100%;
+    max-height: 100%;
     object-fit: contain;
-    mix-blend-mode: multiply; 
-  }
-  
-  .pp-thumbnail-strip {
+}
+
+.pp-image-controls {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pp-wishlist-float {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pp-wishlist-float.active {
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(255, 77, 79, 0.2);
+}
+
+.pp-thumbnail-strip {
     display: flex;
     gap: 12px;
+    padding: 16px;
     overflow-x: auto;
-    padding-bottom: 8px;
-    scrollbar-width: none; 
-  }
-  .pp-thumbnail-strip::-webkit-scrollbar { display: none; }
-  
-  .pp-thumb-btn {
-    width: 70px;
-    height: 70px;
-    flex: 0 0 auto;
-    border-radius: 14px;
+    scrollbar-width: none;
+}
+
+.pp-thumbnail-strip::-webkit-scrollbar { display: none; }
+
+.pp-thumb-btn {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    border-radius: 12px;
     border: 2px solid transparent;
-    background: #fdfaf6;
-    cursor: pointer;
     padding: 4px;
+    background: #f8fafc;
+    cursor: pointer;
     transition: all 0.2s ease;
-  }
-  
-  .pp-thumb-btn img {
+}
+
+.pp-thumb-btn.active {
+    border-color: #2563eb;
+    background: #fff;
+}
+
+.pp-thumb-btn img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    border-radius: 8px;
-  }
-  
-  .pp-thumb-btn.active {
-    border-color: #34a853; 
-    background: #ffffff;
-  }
-  
-  /* DETAILS CARD */
-  .pp-details-card {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .pp-badge-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  
-  .pp-brand-badge {
-    background: #f1f5f9;
-    color: #475569;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .pp-stock-badge {
-    background: #ecfdf5;
-    color: #059669;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 700;
-  }
-  
-  .pp-title {
-    font-size: clamp(1.8rem, 4vw, 2.4rem);
-    font-weight: 800;
-    line-height: 1.15;
-    color: #111827;
-    margin-bottom: 16px;
-  }
-  
-  .pp-price-block {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 28px;
-  }
-  
-  .pp-current-price {
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: #111827;
-  }
-  
-  .pp-original-price {
-    font-size: 1.1rem;
-    color: #94a3b8;
-    text-decoration: line-through;
-    font-weight: 600;
-  }
-  
-  .pp-discount-tag {
-    background: #fff4ed; 
-    color: #ea580c;
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 800;
-  }
-  
-  .pp-section-block {
-    margin-bottom: 30px;
-  }
-  
-  .pp-section-heading {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 12px;
-  }
-  
-  .pp-description {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: #4b5563;
-  }
-  
-  /* PRIMARY APP BUTTON */
-  .pp-action-block {
-    margin-bottom: 30px;
-  }
-  
-  .pp-add-cart-btn {
-    width: 240px; 
-    max-width: 100%; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: linear-gradient(180deg, #34a853 0%, #24963e 100%);
-    color: #ffffff;
-    padding: 12px 24px; 
-    border-radius: 14px;
-    font-size: 1rem; 
-    font-weight: 700;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 6px 16px rgba(36, 150, 62, 0.2);
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  
-  .pp-add-cart-btn:hover {
-    background: linear-gradient(180deg, #2b9346 0%, #1d7b32 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(36, 150, 62, 0.3);
-  }
-  
-  .pp-add-cart-btn:active {
-    transform: translateY(1px);
-  }
-  
-  /* Trust Elements */
-  .pp-trust-row {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 20px;
-    border: 1px solid #f0efea;
-  }
-  
-  .pp-trust-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: #4b5563;
-  }
-  
-  /* ==========================================================================
-     SPECIFICATIONS SECTION
-     ========================================================================== */
-  
-  .pp-specs-section {
-    margin-bottom: 50px;
-  }
-  
-  .pp-main-heading {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #111827;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .pp-main-heading span {
-    color: #94a3b8;
-    font-weight: 600;
-  }
-  
-  .pp-specs-grid {
+}
+
+/* ==============================
+   MAIN LAYOUT
+============================== */
+
+.pp-main-layout {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 16px;
-  }
-  
-  .pp-spec-card {
-    background: #ffffff;
-    border: 1px solid #f0efea;
-    padding: 16px 20px;
-    border-radius: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  
-  .pp-spec-label {
-    font-size: 0.85rem;
-    color: #64748b;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-  
-  .pp-spec-value {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #1e293b;
-  }
-  
-  /* ==========================================================================
-     REVIEWS SECTION
-     ========================================================================== */
-  
-  .pp-reviews-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-  }
-  
-  .pp-review-card {
-    background: #ffffff;
-    border: 1px solid #f0efea;
+    grid-template-columns: 1fr 380px;
+    grid-template-areas: 
+        "header action"
+        "info action"
+        "trust action"
+        "specs action";
+    gap: 24px;
     padding: 24px;
-    border-radius: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-  }
-  
-  .pp-review-header {
+    align-items: start;
+}
+
+.pp-header-card { grid-area: header; background: #fff; padding: 24px; border-radius: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); }
+.pp-action-card { grid-area: action; background: #fff; padding: 24px; border-radius: 24px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08); display: flex; flex-direction: column; gap: 20px; position: sticky; top: 100px; }
+.pp-info-card { grid-area: info; background: #fff; padding: 24px; border-radius: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); }
+.pp-trust-grid { grid-area: trust; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.pp-specs-section { grid-area: specs; background: #fff; padding: 24px; border-radius: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); }
+
+/* HEADER DETAILS */
+.pp-brand-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 12px;
+}
+
+.pp-brand-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pp-rating-chip {
+    background: #fffbeb;
+    color: #b45309;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+.pp-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.pp-price-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.pp-price-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.pp-current-price {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #111827;
+}
+
+.pp-original-price {
+    font-size: 1rem;
+    color: #94a3b8;
+    text-decoration: line-through;
+    font-weight: 600;
+}
+
+.pp-discount-badge {
+    background: #fef2f2;
+    color: #ef4444;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+/* INFO CONTENT */
+.pp-section-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #1e293b;
     margin-bottom: 16px;
-  }
-  
-  .pp-reviewer-info {
+}
+
+.pp-description {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #4b5563;
+}
+
+/* TRUST ELEMENTS */
+.pp-trust-card {
+    background: #fff;
+    padding: 16px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.pp-trust-icon {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.pp-trust-card p {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    line-height: 1.3;
+}
+
+/* SPECIFICATIONS */
+.pp-specs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pp-spec-item {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.pp-spec-item:last-child {
+    border-bottom: none;
+}
+
+.pp-spec-item span {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.pp-spec-item strong {
+    color: #1e293b;
+    font-size: 0.95rem;
+}
+
+/* ACTION CARD CONTENT */
+.pp-stock-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.pp-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.pp-status-dot.in-stock { background: #22c55e; }
+.pp-status-dot.out-of-stock { background: #ef4444; }
+
+.pp-main-action-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #34a853 0%, #24963e 100%);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 8px 20px rgba(36, 150, 62, 0.25);
+}
+
+.pp-main-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(36, 150, 62, 0.35);
+}
+
+.pp-main-action-btn.added {
+    background: #0f172a;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
+}
+
+/* ==============================
+   REVIEWS SECTION
+============================== */
+
+.pp-reviews-section {
+    padding: 24px;
+}
+
+.pp-reviews-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.pp-review-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+}
+
+.pp-review-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.pp-reviewer {
     display: flex;
     align-items: center;
     gap: 12px;
-  }
-  
-  .pp-avatar {
-    width: 40px;
-    height: 40px;
-    background: #fdfaf6;
-    border: 1px solid #e5e5e5;
+}
+
+.pp-avatar {
+    width: 36px;
+    height: 36px;
+    background: #f1f5f9;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
-    color: #111827;
-  }
-  
-  .pp-reviewer-info strong {
-    font-size: 1rem;
-    color: #111827;
-  }
-  
-  .pp-star-rating {
-    background: #fffbef; 
-    color: #d97706; 
-    padding: 4px 10px;
-    border-radius: 8px;
     font-weight: 800;
-    font-size: 0.9rem;
-  }
-  
-  .pp-review-text {
-    font-size: 0.95rem;
-    color: #4b5563;
-    line-height: 1.6;
-    margin-bottom: 12px;
-    font-style: italic;
-  }
-  
-  .pp-review-date {
-    font-size: 0.8rem;
-    color: #94a3b8;
-    font-weight: 500;
-  }
-  
-  /* LOADING SCREEN */
-  .pp-loading-screen {
-    min-height: 80vh;
+    color: #2563eb;
+}
+
+.pp-review-meta {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 16px;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.pp-review-stars {
+    display: flex;
+    gap: 2px;
+}
+
+.pp-review-stars .star {
+    font-size: 0.9rem;
+}
+
+.pp-review-stars .star.filled {
+    color: #eab308;
+}
+
+.pp-review-stars .star.empty {
+    color: #e2e8f0;
+}
+
+.pp-rating-num {
+    font-size: 0.85rem;
+    font-weight: 700;
     color: #64748b;
-    font-weight: 600;
-  }
-  
-  .pp-spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #f0efea;
-    border-top-color: #34a853;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin { to { transform: rotate(360deg); } }
-  
-  /* ==========================================================================
-     RESPONSIVE (TABLET & MOBILE) 
-     ========================================================================== */
-  
-  @media (max-width: 992px) {
-    /* Mirrors the Nav width shift so the button stays aligned */
-    .pp-back-btn-wrapper {
-      width: 94%; 
+}
+
+.pp-review-text {
+    font-size: 0.9rem;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+.pp-review-date {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+/* ==============================
+   RESPONSIVE DESIGN
+============================== */
+
+@media (max-width: 992px) {
+    .pp-main-layout {
+        grid-template-columns: 1fr;
+        grid-template-areas: 
+            "header"
+            "action"
+            "info"
+            "trust"
+            "specs";
+        padding: 16px;
     }
-    
-    .pp-hero-section {
-      gap: 24px;
+
+    .pp-action-card {
+        position: static; 
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        border-radius: 24px;
+        padding: 16px;
     }
-  }
-  
-  @media (max-width: 768px) {
-    .premium-product-page {
-      padding: 16px 12px 60px;
+
+    .pp-main-action-btn {
+        padding: 12px;
+        font-size: 1rem;
     }
-  
-    /* Shrinks the back button for Mobile and Tablet */
-    .pp-back-btn {
-      padding: 8px 16px;
-      font-size: 0.85rem;
-    }
-    
-    .pp-back-icon {
-      width: 16px;
-      height: 16px;
-    }
-    
-    .pp-back-btn-container {
-      top: 85px; 
-    }
-  
-    .pp-hero-section {
-      grid-template-columns: 1fr; /* Stack layout */
-      gap: 24px;
-    }
-  
-    .pp-gallery-card {
-      padding: 16px;
-    }
-  
+
     .pp-main-image-frame {
-      aspect-ratio: auto;
-      height: 400px;
+        height: 50vh;
     }
-  
-    /* Typography Shrink for Tablet */
+
     .pp-title { font-size: 1.6rem; }
     .pp-current-price { font-size: 1.8rem; }
-    .pp-original-price { font-size: 1rem; }
     .pp-description { font-size: 0.95rem; }
-    .pp-main-heading { font-size: 1.3rem; }
-    .pp-add-cart-btn { font-size: 0.95rem; }
-  
-    .pp-trust-row {
-      padding: 16px;
-    }
-  
-    .pp-specs-grid {
-      grid-template-columns: 1fr 1fr; 
-    }
-  
-    .pp-reviews-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .pp-main-image-frame {
-      height: 280px; 
-    }
-  
-    .pp-thumb-btn {
-      width: 55px;
-      height: 55px;
-    }
-  
-    /* Deep Typography Shrink for Mobile */
-    .pp-title { font-size: 1.35rem; margin-bottom: 12px; }
-    .pp-current-price { font-size: 1.5rem; }
-    .pp-original-price { font-size: 0.95rem; }
-    .pp-discount-tag { font-size: 0.8rem; padding: 4px 8px; }
-    
-    .pp-section-heading { font-size: 1rem; }
-    .pp-description { font-size: 0.9rem; line-height: 1.5; }
-    
-    .pp-trust-item { font-size: 0.85rem; }
-    
-    .pp-main-heading { font-size: 1.15rem; margin-bottom: 16px; }
-    
-    .pp-spec-card { padding: 12px 16px; }
-    .pp-spec-label { font-size: 0.75rem; }
-    .pp-spec-value { font-size: 0.9rem; }
-    
-    .pp-review-card { padding: 16px; }
-    .pp-reviewer-info strong { font-size: 0.9rem; }
-    .pp-review-text { font-size: 0.85rem; }
-  
-    .pp-specs-grid {
-      grid-template-columns: 1fr; 
-    }
-  }
+}
+
+@media (max-width: 768px) {
+    .pp-trust-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+    .pp-container { padding: 0; }
+    .pp-main-layout { padding: 12px; }
+    .pp-main-image-frame { height: 40vh; }
+    .pp-trust-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .pp-trust-card { padding: 12px 8px; }
+
+    .pp-title { font-size: 1.35rem; }
+    .pp-current-price { font-size: 1.6rem; }
+    .pp-original-price { font-size: 0.9rem; }
+    .pp-description { font-size: 0.9rem; }
+    .pp-brand-name { font-size: 0.8rem; }
+    .pp-section-title { font-size: 1rem; }
+}
+
+/* LOADING SCREEN */
+.pp-loading-screen {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.pp-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f0efea;
+  border-top-color: #34a853;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

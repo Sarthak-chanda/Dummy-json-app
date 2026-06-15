@@ -10,7 +10,7 @@
     left: 50%;
     transform: translateX(-50%);
     z-index: 2000; 
-    background: transparent;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.25) 40%, rgba(255, 255, 255, 0) 80%, rgba(255, 255, 255, 0) 100%);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -18,7 +18,9 @@
     margin: 0; 
     transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
     border-radius: 0;
-    border: 1px solid transparent;
+    border: none;
+    outline: none;
+    box-shadow: none;
     overflow: hidden;
   }
   

@@ -1,0 +1,242 @@
+/* ==================================
+   SHARED BANNER STYLES (Hero & Interstitial)
+   Used in Products.jsx and OfferPage.jsx
+================================== */
+
+.products-hero {
+  width: 100%;
+  height: clamp(350px, 50vh, 500px); 
+  margin-bottom: 2rem;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-bg-img, .banner-bg-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.hero-overlay, .banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+.hero-inner-content, .banner-inner-content {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 4rem 4rem 4rem; 
+  position: relative;
+  z-index: 5;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end; 
+}
+
+.banner-text-area {
+  text-align: left;
+  max-width: 750px;
+}
+
+.banner-main-title {
+  color: white;
+  font-size: clamp(1.8rem, 6vw, 4rem); 
+  margin-bottom: 0.8rem;
+  font-weight: 900;
+  letter-spacing: -2px;
+  line-height: 1;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.banner-sub-text {
+  font-size: clamp(0.85rem, 2vw, 1.1rem); 
+  color: rgba(255, 255, 255, 0.95);
+  max-width: 500px;
+  margin: 0 0 2rem 0;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.banner-cta-area {
+  flex-shrink: 0;
+}
+
+.banner-cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 28px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #0f172a;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  backdrop-filter: blur(4px);
+}
+
+.banner-cta:hover {
+  transform: translateY(-5px) scale(1.02);
+  background: #34a853;
+  color: white;
+}
+
+.banner-indicators-bottom {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+
+.indicator {
+  width: 30px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  transition: all 0.4s ease;
+}
+
+.indicator.active {
+  background: #ffffff;
+  width: 60px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+/* INTERSTITIAL BANNERS */
+.interstitial-section {
+  margin: 4rem 0;
+  width: 100%;
+}
+
+.interstitial-banner {
+  width: 100%;
+  height: 350px;
+  border-radius: 32px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+  .interstitial-section {
+    margin: 2.5rem 0;
+  }
+
+  .products-hero, .interstitial-banner {
+    height: 400px !important;
+    min-height: 400px !important;
+  }
+
+  .hero-inner-content, .banner-inner-content {
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    align-items: flex-start !important;
+    padding: 2rem 1.5rem 5rem 1.5rem !important; 
+    gap: 1.2rem !important;
+    height: 100% !important;
+  }
+
+  .banner-text-area {
+    margin: 0 !important;
+    width: 100% !important;
+    text-align: left !important;
+  }
+
+  .banner-main-title {
+    font-size: 2.2rem !important;
+    letter-spacing: -1px !important;
+    margin-bottom: 0.6rem !important;
+    text-align: left !important;
+  }
+
+  .banner-sub-text {
+    font-size: 0.95rem !important;
+    margin-bottom: 0 !important;
+    max-width: 100% !important;
+    text-align: left !important;
+  }
+
+  .banner-cta-area {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    margin-bottom: 1rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .products-hero, .interstitial-banner {
+    height: 400px !important;
+    min-height: 400px !important;
+  }
+  
+  .hero-inner-content, .banner-inner-content {
+    padding: 1.5rem 1.2rem 4.5rem 1.2rem !important;
+    gap: 0.8rem !important;
+  }
+
+  .banner-main-title {
+    font-size: 1.8rem !important;
+    margin-bottom: 0.4rem !important;
+  }
+
+  .banner-sub-text {
+    font-size: 0.85rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .banner-cta {
+    padding: 10px 20px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .banner-indicators-bottom {
+    bottom: 16px !important; 
+  }
+}
+
+@media (max-width: 330px) {
+  .products-hero, .interstitial-banner {
+    min-height: 380px !important;
+  }
+
+  .hero-inner-content, .banner-inner-content {
+    padding: 0 1rem 4rem 1rem !important;
+    gap: 0.6rem !important;
+  }
+
+  .banner-main-title {
+    font-size: 1.5rem !important;
+  }
+
+  .banner-sub-text {
+    font-size: 0.75rem !important;
+  }
+
+  .banner-cta {
+    padding: 8px 16px !important;
+  }
+}
