@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import ProductCard from "./ProductCard";
 import "./Products.css";
 import "./Banner.css";
+import CategorySection from "./CategorySection";
 import Loading from "../Loading";
 import { useProductManager } from "../hooks/useProductManager";
 import { useOffersManager } from "../hooks/useOffersManager";
@@ -213,6 +214,61 @@ const BudgetFriendlyContainer = ({ getProductsByPriceRange, sortProducts, addToC
   );
 };
 
+const RecommendationSection = ({ products, addToCart, cart, wishlist, toggleWishlist }) => {
+  const navigate = useNavigate();
+  // Filter top rated products for recommendations
+  const recommendedProducts = [...products]
+    .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+    .slice(0, 6);
+
+  if (recommendedProducts.length === 0) return null;
+
+  return (
+    <div className="recommendation-section">
+      <div className="recommendation-container">
+        <div className="recommendation-header">
+          <div className="recommendation-title-area">
+            <span className="recommendation-badge">Expert Choice</span>
+            <h2 className="recommendation-title">Recommended For You</h2>
+            <p className="recommendation-subtitle">Handpicked premium products based on your style</p>
+          </div>
+          <button className="recommendation-explore-btn" onClick={() => navigate('/categories')}>
+            Explore All 
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <div className="recommendation-main-content">
+          <div className="recommendation-promo-banner">
+            <img src="/image/Recomendation.png" alt="Featured Promo" />
+            <div className="promo-text-content">
+              <h3>Summer Collection 2026</h3>
+              <p>Elevate your lifestyle with our exclusive trending items.</p>
+              <button onClick={() => navigate('/categories')}>Shop the Look</button>
+            </div>
+          </div>
+          
+          <div className="recommendation-products-grid">
+            {recommendedProducts.map(product => (
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                addToCart={addToCart} 
+                cart={cart} 
+                wishlist={wishlist} 
+                toggleWishlist={toggleWishlist} 
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Products = ({ addToCart, cart, wishlist, toggleWishlist }) => {
   const navigate = useNavigate();
   const { products, loading, groupedProducts, hotDeals, getProductsByPriceRange, sortProducts } = useProductManager();
@@ -383,6 +439,13 @@ const Products = ({ addToCart, cart, wishlist, toggleWishlist }) => {
           </div>
         </div>
       )}
+
+      <CategorySection 
+        addToCart={addToCart} 
+        cart={cart} 
+        wishlist={wishlist} 
+        toggleWishlist={toggleWishlist} 
+      />
 
       <div className="products-content-wrapper">
         {/* Hot Deals Section */}

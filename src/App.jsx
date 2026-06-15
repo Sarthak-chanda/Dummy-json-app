@@ -10,6 +10,7 @@ import NotFound from './NotFound'
 import Cartpage from './Content/Cartpage.jsx'
 import WishlistPage from './Content/WishlistPage.jsx'
 import CategoryPage from './Content/CategoryPage.jsx'
+import Categories from './Content/Categories.jsx'
 import Products from './Content/Products'
 import OfferPage from './Content/OfferPage'
 import Login from './Login/Login.jsx'
@@ -303,6 +304,7 @@ const App = () => {
       <div className={location.pathname !== '/' && !hideNav ? "pt-[60px]" : ""}>
         <Routes>
           <Route path="/" element={<Products addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+          <Route path="/categories" element={<Categories />} />
           <Route path="/offer/:offerId" element={<OfferPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
           <Route path="/category/:categoryName" element={<CategoryPage addToCart={addToCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
           <Route path="/home" element={<Navigate to="/" replace />} />
