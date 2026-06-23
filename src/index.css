@@ -16,6 +16,9 @@
   /* STRUCTURAL SPACING */
   --container-padding: clamp(1rem, 4vw, 2.5rem);         /* Screen edges padding */
   --section-gap: clamp(2rem, 5vw, 3rem);                 /* Vertical spacing between sections */
+  --bg-marble: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.9) 0%, transparent 70%),
+    radial-gradient(circle at 80% 70%, rgba(255,255,255,0.7) 0%, transparent 65%),
+    linear-gradient(135deg, #f5f5f5, #e0e0e0 30%, #d0d0d0 70%, #c0c0c0);
 }
 
 /* Allow selection for informational text */
@@ -27,9 +30,6 @@ h1, h2, h3, h4, h5, h6, p, span, b, strong, i, em, .user-email-text, .detail-val
 input, textarea, button {
   user-select: auto;
 }
-  --bg-marble: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.9) 0%, transparent 70%),
-    radial-gradient(circle at 80% 70%, rgba(255,255,255,0.7) 0%, transparent 65%),
-    linear-gradient(135deg, #f5f5f5, #e0e0e0 30%, #d0d0d0 70%, #c0c0c0);
 
 .global-marble-bg {
   background: var(--bg-marble);
