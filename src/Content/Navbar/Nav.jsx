@@ -14,6 +14,7 @@ const Nav = ({ cart, wishlist = [], setSearchResult, setLoading, setNotfound, us
 
   // Scroll state for the floating pill effect
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isAtBottom, setIsAtBottom] = useState(false)
   // Search state for the mobile morphing layout
   const [isSearchActive, setIsSearchActive] = useState(false)
   // Burger menu state
@@ -38,6 +39,14 @@ const Nav = ({ cart, wishlist = [], setSearchResult, setLoading, setNotfound, us
       } else {
         setIsScrolled(false)
       }
+
+      // Check if user is at the very bottom of the page
+      // Added a 10px threshold to handle decimal sub-pixel scrolling
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 10) {
+        setIsAtBottom(true)
+      } else {
+        setIsAtBottom(false)
+      }
     }
 
     window.addEventListener('scroll', handleScroll)
@@ -53,7 +62,7 @@ const Nav = ({ cart, wishlist = [], setSearchResult, setLoading, setNotfound, us
       ></div>
 
       {/* Mobile Control Panel (Floating Bottom) */}
-      <div className={`mobile-control-panel ${isScrolled ? 'visible' : ''}`}>
+      <div className={`mobile-control-panel ${isScrolled && !isAtBottom ? 'visible' : ''}`}>
         <button className="control-btn" onClick={() => navigate(-1)} aria-label="Go back">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="m15 18-6-6 6-6"/>
@@ -220,10 +229,13 @@ const Nav = ({ cart, wishlist = [], setSearchResult, setLoading, setNotfound, us
               <div className="item-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg></div>
             </div>
             {userdet?.id && (
-              <div className="mobile-menu-item logout" onClick={() => {
-                localStorage.removeItem('userdet');
-                window.location.reload();
-                setIsMenuOpen(false);
+              <div className="mobile-menu-item logout" onClick={async () => {
+                try {
+                  await supabase.auth.signOut();
+                  setIsMenuOpen(false);
+                } catch (err) {
+                  console.error('Logout error:', err);
+                }
               }}>
                 <div className="item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
                 <span>Logout</span>

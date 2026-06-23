@@ -63,20 +63,8 @@ const Login = ({ setUserdet, authLoading }) => {
 
       if (error) throw error;
       setSuccessMessage('Logged in successfully!');
-
-      const emailPrefix = data.user.email ? data.user.email.split('@')[0] : '';
-
-      const mappedData = {
-        id: data.user.id,
-        username: data.user.user_metadata?.full_name || 'Marketplace User',
-        email: data.user.email,
-        emailPrefix: emailPrefix,
-        image: data.user.user_metadata?.avatar_url || '',
-        accessToken: data.session.access_token,
-      };
-
-      localStorage.setItem('userdet', JSON.stringify(mappedData));
-      setUserdet(mappedData);
+      
+      // App.jsx onAuthStateChange will handle mappedData, localStorage and setUserdet
       navigate('/welcome');
     } catch (error) {
       setErrorMessage(error.message);

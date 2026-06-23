@@ -5,7 +5,7 @@
    .pet-cart-page {
     min-height: 100vh;
     background-color: #f7f9fa; /* Uniform pale environment backdrop */
-    padding: 40px 16px;
+    padding: var(--space-2xl) var(--container-padding);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: #1a1a1a;
     -webkit-font-smoothing: antialiased;
@@ -16,7 +16,7 @@
     margin: 0 auto;
     background: #ffffff;
     border-radius: 32px;
-    padding: 32px;
+    padding: var(--space-xl);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
     border: 1px solid #f0f2f5;
   }
@@ -29,8 +29,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 32px;
-    padding: 4px 0;
+    margin-bottom: var(--space-xl);
+    padding: var(--space-xs) 0;
   }
   
   .header-more-btn {
@@ -66,14 +66,14 @@
   .pet-cart-layout-grid {
     display: grid;
     grid-template-columns: 1fr 360px;
-    gap: 40px;
+    gap: var(--space-2xl);
     align-items: start;
   }
   
   .pet-cart-items-list {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--space-md);
   }
   
   /* ==========================================================================
@@ -84,10 +84,10 @@
     background: #ffffff;
     border: 1px solid #f1f3f5;
     border-radius: 24px;
-    padding: 16px;
+    padding: var(--space-sm);
     display: grid;
     grid-template-columns: 140px 1fr;
-    gap: 24px;
+    gap: var(--space-lg);
     align-items: center;
     transition: border-color 0.2s ease;
   }
@@ -106,7 +106,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 12px;
+    padding: var(--space-xs);
   }
   
   /* Dynamic color presets mapping to the aesthetic */
@@ -126,14 +126,14 @@
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
-    padding: 4px 0;
+    padding: var(--space-xs) 0;
     min-width: 0; /* Important for text truncation */
   }
   
   .item-meta-header {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--space-xs);
   }
   
   .pet-item-title {
@@ -164,7 +164,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 14px;
+    margin-top: var(--space-sm);
   }
   
   .pet-quantity-stepper {
@@ -173,8 +173,8 @@
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 999px;
-    padding: 4px;
-    gap: 12px;
+    padding: 4px var(--space-xs);
+    gap: var(--space-xs);
   }
   
   .stepper-btn {
@@ -237,7 +237,7 @@
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
-    padding: 6px 12px;
+    padding: var(--space-xs) var(--space-sm);
     border-radius: 6px;
     transition: all 0.2s ease;
   }
@@ -255,13 +255,13 @@
     background: #ffffff;
     border: 1px solid #f1f3f5;
     border-radius: 28px;
-    padding: 24px;
+    padding: var(--space-lg);
   }
   
   .summary-invoice-sheet {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: var(--space-sm);
   }
   
   .invoice-row {
@@ -287,7 +287,7 @@
     width: 100%;
     height: 1px;
     border-top: 2px dotted #cbd5e1;
-    margin: 8px 0;
+    margin: var(--space-xs) 0;
   }
   
   .invoice-row.total-row {
@@ -311,12 +311,12 @@
     width: 100%;
     background: linear-gradient(180deg, #34a853 0%, #24963e 100%);
     color: #ffffff;
-    padding: 16px;
+    padding: var(--space-sm);
     border-radius: 20px;
     font-size: 1.1rem;
     font-weight: 700;
     text-align: center;
-    margin-top: 24px;
+    margin-top: var(--space-lg);
     cursor: pointer;
     border: none;
     box-shadow: 0 6px 20px rgba(36, 150, 62, 0.15);
@@ -339,31 +339,31 @@
   
   .pet-empty-state {
     text-align: center;
-    padding: 60px 20px;
+    padding: var(--space-2xl) var(--container-padding);
   }
   
   .empty-icon {
     font-size: 4rem;
-    margin-bottom: 16px;
+    margin-bottom: var(--space-sm);
   }
   
   .pet-empty-state h2 {
     font-size: 1.4rem;
     font-weight: 700;
     color: #1e293b;
-    margin-bottom: 8px;
+    margin-bottom: var(--space-xs);
   }
   
   .pet-empty-state p {
     color: #64748b;
     font-size: 0.95rem;
-    margin-bottom: 24px;
+    margin-bottom: var(--space-lg);
   }
   
   .shop-now-btn {
     background: #111827;
     color: #ffffff;
-    padding: 12px 24px;
+    padding: var(--space-xs) var(--space-lg);
     border-radius: 12px;
     font-weight: 600;
     font-size: 0.95rem;
@@ -378,18 +378,18 @@
   @media (max-width: 900px) {
     .pet-cart-layout-grid {
       grid-template-columns: 1fr; /* Stack into uniform block waterfall column */
-      gap: 32px;
+      gap: var(--space-xl);
     }
     
     .pet-cart-container {
-      padding: 24px;
+      padding: var(--space-lg);
       border-radius: 24px;
     }
   
     /* Shrink the image frame slightly on tablets */
     .pet-cart-item-card {
       grid-template-columns: 120px 1fr;
-      gap: 20px;
+      gap: var(--space-md);
     }
   
     .pet-cart-image-frame {
@@ -400,16 +400,16 @@
   
   @media (max-width: 550px) {
     .pet-cart-page {
-      padding: 12px 8px;
+      padding: var(--space-xs) var(--space-xs);
     }
   
     .pet-cart-container {
-      padding: 16px;
+      padding: var(--space-sm);
       border-radius: 20px;
     }
   
     .pet-cart-header {
-      margin-bottom: 24px;
+      margin-bottom: var(--space-lg);
     }
   
     .pet-cart-title {
@@ -419,8 +419,8 @@
     /* Keep Horizontal Layout but shrink everything heavily */
     .pet-cart-item-card {
       grid-template-columns: 90px 1fr; /* Keep it side-by-side! */
-      gap: 16px;
-      padding: 12px;
+      gap: var(--space-sm);
+      padding: var(--space-xs);
       border-radius: 16px;
     }
   
@@ -428,7 +428,7 @@
       width: 90px;
       height: 90px;
       border-radius: 14px;
-      padding: 8px;
+      padding: var(--space-xs);
     }
   
     /* Shrink typography and prevent overflow */
@@ -449,11 +449,11 @@
   
     /* Shrink Stepper and Buttons */
     .item-interactive-footer {
-      margin-top: 8px;
+      margin-top: var(--space-xs);
     }
   
     .pet-quantity-stepper {
-      gap: 8px;
+      gap: var(--space-xs);
       padding: 3px;
     }
   
@@ -464,13 +464,13 @@
     }
   
     .inline-remove-btn {
-      padding: 4px 8px;
+      padding: 4px var(--space-xs);
       font-size: 0.8rem;
     }
   
     /* Shrink Checkout Panel */
     .pet-cart-summary-card {
-      padding: 16px;
+      padding: var(--space-sm);
       border-radius: 20px;
     }
   
@@ -488,9 +488,9 @@
     }
   
     .pet-checkout-primary-btn {
-      padding: 14px;
+      padding: var(--space-sm);
       font-size: 1rem;
-      margin-top: 16px;
+      margin-top: var(--space-sm);
       border-radius: 16px;
     }
   }
@@ -499,7 +499,7 @@
   @media (max-width: 380px) {
     .pet-cart-item-card {
       grid-template-columns: 75px 1fr;
-      gap: 12px;
+      gap: var(--space-xs);
     }
   
     .pet-cart-image-frame {
@@ -516,7 +516,7 @@
     }
   
     .pet-quantity-stepper {
-      gap: 6px;
+      gap: var(--space-xs);
     }
   
     .stepper-btn {
@@ -525,6 +525,6 @@
     }
   
     .inline-remove-btn {
-      padding: 2px 6px;
+      padding: 2px var(--space-xs);
     }
   }

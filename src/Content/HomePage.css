@@ -6,6 +6,7 @@
   width: 100%;
   min-height: 100vh;
   /* Modern Texture Setup */
+  background-color: #f8fafc;
   background: var(--bg-marble);
   background-attachment: fixed;
 }
@@ -13,7 +14,7 @@
 .products-content-wrapper {
   max-width: 1600px;
   margin: 0 auto;
-  padding: 0 var(--container-padding) var(--space-2xl) var(--container-padding);
+  padding: 0 var(--container-padding);
 }
 
 /* =========================
@@ -124,7 +125,9 @@
 ========================= */
 
 .budget-friendly-container {
-  background: #f8fafc;
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.6), transparent), url('https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1600&q=80');
+  background-size: cover;
+  background-position: center;
   border-radius: 24px;
   padding: var(--space-xl);
   margin: var(--section-gap) 0;
@@ -132,6 +135,14 @@
   border: 1px solid rgba(255, 255, 255, 0.5);
   position: relative;
   overflow: hidden;
+}
+
+.budget-friendly-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.6), transparent);
 }
 
 .budget-header {
@@ -360,7 +371,7 @@
   inset: 0;
   pointer-events: none;
   background: linear-gradient(to bottom, transparent, #f8fafc 80%);
-  /* Smooth fade to page background at bottom */
+  /* Creates a smooth fade to the page background at the bottom */
 }
 
 
@@ -416,7 +427,7 @@
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
+ 
 .recommendation-dot.active {
   background-color: #0ea5a5; /* Active indicator matching website theme */
   transform: scale(1.2);

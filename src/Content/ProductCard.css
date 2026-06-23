@@ -18,26 +18,25 @@
   
   .ec-product-card {
     width: 280px;      
-    max-width: 100%;
-    min-height: 420px;         
+    height: 380px;         
     background: #ffffff;
     border-radius: var(--ec-pc-radius);
-    padding: var(--ec-pc-padding);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    padding: 0;
+    box-shadow: none; /* Removed shadow */
     box-sizing: border-box;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    transition: transform 0.3s ease, border-color 0.3s ease;
     display: flex;
     flex-direction: column;
-    border: 1px solid #d1d5db;
+    border: 1px solid #e2e8f0; /* Subtle border instead of shadow */
     flex-shrink: 0; 
-    cursor: pointer; /* Makes the entire card show the pointer cursor */       
+    cursor: pointer; 
+    overflow: hidden;
   }
   
   .ec-product-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    border-color: #e2e8f0;
+    border-color: #cbd5e1;
   }
   
   /* ==========================================================================
@@ -46,33 +45,30 @@
   
   .ec-pc-image-section {
     position: relative;
-    background-color: var(--ec-pc-bg-gray);
-    border-radius: var(--ec-pc-inner-radius);
     width: 100%;
-    aspect-ratio: 3 / 2;
-    max-height: 200px;
-    height: auto;
+    height: 50%;
+    border-radius: 0;
     flex-shrink: 0;        
     overflow: hidden;
     touch-action: pan-y; 
-    margin-bottom: 12px;
+    margin-bottom: 0;
   }
   
   /* Badges & Icons */
   .ec-pc-badge {
     position: absolute;
-    top: 10px;
+    top: 12px;
     background: #ffffff;
     border-radius: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     z-index: 5;
   }
   
   .ec-pc-badge.discount {
-    left: 10px;
+    left: 12px;
     padding: 4px 10px;
     font-size: 0.7rem;
     font-weight: 700;
@@ -81,13 +77,17 @@
   }
   
   .ec-pc-badge.heart-icon {
-    right: 10px;
-    width: 32px;
-    height: 32px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
     border: none;
     cursor: pointer;
     padding: 0;
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: 50%;
   }
   
   .ec-pc-badge.heart-icon:hover {
@@ -97,9 +97,12 @@
   .ec-pc-badge.heart-icon svg {
     width: 50%;
     height: 50%;
+    stroke: white;
   }
   
   .ec-pc-badge.heart-icon.active svg {
+    fill: white;
+    stroke: white;
     animation: heartPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   
@@ -124,17 +127,23 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10%; 
+    padding: 0; 
     box-sizing: border-box;
   }
   
-  .ec-pc-slide img {
-    max-width: 100%;
-    max-height: 100%;
+  .sample-style-img {
+    max-width: 85%;
+    max-height: 85%;
     object-fit: contain;
     mix-blend-mode: multiply; 
     user-select: none;
     -webkit-user-drag: none;
+    filter: drop-shadow(0 15px 15px rgba(0,0,0,0.25));
+    transition: transform 0.3s ease;
+  }
+
+  .ec-product-card:hover .sample-style-img {
+    transform: scale(1.05) translateY(-5px);
   }
   
   /* Swipe Dots */
@@ -152,12 +161,12 @@
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background-color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.4);
     transition: all 0.3s ease;
   }
   
   .ec-pc-indicators .dot.active {
-    background-color: var(--ec-teal);
+    background: #ffffff;
     width: 14px;
     border-radius: 10px;
   }
@@ -170,185 +179,162 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;          
-    padding: 0 4px;
+    padding: 12px 16px 16px 16px;
+    font-family: inherit; /* Inherits the project's standard font */
   }
-  
-  .ec-pc-meta-row {
+
+  .ec-pc-header-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 4px;
+    align-items: flex-start;
+    margin-bottom: 6px;
+    gap: 8px;
   }
-  
-  .ec-pc-brand {
-    color: var(--ec-teal);
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+
+  .ec-pc-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
-  
-  .ec-pc-category {
-    color: var(--ec-text-sub);
-    font-size: 0.7rem;
-    text-transform: capitalize;
-  }
-  
+
   .ec-pc-title {
-    font-size: var(--ec-fs-title);
+    font-size: 1rem; /* Adjusting font size not to make cards bigger */
     font-weight: 700;
-    color: var(--ec-text-main);
-    line-height: 1.4;
+    color: #1e293b;
+    line-height: 1.2;
     margin: 0;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1; 
     -webkit-box-orient: vertical;
     overflow: hidden;
-    min-height: 2.8em; 
+  }
+
+  .ec-pc-category-text {
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: capitalize;
+    font-weight: 500;
+  }
+
+  .ec-pc-rating-transparent {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+
+  .ec-pc-desc-small {
+    font-size: 0.75rem;
+    color: #64748b;
+    line-height: 1.4;
+    margin: 0 0 10px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* "if the description is big make it ..." */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   
   /* ==========================================================================
      PRICE & BUTTON
      ========================================================================== */
   
-  .ec-pc-price-row {
+  .ec-pc-bottom-row {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    margin-top: auto;      
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: auto;
+    gap: 12px; /* Adds a gap between price and add to cart button */
+  }
+  
+  .ec-pc-price-col {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .price-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+  
+  .ec-pc-price-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
   }
   
   .current-price {
-    font-size: var(--ec-fs-price);
+    font-size: 1.25rem; /* Adjusted price font size */
     font-weight: 800;
-    color: var(--ec-text-main);
+    color: #1e293b;
     letter-spacing: -0.3px;
   }
   
-  .original-price {
-    font-size: 0.8rem;
-    color: #94a3b8;
-    text-decoration: line-through;
-    font-weight: 500;
-  }
-  
   .ec-pc-add-to-cart-btn {
-    width: 100%; 
-    height: 44px;          
-    background-color: #111111;
+    width: auto; 
+    height: 38px;      
+    background-color: #34a853; /* Match ProductPage green */
     color: #ffffff;
     border: none;
-    border-radius: 12px;
-    font-size: var(--ec-fs-button);
-    font-weight: 700;
+    border-radius: 8px;
+    padding: 0 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
     flex-shrink: 0;        
   }
   
-  .ec-pc-add-to-cart-btn .icon {
-    font-size: 1.1em;
-    font-weight: 400;
-  }
-  
-  .ec-pc-add-to-cart-btn:hover:not(.added) {
-    background-color: #000000;
+  .ec-pc-add-to-cart-btn:hover:not(.remove):not(.adding) {
+    background-color: #24963e; /* Darker green for hover */
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(36, 150, 62, 0.3);
   }
   
-  .ec-pc-add-to-cart-btn:active {
+  .ec-pc-add-to-cart-btn:active:not(.adding) {
     transform: translateY(1px);
   }
   
-  .ec-pc-add-to-cart-btn.added {
-    background-color: #059669;
+  /* Adding Animation State */
+  .ec-pc-add-to-cart-btn.adding {
+    background-color: #475569;
+    cursor: wait;
+    animation: btnAddingPulse 0.3s infinite alternate;
+  }
+  
+  @keyframes btnAddingPulse {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.96); opacity: 0.85; }
+  }
+  
+  /* Remove State (Orangish Red) */
+  .ec-pc-add-to-cart-btn.remove {
+    background-color: #ea580c;
     color: #ffffff;
   }
   
-  /* ==========================================================================
-     TABLET SCALING
-     ========================================================================== */
-  @media (max-width: 768px) {
-    .ec-product-card {
-      min-height: 380px;
-      height: auto;
-      padding: 12px;
-    }
-    .ec-pc-title { font-size: 0.95rem; }
-    .current-price { font-size: 1.1rem; }
+  .ec-pc-add-to-cart-btn.remove:hover {
+    background-color: #c2410c;
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+    transform: translateY(-1px);
+  }
+
+  /* Removing Animation State */
+  .ec-pc-add-to-cart-btn.removing {
+    background-color: #c2410c;
+    cursor: wait;
+    animation: btnRemovingPulse 0.3s infinite alternate;
   }
   
-  /* ==========================================================================
-     MOBILE SCALING (Bigger Cards)
-     ========================================================================== */
-  @media (max-width: 480px) {
-    .ec-product-card {
-      min-width: 140px;    
-      max-width: 100%;
-      min-height: 340px;
-      height: auto;
-      padding: 10px;
-      border-radius: 18px;
-    }
-    
-    .ec-pc-image-section {
-      border-radius: 12px;
-      margin-bottom: 10px;
-    }
-    
-    .ec-pc-info-section {
-      padding: 4px;
-    }
-    
-    .ec-pc-title {
-      font-size: 0.9rem;
-      height: 2.8em; 
-      margin-bottom: 8px;
-    }
-    
-    .ec-pc-meta-row {
-      margin-bottom: 4px;
-    }
-    
-    .ec-pc-brand, .ec-pc-category {
-      font-size: 0.7rem;
-    }
-    
-    .current-price {
-      font-size: 1.1rem;
-    }
-    
-    .original-price {
-      font-size: 0.8rem;
-    }
-    
-    .ec-pc-price-row {
-      margin-bottom: 10px;
-      gap: 8px;
-    }
-    
-    .ec-pc-add-to-cart-btn {
-      height: 38px;
-      font-size: 0.9rem;
-      border-radius: 10px;
-    }
-    
-    .ec-pc-badge.discount {
-      top: 8px;
-      left: 8px;
-      padding: 3px 8px;
-      font-size: 0.7rem;
-    }
-    
-    .ec-pc-badge.heart-icon {
-      top: 8px;
-      right: 8px;
-      width: 28px;
-      height: 28px;
-    }
+  @keyframes btnRemovingPulse {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.96); opacity: 0.85; }
   }

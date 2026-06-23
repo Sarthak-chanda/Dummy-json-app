@@ -113,8 +113,8 @@ export const offersConfig = [
     title: "Self-Care Sunday",
     subtitle: "Premium beauty and wellness essentials for your routine.",
     images: {
-      desktop: "https://images.unsplash.com/photo-1540555700478-4be289fbecee?auto=format&fit=crop&w=1200&q=80",
-      mobile: "https://images.unsplash.com/photo-1540555700478-4be289fbecee?auto=format&fit=crop&w=800&q=80"
+      desktop: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1200&q=80",
+      mobile: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80"
     },
     gradient: "rgba(17, 24, 39, 0.95)",
     cta: "Shop Beauty",

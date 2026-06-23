@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ProductCard.css";
 
-const ProductCard = ({ product, addToCart, cart = [], wishlist = [], toggleWishlist }) => {
+const ProductCard = ({ product, addToCart, removeFromCart, cart = [], wishlist = [], toggleWishlist }) => {
   const navigate = useNavigate();
   // State for the dynamically sampled dominant color
   const [accentColor, setAccentColor] = useState("rgba(0, 0, 0, 0.05)");
@@ -13,6 +13,8 @@ const ProductCard = ({ product, addToCart, cart = [], wishlist = [], toggleWishl
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
   const lastTap = useRef(0);
 
   const touchStartX = useRef(0);
@@ -80,8 +82,27 @@ const ProductCard = ({ product, addToCart, cart = [], wishlist = [], toggleWishl
   const handleCartClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(product);
-    if ('vibrate' in navigator) navigator.vibrate(50);
+    
+    if (isAdded) {
+      setIsRemoving(true);
+      setTimeout(() => {
+        if (removeFromCart) {
+          removeFromCart(product);
+        }
+        setIsRemoving(false);
+        if ('vibrate' in navigator) navigator.vibrate(50);
+      }, 500);
+      return; 
+    }
+
+    setIsAdding(true);
+    
+    // Simulate an adding animation before actually adding
+    setTimeout(() => {
+      addToCart(product);
+      setIsAdding(false);
+      if ('vibrate' in navigator) navigator.vibrate(50);
+    }, 500); // 500ms adding animation
   };
 
   const handleLikeClick = (e) => {
@@ -135,20 +156,14 @@ const ProductCard = ({ product, addToCart, cart = [], wishlist = [], toggleWishl
     <div 
       className="ec-product-card" 
       onClick={handleCardClick}
-      style={{ 
-        // DUAL GRADIENT: Inner background + Opposite Border Gradient (50% Opacity)
-        background: `
-          linear-gradient(135deg, ${accentColor} 0%, var(--ec-card-bg, #ffffff) 100%) padding-box, 
-          linear-gradient(315deg, ${solidAccent.replace('rgb', 'rgba').replace(')', ', 0.5)')} 0%, rgba(255, 255, 255, 0.5) 100%) border-box
-        `,
-        border: '1.5px solid transparent'
-      }}
     >
       
       {/* Image container with its own solid background to "exclude" it from the card gradient */}
       <div 
         className="ec-pc-image-section"
-        style={{ background: 'var(--ec-image-bg, #f4f5f7)' }}
+        style={{ 
+          background: `linear-gradient(135deg, ${accentColor} 0%, ${solidAccent.replace('rgb', 'rgba').replace(')', ', 0.3)')} 100%)`
+        }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -161,7 +176,7 @@ const ProductCard = ({ product, addToCart, cart = [], wishlist = [], toggleWishl
         )}
         
         <button className={`ec-pc-badge heart-icon ${isLiked ? 'active' : ''}`} onClick={handleLikeClick}>
-          <svg viewBox="0 0 24 24" fill={isLiked ? "#ff4d4f" : "none"} stroke={isLiked ? "#ff4d4f" : "#94a3b8"} strokeWidth="2.5">
+          <svg viewBox="0 0 24 24" fill={isLiked ? "#ffffff" : "none"} stroke="#ffffff" strokeWidth="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
           </svg>
         </button>
@@ -169,7 +184,7 @@ const ProductCard = ({ product, addToCart, cart = [], wishlist = [], toggleWishl
         <div className="ec-pc-carousel-track" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
           {images.map((img, index) => (
             <div className="ec-pc-slide" key={index}>
-              <img src={img} alt={product.title} draggable="false" />
+              <img src={img} alt={product.title} draggable="false" className="sample-style-img" />
             </div>
           ))}
         </div>
@@ -184,24 +199,39 @@ const ProductCard = ({ product, addToCart, cart = [], wishlist = [], toggleWishl
       </div>
 
       <div className="ec-pc-info-section">
-        <div className="ec-pc-meta-row">
-          <span className="ec-pc-brand">{product.brand || 'e CART'}</span>
-          <span className="ec-pc-category">{product.category}</span>
-        </div>
         
-        <h3 className="ec-pc-title">{product.title}</h3>
-
-        <div className="ec-pc-price-row">
-          <span className="current-price">${product.price.toFixed(2)}</span>
-          {product.discountPercentage > 0 && (
-            <span className="original-price">${originalPrice.toFixed(2)}</span>
-          )}
+        <div className="ec-pc-header-row">
+          <div className="ec-pc-title-group">
+            <h3 className="ec-pc-title">{product.title}</h3>
+            <span className="ec-pc-category-text">{product.category}</span>
+          </div>
+          <div className="ec-pc-rating-transparent">
+            ⭐ {product.rating || 4.5}
+          </div>
         </div>
 
-        <button className={`ec-pc-add-to-cart-btn ${isAdded ? 'added' : ''}`} onClick={handleCartClick}>
-          <span className="icon">{isAdded ? '✓' : '+'}</span>
-          <span className="text">{isAdded ? 'Added' : 'Add to Cart'}</span>
-        </button>
+        <p className="ec-pc-desc-small">
+          {product.description || 'Premium quality product designed for your everyday lifestyle.'}
+        </p>
+
+        <div className="ec-pc-bottom-row">
+          <div className="ec-pc-price-col">
+            <span className="price-label">PRICE</span>
+            <div className="ec-pc-price-wrap">
+              <span className="current-price">${product.price.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <button 
+            className={`ec-pc-add-to-cart-btn ${isAdded ? 'remove' : ''} ${isAdding ? 'adding' : ''} ${isRemoving ? 'removing' : ''}`} 
+            onClick={handleCartClick}
+            disabled={isAdding || isRemoving}
+          >
+            <span className="text">
+              {isAdding ? 'Adding...' : isRemoving ? 'Removing...' : isAdded ? 'Remove' : 'Add to cart'}
+            </span>
+          </button>
+        </div>
       </div>
 
     </div>

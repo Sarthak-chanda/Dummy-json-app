@@ -6,7 +6,7 @@
 .products-hero {
   width: 100%;
   height: clamp(350px, 50vh, 500px); 
-  margin-bottom: 2rem;
+  margin-bottom: 0;
   overflow: hidden;
   position: relative;
   display: flex;
@@ -37,7 +37,7 @@
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 0 4rem 4rem 4rem; 
+  padding: 0 var(--container-padding) var(--container-padding) var(--container-padding); 
   position: relative;
   z-index: 5;
   height: 100%;
@@ -65,7 +65,7 @@
   font-size: clamp(0.85rem, 2vw, 1.1rem); 
   color: rgba(255, 255, 255, 0.95);
   max-width: 500px;
-  margin: 0 0 2rem 0;
+  margin: 0 0 var(--space-lg) 0;
   line-height: 1.4;
   font-weight: 500;
 }
@@ -77,8 +77,8 @@
 .banner-cta {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 28px;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
   background: rgba(255, 255, 255, 0.8);
   color: #0f172a;
   border: none;
@@ -103,7 +103,7 @@
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 10px;
+  gap: var(--space-xs);
   z-index: 10;
 }
 
@@ -123,7 +123,7 @@
 
 /* INTERSTITIAL BANNERS */
 .interstitial-section {
-  margin: 4rem 0;
+  margin: var(--section-gap) 0;
   width: 100%;
 }
 
@@ -141,7 +141,7 @@
 /* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
   .interstitial-section {
-    margin: 2.5rem 0;
+    margin: var(--space-xl) 0;
   }
 
   .products-hero, .interstitial-banner {
@@ -153,8 +153,8 @@
     flex-direction: column !important;
     justify-content: flex-end !important;
     align-items: flex-start !important;
-    padding: 2rem 1.5rem 5rem 1.5rem !important; 
-    gap: 1.2rem !important;
+    padding: var(--space-lg) var(--container-padding) var(--space-2xl) var(--container-padding) !important; 
+    gap: var(--space-sm) !important;
     height: 100% !important;
   }
 
@@ -182,7 +182,7 @@
     width: 100% !important;
     display: flex !important;
     justify-content: flex-start !important;
-    margin-bottom: 1rem !important;
+    margin-bottom: var(--space-sm) !important;
   }
 }
 
@@ -193,23 +193,23 @@
   }
   
   .hero-inner-content, .banner-inner-content {
-    padding: 1.5rem 1.2rem 4.5rem 1.2rem !important;
-    gap: 0.8rem !important;
+    padding: var(--space-md) var(--container-padding) var(--space-2xl) var(--container-padding) !important;
+    gap: var(--space-xs) !important;
   }
 
   .banner-main-title {
     font-size: 1.8rem !important;
-    margin-bottom: 0.4rem !important;
+    margin-bottom: var(--space-xs) !important;
   }
 
   .banner-sub-text {
     font-size: 0.85rem !important;
     line-height: 1.3 !important;
-    margin-bottom: 0.5rem !important;
+    margin-bottom: var(--space-xs) !important;
   }
   
   .banner-cta {
-    padding: 10px 20px !important;
+    padding: var(--space-xs) var(--space-sm) !important;
     font-size: 0.8rem !important;
   }
 
@@ -224,8 +224,8 @@
   }
 
   .hero-inner-content, .banner-inner-content {
-    padding: 0 1rem 4rem 1rem !important;
-    gap: 0.6rem !important;
+    padding: 0 var(--container-padding) var(--space-2xl) var(--container-padding) !important;
+    gap: var(--space-xs) !important;
   }
 
   .banner-main-title {
@@ -237,6 +237,6 @@
   }
 
   .banner-cta {
-    padding: 8px 16px !important;
+    padding: var(--space-xs) var(--space-sm) !important;
   }
 }

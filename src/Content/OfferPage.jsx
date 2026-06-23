@@ -6,7 +6,7 @@ import "./Banner.css";
 import Loading from "../Loading";
 import { useOffersManager } from "../hooks/useOffersManager";
 
-const OfferPage = ({ addToCart, cart, wishlist, toggleWishlist }) => {
+const OfferPage = ({ addToCart, removeFromCart, cart, wishlist, toggleWishlist }) => {
   const navigate = useNavigate();
   const { offerId } = useParams();
   const { getOfferById, loading, sortProducts, offers } = useOffersManager();
@@ -176,6 +176,7 @@ const OfferPage = ({ addToCart, cart, wishlist, toggleWishlist }) => {
                 <ProductCard 
                   product={product}
                   addToCart={addToCart}
+                  removeFromCart={removeFromCart}
                   cart={cart}
                   wishlist={wishlist}
                   toggleWishlist={toggleWishlist}

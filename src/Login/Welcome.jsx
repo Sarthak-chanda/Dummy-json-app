@@ -22,11 +22,7 @@ const WelcomePage = ({ userdet, setUserdet, onContinue, authLoading }) => {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      localStorage.removeItem('userdet');
-      localStorage.removeItem('cart');
-      setUserdet({
-        id: '', username: '', email: '', firstName: '', lastName: '', gender: '', image: '', accessToken: '', refreshToken: ''
-      });
+      // App.jsx onAuthStateChange will handle state and localStorage clearing
     } catch (err) {
       console.error('Logout error context:', err);
     }

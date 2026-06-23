@@ -2,10 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProductManager } from '../hooks/useProductManager';
 import Loading from '../Loading';
+import Products from './Products';
 import './CategoryPage.css';
 import './Categories.css';
 
-const Categories = () => {
+const Categories = ({ addToCart, removeFromCart, cart, wishlist, toggleWishlist }) => {
   const navigate = useNavigate();
   const { groupedProducts, loading } = useProductManager();
 
@@ -64,6 +65,17 @@ const Categories = () => {
               </h3>
             </div>
           ))}
+        </div>
+
+        {/* Shipped product category lists */}
+        <div style={{ marginTop: '4rem' }}>
+          <Products 
+            addToCart={addToCart}
+            removeFromCart={removeFromCart}
+            cart={cart}
+            wishlist={wishlist}
+            toggleWishlist={toggleWishlist}
+          />
         </div>
       </div>
     </div>

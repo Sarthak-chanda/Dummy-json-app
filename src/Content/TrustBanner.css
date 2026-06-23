@@ -1,0 +1,135 @@
+.trust-banner-section {
+  width: 100%;
+  background: #ffffff;
+  padding: var(--space-xl) var(--container-padding);
+  margin: var(--section-gap) 0;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.trust-banner-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.trust-banner-track {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.duplicate-item {
+  display: none; /* Hide duplicate items on desktop */
+}
+
+.trust-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #f0fdfa;
+  color: #0ea5a5;
+}
+
+.trust-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.trust-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 var(--space-xs) 0;
+}
+
+.trust-subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Animations for Infinite Scroll */
+@keyframes scroll-trust {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    /* 
+      We have 4 original items. The track needs to translate exactly by the width of the original items.
+      Since we want to translate to the duplicated items perfectly, we translate by -50% of the total track width.
+    */
+    transform: translateX(-50%);
+  }
+}
+
+/* Mobile & Tablet Styles */
+@media (max-width: 1023px) {
+  .trust-banner-section {
+    padding: var(--space-xl) 0; /* Remove horizontal padding so scroll goes edge-to-edge */
+  }
+
+  .trust-banner-track {
+    width: max-content; /* Allow track to expand beyond viewport */
+    justify-content: flex-start;
+    animation: scroll-trust 15s linear infinite;
+    gap: var(--space-2xl); /* Fixed gap for scroll items */
+    padding-left: var(--container-padding); /* Give a little start padding */
+    padding-right: var(--container-padding); /* Compensate for the end */
+  }
+
+  .trust-item {
+    width: 200px; /* Fixed width to ensure smooth scroll calculation */
+  }
+
+  .duplicate-item {
+    display: flex; /* Show duplicates for infinite scroll */
+  }
+}
+
+@media (max-width: 639px) {
+  .trust-banner-section {
+    padding: var(--space-sm) 0;
+    margin: var(--space-md) 0;
+  }
+  
+  .trust-banner-track {
+    animation: scroll-trust 12s linear infinite;
+    gap: var(--space-md);
+  }
+
+  .trust-item {
+    width: 160px;
+    gap: var(--space-xs);
+  }
+
+  .trust-icon-wrapper {
+    width: 36px;
+    height: 36px;
+  }
+
+  .trust-icon-wrapper svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .trust-title {
+    font-size: 0.85rem;
+  }
+
+  .trust-subtitle {
+    font-size: 0.75rem;
+  }
+}

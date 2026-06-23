@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../Login/supabaseClient";
+import { useProfileManager } from "../hooks/useProfileManager";
 
 // --- ICONS ---
 const Icons = {
@@ -20,7 +21,7 @@ const Icons = {
 const DetailCard = ({ label, value }) => (
   <div className="p-4 md:p-5 bg-slate-50 border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{label}</p>
-    <p className="font-medium text-slate-900">{value}</p>
+    <p className="font-medium text-slate-900">{value || "Not set"}</p>
   </div>
 );
 
@@ -57,98 +58,126 @@ const PlaceholderSection = ({ title, icon: Icon }) => (
 
 export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist = [] }) {
   const navigate = useNavigate();
+  const { profile, addresses, loading: profileLoading, updateProfile, upsertAddresses } = useProfileManager();
   
   const [activeSection, setActiveSection] = useState("account");
   const [isEditing, setIsEditing] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState(null);
+  const [saveMessage, setSaveMessage] = useState("");
 
-  const initialData = {
-    name: userdet.username || userdet.firstName || "Marketplace User",
-    email: userdet.email || "not-provided@example.com",
-    phone: userdet.phone || "+91 98765 43210",
-    location: userdet.location || "Mumbai, India",
-    avatar: userdet.image || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80",
-    status: "Verified Member",
-    addresses: userdet.addresses || [
-      { id: 1, type: "Home", street: "123 Market St", city: "Mumbai", state: "MH", zip: "400001", isDefault: true },
-      { id: 2, type: "Office", street: "Tech Park, Hitech City", city: "Hyderabad", state: "TS", zip: "500081", isDefault: false }
-    ]
-  };
+  const [editedData, setEditedData] = useState({
+    name: "",
+    phone: "",
+    location: ""
+  });
 
-  const [editedData, setEditedData] = useState({ ...initialData });
+  // Sync editedData when profile from Supabase loads
+  useEffect(() => {
+    if (profile) {
+      setEditedData({
+        name: profile.name || "",
+        phone: profile.phone || "",
+        location: profile.location || ""
+      });
+      
+      // Update global App state if needed
+      if (setUserdet) {
+        setUserdet(prev => ({
+          ...prev,
+          username: profile.name,
+          phone: profile.phone,
+          location: profile.location,
+          addresses: addresses
+        }));
+      }
+    }
+  }, [profile, addresses, setUserdet]);
 
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      localStorage.clear();
-      window.location.href = "/";
     } catch (err) {
       console.error('Logout error:', err);
     }
   };
 
-  const syncUserDet = (updatedData) => {
-    const newUserDet = {
-      ...userdet,
-      username: updatedData.name,
-      phone: updatedData.phone,
-      location: updatedData.location,
-      addresses: updatedData.addresses
+  const handleSaveProfile = async () => {
+    const result = await updateProfile({
+      name: editedData.name,
+      phone: editedData.phone,
+      location: editedData.location
+    });
+
+    if (result.success) {
+      setIsEditing(false);
+      setSaveMessage("Profile updated successfully!");
+      setTimeout(() => setSaveMessage(""), 3000);
+      
+      if (setUserdet) {
+        setUserdet(prev => ({
+          ...prev,
+          username: editedData.name,
+          phone: editedData.phone,
+          location: editedData.location
+        }));
+      }
+    }
+  };
+
+  const handleSetDefaultAddress = async (id) => {
+    const updatedAddresses = addresses.map(a => ({
+      id: a.id,
+      is_default: a.id === id
+    }));
+    await upsertAddresses(updatedAddresses);
+  };
+
+  const handleSaveAddress = async (id, newAddressData) => {
+    const addressToSave = {
+      ...newAddressData,
+      is_default: id === 'new' ? addresses.length === 0 : newAddressData.is_default
     };
-    if (setUserdet) {
-      setUserdet(newUserDet);
-      localStorage.setItem('userdet', JSON.stringify(newUserDet));
+    
+    if (id !== 'new') {
+        addressToSave.id = id;
+    }
+
+    const result = await upsertAddresses(addressToSave);
+    if (result.success) {
+      setEditingAddressId(null);
+      setSaveMessage("Address saved!");
+      setTimeout(() => setSaveMessage(""), 3000);
     }
   };
 
-  const handleSaveProfile = () => {
-    setIsEditing(false);
-    syncUserDet(editedData);
-  };
-
-  const handleSetDefaultAddress = (id) => {
-    const updatedAddresses = editedData.addresses.map(a => ({ ...a, isDefault: a.id === id }));
-    const newData = { ...editedData, addresses: updatedAddresses };
-    setEditedData(newData);
-    syncUserDet(newData);
-  };
-
-  const handleSaveAddress = (id, newAddressData) => {
-    let updatedAddresses;
-    if (id === 'new') {
-      const newAddr = { ...newAddressData, id: Date.now(), isDefault: editedData.addresses.length === 0 };
-      updatedAddresses = [...editedData.addresses, newAddr];
-    } else {
-      updatedAddresses = editedData.addresses.map(a => a.id === id ? { ...a, ...newAddressData } : a);
+  const handleDeleteAddress = async (id) => {
+    const result = await deleteAddress(id);
+    if (result.success) {
+      setSaveMessage("Address removed");
+      setTimeout(() => setSaveMessage(""), 3000);
+      
+      // If we deleted the default, we might need to set a new one
+      const remaining = addresses.filter(a => a.id !== id);
+      if (remaining.length > 0 && !remaining.some(a => a.is_default)) {
+        await handleSetDefaultAddress(remaining[0].id);
+      }
     }
-    const newData = { ...editedData, addresses: updatedAddresses };
-    setEditedData(newData);
-    syncUserDet(newData);
-    setEditingAddressId(null);
-  };
-
-  const handleDeleteAddress = (id) => {
-    const updatedAddresses = editedData.addresses.filter(a => a.id !== id);
-    if (updatedAddresses.length > 0 && !updatedAddresses.some(a => a.isDefault)) {
-      updatedAddresses[0].isDefault = true;
-    }
-    const newData = { ...editedData, addresses: updatedAddresses };
-    setEditedData(newData);
-    syncUserDet(newData);
   };
 
   const AddressEditForm = ({ address, onSave, onCancel }) => {
-    const [formData, setFormData] = useState(address || { type: "Home", street: "", city: "", state: "", zip: "" });
+    const [formData, setFormData] = useState(address || { 
+      address_line_1: "", 
+      city: "", 
+      postal_code: "",
+      is_default: false 
+    });
+    
     return (
       <div className="p-4 md:p-5 rounded-xl border bg-slate-50 border-slate-300 shadow-inner">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-          <EditField label="Type (Home, Office)" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} />
-          <EditField label="Street" value={formData.street} onChange={e => setFormData({...formData, street: e.target.value})} />
+          <EditField label="Street Address" value={formData.address_line_1} onChange={e => setFormData({...formData, address_line_1: e.target.value})} />
           <EditField label="City" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} />
-          <div className="flex gap-2">
-            <div className="flex-1"><EditField label="State" value={formData.state} onChange={e => setFormData({...formData, state: e.target.value})} /></div>
-            <div className="flex-1"><EditField label="Zip" value={formData.zip} onChange={e => setFormData({...formData, zip: e.target.value})} /></div>
-          </div>
+          <EditField label="Postal Code" value={formData.postal_code} onChange={e => setFormData({...formData, postal_code: e.target.value})} />
         </div>
         <div className="flex gap-2 justify-end">
           <button onClick={onCancel} className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-300 transition-colors">Cancel</button>
@@ -167,6 +196,10 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
   ];
 
   const renderContent = (sectionId) => {
+    if (profileLoading && sectionId !== "cart" && sectionId !== "wishlist") {
+        return <div className="p-8 text-center text-slate-500">Loading your information...</div>;
+    }
+
     switch (sectionId) {
       case "account":
         return (
@@ -195,16 +228,16 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
               {isEditing ? (
                 <>
                   <EditField label="Display Name" value={editedData.name} onChange={(e) => setEditedData({...editedData, name: e.target.value})} />
-                  <EditField label="Email Address" value={initialData.email} disabled />
+                  <EditField label="Email Address" value={profile?.email || ""} disabled />
                   <EditField label="Phone Number" value={editedData.phone} onChange={(e) => setEditedData({...editedData, phone: e.target.value})} />
                   <EditField label="Default Location" value={editedData.location} onChange={(e) => setEditedData({...editedData, location: e.target.value})} />
                 </>
               ) : (
                 <>
-                  <DetailCard label="Full Name" value={editedData.name} />
-                  <DetailCard label="Registered Email" value={initialData.email} />
-                  <DetailCard label="Contact Number" value={editedData.phone} />
-                  <DetailCard label="Current Location" value={editedData.location} />
+                  <DetailCard label="Full Name" value={profile?.name} />
+                  <DetailCard label="Registered Email" value={profile?.email} />
+                  <DetailCard label="Contact Number" value={profile?.phone} />
+                  <DetailCard label="Current Location" value={profile?.location} />
                 </>
               )}
             </div>
@@ -234,7 +267,7 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
                 />
               )}
               
-              {editedData.addresses.map(addr => (
+              {addresses.map(addr => (
                 editingAddressId === addr.id ? (
                   <AddressEditForm 
                     key={addr.id}
@@ -243,18 +276,18 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
                     onCancel={() => setEditingAddressId(null)} 
                   />
                 ) : (
-                  <div key={addr.id} className={`p-4 md:p-5 rounded-xl border transition-all flex flex-col md:flex-row justify-between md:items-center gap-4 ${addr.isDefault ? 'bg-blue-50/50 border-blue-200 shadow-sm ring-1 ring-blue-500' : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'}`}>
+                  <div key={addr.id} className={`p-4 md:p-5 rounded-xl border transition-all flex flex-col md:flex-row justify-between md:items-center gap-4 ${addr.is_default ? 'bg-blue-50/50 border-blue-200 shadow-sm ring-1 ring-blue-500' : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'}`}>
                     <div>
                       <div className="flex items-center gap-2 mb-2">
                         <Icons.MapPin />
-                        <span className="font-semibold text-slate-800">{addr.type}</span>
-                        {addr.isDefault && <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ml-2">Default</span>}
+                        <span className="font-semibold text-slate-800">{addr.city}</span>
+                        {addr.is_default && <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ml-2">Default</span>}
                       </div>
-                      <p className="text-slate-600 text-sm">{addr.street}</p>
-                      <p className="text-slate-600 text-sm">{addr.city}, {addr.state} {addr.zip}</p>
+                      <p className="text-slate-600 text-sm">{addr.address_line_1}</p>
+                      <p className="text-slate-600 text-sm">{addr.city}, {addr.postal_code}</p>
                     </div>
                     <div className="flex flex-wrap gap-2 md:flex-col md:items-end">
-                      {!addr.isDefault && (
+                      {!addr.is_default && (
                         <button onClick={() => handleSetDefaultAddress(addr.id)} className="text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">Set as Default</button>
                       )}
                       <div className="flex gap-2">
@@ -266,7 +299,7 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
                 )
               ))}
               
-              {editedData.addresses.length === 0 && editingAddressId !== 'new' && (
+              {addresses.length === 0 && editingAddressId !== 'new' && (
                 <div className="p-8 text-center text-slate-500 bg-slate-50 rounded-xl border border-slate-200">
                   <p>You have no addresses saved.</p>
                 </div>
@@ -277,8 +310,6 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
 
       case "cart":
       case "wishlist":
-        // Since we navigate for these, they won't typically render here, 
-        // but keeping it as a fallback in case they don't have routes set up
         return null; 
 
       default:
@@ -288,13 +319,20 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans selection:bg-blue-100 pb-20 md:pb-10">
+      {saveMessage && (
+        <div className="fixed top-20 right-4 z-[100] animate-bounce-in">
+          <div className="bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg font-bold flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            {saveMessage}
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 lg:py-12 flex flex-col gap-6">
-        
-        {/* PROFILE HEADER CARD */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center md:items-start text-center md:text-left gap-6 md:gap-8">
           <div className="relative shrink-0">
             <img 
-              src={initialData.avatar} 
+              src={userdet.image} 
               referrerPolicy="no-referrer" 
               className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-2 border-white shadow-md" 
               alt="Avatar" 
@@ -303,17 +341,16 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
           </div>
           
           <div className="flex flex-col justify-center flex-1 h-full pt-2">
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-1">{initialData.name}</h1>
-            <p className="text-slate-500 text-sm md:text-base font-medium mb-3">{initialData.email}</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-1">{profile?.name || userdet.username}</h1>
+            <p className="text-slate-500 text-sm md:text-base font-medium mb-3">{profile?.email || userdet.email}</p>
             <div>
               <span className="px-3 py-1 bg-blue-50 border border-blue-100 text-blue-700 text-xs font-semibold rounded-full shadow-sm inline-flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
-                {initialData.status}
+                Verified Member
               </span>
             </div>
           </div>
           
-          {/* DESKTOP LOGOUT BUTTON IN HEADER */}
           <div className="hidden lg:flex flex-col justify-center">
              <button 
                 onClick={handleLogout}
@@ -325,11 +362,9 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
           </div>
         </div>
 
-        {/* MOBILE / TABLET ACCORDION MENU (< lg) */}
         <div className="lg:hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-3 md:p-5 flex flex-col gap-2">
           {sections.map(section => (
             <div key={section.id} className="flex flex-col">
-              
               <button
                 onClick={() => {
                   if (section.route) {
@@ -347,17 +382,14 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
                 <div className={`text-lg transition-colors ${activeSection === section.id && !section.route ? "text-blue-600" : "text-slate-400"}`}>
                   {section.icon}
                 </div>
-                
                 <span className={`font-semibold text-sm md:text-base transition-colors ${activeSection === section.id && !section.route ? "text-slate-900" : ""}`}>
                   {section.label}
                 </span>
-                
                 {section.badge > 0 && (
                   <span className="ml-auto mr-2 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700 shadow-inner">
                     {section.badge}
                   </span>
                 )}
-                
                 {!section.route && (
                   <div className={`ml-auto text-slate-400 transition-transform duration-300 ${activeSection === section.id ? "" : ""}`}>
                     {activeSection === section.id ? <Icons.ChevronUp /> : <Icons.ChevronDown />}
@@ -369,8 +401,6 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
                   </div>
                 )}
               </button>
-
-              {/* EXPANDED CONTENT AREA */}
               {!section.route && (
                 <div 
                   className={`grid transition-all duration-300 ease-in-out ${
@@ -384,11 +414,8 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
                   </div>
                 </div>
               )}
-              
             </div>
           ))}
-          
-          {/* MOBILE LOGOUT BUTTON AT BOTTOM OF ACCORDION */}
           <div className="mt-4 pt-4 border-t border-slate-100">
             <button 
               onClick={handleLogout}
@@ -400,11 +427,8 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
           </div>
         </div>
 
-        {/* DESKTOP EXPOSED LAYOUT (>= lg) */}
         <div className="hidden lg:grid grid-cols-12 gap-8">
-           {/* LEFT COLUMN: Nav Links (Cart/Wishlist etc) & Payment */}
            <div className="col-span-4 flex flex-col gap-6">
-              {/* Quick Links Card */}
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col gap-2">
                  <h3 className="font-bold text-slate-800 mb-2 px-2">Quick Links</h3>
                  {sections.filter(s => s.route).map(section => (
@@ -430,27 +454,19 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
                     </button>
                  ))}
               </div>
-              
-              {/* Payments Card (Placeholder) */}
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                  {renderContent("payment")}
               </div>
            </div>
-
-           {/* RIGHT COLUMN: Heavy Content (Account & Addresses) */}
            <div className="col-span-8 flex flex-col gap-6">
-              {/* Account Details Card */}
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-2">
                  {renderContent("account")}
               </div>
-              
-              {/* Address Book Card */}
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-2">
                  {renderContent("address")}
               </div>
            </div>
         </div>
-
       </div>
     </div>
   );

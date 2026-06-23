@@ -1,29 +1,39 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import ProductCard from "./ProductCard";
 import "./ProductPage.css";
 
-const ProductPage = ({ addToCart, cart = [], wishlist = [], toggleWishlist }) => {
+const ProductPage = ({ addToCart, removeFromCart, cart = [], wishlist = [], toggleWishlist }) => {
   const { p_id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
   const [selectedImage, setSelectedImage] = useState("");
   const [loading, setLoading] = useState(true);
-  const reviewsRef = useRef(null);
+  const [isAdding, setIsAdding] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [openFaq, setOpenFaq] = useState(null);
 
   useEffect(() => {
+    setLoading(true);
     fetch(`https://dummyjson.com/products/${p_id}`)
       .then(res => res.json())
       .then(data => {
         setProduct(data);
         setSelectedImage(data.images?.[0] || data.thumbnail);
+        
+        // Fetch random related products (suggestions)
+        fetch(`https://dummyjson.com/products?limit=12&skip=${Math.floor(Math.random() * 80)}`)
+          .then(res => res.json())
+          .then(relData => {
+            setRelatedProducts(relData.products.filter(p => String(p.id) !== String(p_id)));
+          })
+          .catch(() => setRelatedProducts([]));
+
         setLoading(false);
+        window.scrollTo(0, 0);
       });
   }, [p_id]);
-
-  const scrollToReviews = () => {
-    reviewsRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
 
   if (loading) return (
     <div className="pp-loading-screen">
@@ -33,154 +43,224 @@ const ProductPage = ({ addToCart, cart = [], wishlist = [], toggleWishlist }) =>
   );
 
   const originalPrice = (product.price / (1 - product.discountPercentage / 100)).toFixed(2);
-  const isAdded = cart.some(item => item.id === parseInt(p_id));
-  const isLiked = wishlist.some(item => item.id === parseInt(p_id));
+  const isAdded = cart.some(item => String(item.id) === String(p_id));
+  const isLiked = wishlist.some(item => String(item.id) === String(p_id));
+
+  const handleCartClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isAdded) {
+      setIsRemoving(true);
+      setTimeout(() => {
+        if (removeFromCart) {
+          removeFromCart(product);
+        }
+        setIsRemoving(false);
+        if ('vibrate' in navigator) navigator.vibrate(50);
+      }, 500);
+      return;
+    }
+    
+    setIsAdding(true);
+    setTimeout(() => {
+      addToCart(product);
+      setIsAdding(false);
+      if ('vibrate' in navigator) navigator.vibrate(50);
+    }, 500);
+  };
+
+  const toggleFaq = (index) => {
+    setOpenFaq(openFaq === index ? null : index);
+  };
+
+  const faqs = [
+    { question: "What is the warranty period?", answer: product.warrantyInformation || "Standard 1-year warranty." },
+    { question: "What is the return policy?", answer: product.returnPolicy || "30-day money back guarantee." },
+    { question: "How long does shipping take?", answer: product.shippingInformation || "Ships within 24 hours." },
+    { question: "What are the dimensions?", answer: product.dimensions ? `${product.dimensions.width} x ${product.dimensions.height} x ${product.dimensions.depth} cm` : "Compact design." }
+  ];
 
   return (
     <div className="premium-product-page">
       <div className="pp-container">
         
-        {/* ================= HERO SECTION ================= */}
-        <div className="pp-mobile-hero">
-          <div className="pp-main-image-frame">
-            <img src={selectedImage} alt={product.title} />
-          </div>
+        {/* ================= TOP SECTION ================= */}
+        <div className="pp-top-section">
           
-          <div className="pp-image-controls">
-            <button 
-              className={`pp-wishlist-float ${isLiked ? 'active' : ''}`} 
-              onClick={() => toggleWishlist(product)}
-            >
-              <svg viewBox="0 0 24 24" width="24" height="24" fill={isLiked ? "#ff4d4f" : "none"} stroke={isLiked ? "#ff4d4f" : "white"} strokeWidth="2.5">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-              </svg>
-            </button>
-          </div>
-
-          <div className="pp-thumbnail-strip">
-            {product.images?.map((img, i) => (
+          {/* Left: Image Gallery */}
+          <div className="pp-image-gallery">
+            <div className="pp-main-image-frame">
+              <img src={selectedImage} alt={product.title} />
               <button 
-                key={i} 
-                className={`pp-thumb-btn ${selectedImage === img ? "active" : ""}`} 
-                onClick={() => setSelectedImage(img)}
+                className={`pp-wishlist-float ${isLiked ? 'active' : ''}`} 
+                onClick={() => toggleWishlist(product)}
               >
-                <img src={img} alt={`Thumbnail ${i}`} />
+                <svg viewBox="0 0 24 24" width="24" height="24" fill={isLiked ? "#ff4d4f" : "none"} stroke={isLiked ? "#ff4d4f" : "#475569"} strokeWidth="2.5">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
               </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="pp-main-layout">
-          {/* Header Info */}
-          <div className="pp-header-card">
-            <div className="pp-brand-row">
-              <span className="pp-brand-name">{product.brand || "Premium"}</span>
-              <div className="pp-rating-chip" onClick={scrollToReviews} style={{ cursor: 'pointer' }}>
-                ★ {product.rating}
-              </div>
             </div>
+            
+            <div className="pp-thumbnail-strip">
+              {product.images?.map((img, i) => (
+                <div key={i} className="pp-thumb-container">
+                  <button 
+                    className={`pp-thumb-btn ${selectedImage === img ? "active" : ""}`} 
+                    onClick={() => setSelectedImage(img)}
+                  >
+                    <img src={img} alt={`Thumbnail ${i}`} />
+                  </button>
+                  <span className="pp-thumb-label">View {i + 1}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: Details & Action */}
+          <div className="pp-details-column">
             <h1 className="pp-title">{product.title}</h1>
+            <p className="pp-category">{product.category.replace("-", " ")}</p>
             
-            <div className="pp-price-section">
-              <div className="pp-price-wrap">
+            <div className="pp-rating-row">
+              <div className="pp-stars">
+                {[...Array(5)].map((_, index) => (
+                  <span key={index} className={index < Math.round(product.rating) ? "star filled" : "star empty"}>★</span>
+                ))}
+              </div>
+              <span className="pp-rating-score">{product.rating}</span>
+              <span className="pp-reviews-count">| {product.reviews?.length || 0} Reviews</span>
+            </div>
+
+            <div className="pp-price-block">
+              <span className="pp-original-price">${originalPrice}</span>
+              <div className="pp-current-price-row">
                 <span className="pp-current-price">${product.price.toFixed(2)}</span>
-                <span className="pp-original-price">${originalPrice}</span>
+                <span className="pp-save-badge">Save {Math.round(product.discountPercentage)}%</span>
               </div>
-              <span className="pp-discount-badge">{Math.round(product.discountPercentage)}% OFF</span>
             </div>
-          </div>
 
-          {/* Action Card (Sidebar on desktop, inline on mobile) */}
-          <div className="pp-action-card">
-            <div className="pp-stock-status">
-              <div className={`pp-status-dot ${product.stock > 0 ? 'in-stock' : 'out-of-stock'}`}></div>
-              <span>{product.availabilityStatus} ({product.stock} units left)</span>
-            </div>
-            
-            <button 
-              className={`pp-main-action-btn ${isAdded ? 'added' : ''}`} 
-              onClick={() => addToCart(product)}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
-                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
-              </svg>
-              {isAdded ? "Added to Cart" : "Add to Cart"}
-            </button>
-          </div>
-
-          {/* Description */}
-          <div className="pp-info-card">
-            <h3 className="pp-section-title">Description</h3>
             <p className="pp-description">{product.description}</p>
-          </div>
 
-          {/* Trust Elements */}
-          <div className="pp-trust-grid">
-            <div className="pp-trust-card">
-              <span className="pp-trust-icon">🛡️</span>
-              <p>{product.warrantyInformation}</p>
-            </div>
-            <div className="pp-trust-card">
-              <span className="pp-trust-icon">📦</span>
-              <p>{product.shippingInformation}</p>
-            </div>
-            <div className="pp-trust-card">
-              <span className="pp-trust-icon">↩️</span>
-              <p>{product.returnPolicy}</p>
+            <button 
+              className={`pp-main-action-btn ${isAdded ? 'remove' : ''} ${isAdding ? 'adding' : ''} ${isRemoving ? 'removing' : ''}`} 
+              onClick={handleCartClick}
+              disabled={isAdding || isRemoving}
+            >
+              {isAdding ? "Adding..." : isRemoving ? "Removing..." : isAdded ? "Remove" : "Add to Cart"}
+            </button>
+
+            <p className="pp-shipping-note">Free 2-Day Shipping</p>
+
+            <div className="pp-trust-grid-2x2">
+              <div className="pp-trust-item">
+                <span className="icon">🔒</span> Secure Checkout
+              </div>
+              <div className="pp-trust-item">
+                <span className="icon">🚚</span> Fast Shipping
+              </div>
+              <div className="pp-trust-item">
+                <span className="icon">💰</span> 30-Day Money Back
+              </div>
+              <div className="pp-trust-item">
+                <span className="icon">🛡️</span> {product.warrantyInformation || "2-Year Warranty"}
+              </div>
             </div>
           </div>
-
-          {/* Specifications */}
-          <section className="pp-specs-section">
-            <h3 className="pp-section-title">Specifications</h3>
-            <div className="pp-specs-list">
-              <div className="pp-spec-item">
-                <span>Weight</span>
-                <strong>{product.weight} kg</strong>
-              </div>
-              <div className="pp-spec-item">
-                <span>SKU</span>
-                <strong>{product.sku}</strong>
-              </div>
-              <div className="pp-spec-item">
-                <span>Dimensions</span>
-                <strong>{product.dimensions ? `${product.dimensions.width}x${product.dimensions.height}x${product.dimensions.depth}cm` : 'N/A'}</strong>
-              </div>
-            </div>
-          </section>
         </div>
 
-        {/* Reviews Section */}
-        <section className="pp-reviews-section" ref={reviewsRef}>
-          <h3 className="pp-section-title">Customer Reviews <span>({product.reviews?.length || 0})</span></h3>
-          <div className="pp-reviews-list">
-            {product.reviews?.map((r, i) => (
+        {/* ================= MIDDLE SECTION ================= */}
+        <div className="pp-middle-section">
+          <h2>Why {product.title}?</h2>
+          <div className="pp-features-row">
+            <div className="pp-feature-card">
+              <div className="pp-feature-icon">✨</div>
+              <div className="pp-feature-text">
+                <h3>Premium Quality</h3>
+                <p>{product.brand || "Top-tier"} materials and construction.</p>
+              </div>
+            </div>
+            <div className="pp-feature-card">
+              <div className="pp-feature-icon">📦</div>
+              <div className="pp-feature-text">
+                <h3>{product.shippingInformation || "Fast Shipping"}</h3>
+                <p>Reliable logistics right to your doorstep.</p>
+              </div>
+            </div>
+            <div className="pp-feature-card">
+              <div className="pp-feature-icon">🔄</div>
+              <div className="pp-feature-text">
+                <h3>{product.returnPolicy || "Easy Returns"}</h3>
+                <p>Hassle-free guarantee if you're not satisfied.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ================= REVIEWS SECTION ================= */}
+        <div className="pp-reviews-section">
+          <h2>Customer Reviews</h2>
+          <div className="pp-reviews-row">
+            {product.reviews?.length > 0 ? product.reviews.map((r, i) => (
               <div key={i} className="pp-review-card">
                 <div className="pp-review-header">
-                  <div className="pp-reviewer">
-                    <div className="pp-avatar">{r.reviewerName.charAt(0)}</div>
-                    <div>
-                      <strong>{r.reviewerName}</strong>
-                      <div className="pp-review-meta">
-                        <div className="pp-review-stars">
-                          {[...Array(5)].map((_, index) => (
-                            <span key={index} className={index < Math.round(r.rating) ? "star filled" : "star empty"}>
-                              ★
-                            </span>
-                          ))}
-                        </div>
-                        <span className="pp-rating-num">{r.rating}</span>
-                      </div>
-                    </div>
+                  <div className="pp-avatar">
+                    <img src={`https://ui-avatars.com/api/?name=${r.reviewerName}&background=random`} alt={r.reviewerName} />
                   </div>
-                  <span className="pp-review-date">{new Date(r.date).toLocaleDateString()}</span>
+                  <div className="pp-review-stars">
+                    {[...Array(5)].map((_, index) => (
+                      <span key={index} className={index < Math.round(r.rating) ? "star filled" : "star empty"}>★</span>
+                    ))}
+                    <span className="score">{r.rating}</span>
+                  </div>
                 </div>
                 <p className="pp-review-text">"{r.comment}"</p>
+                <p className="pp-reviewer-name">{r.reviewerName}</p>
+              </div>
+            )) : (
+              <p className="pp-no-reviews">No reviews yet.</p>
+            )}
+          </div>
+        </div>
+
+        {/* ================= FAQ SECTION ================= */}
+        <div className="pp-faq-section">
+          <h2>Frequently Asked Questions</h2>
+          <div className="pp-faq-list">
+            {faqs.map((faq, i) => (
+              <div key={i} className={`pp-faq-item ${openFaq === i ? 'open' : ''}`}>
+                <div className="pp-faq-question" onClick={() => toggleFaq(i)}>
+                  {faq.question}
+                  <span className="arrow">↓</span>
+                </div>
+                <div className="pp-faq-answer">
+                  <p>{faq.answer}</p>
+                </div>
               </div>
             ))}
           </div>
-        </section>
+        </div>
+
+        {/* ================= RELATED PRODUCTS ================= */}
+        {relatedProducts.length > 0 && (
+          <div className="pp-related-section">
+            <div className="pp-related-header">
+              <h2>Suggestions</h2>
+            </div>
+            <div className="pp-related-row">
+              {relatedProducts.map(rel => (
+                <ProductCard 
+                  key={rel.id}
+                  product={rel}
+                  addToCart={addToCart}
+                  removeFromCart={removeFromCart}
+                  cart={cart}
+                  wishlist={wishlist}
+                  toggleWishlist={toggleWishlist}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

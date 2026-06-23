@@ -9,11 +9,11 @@
 ================================== */
 .offer-controls-section {
   max-width: 1600px;
-  margin: 2rem auto;
-  padding: 0 2rem;
+  margin: var(--section-gap) auto;
+  padding: 0 var(--container-padding);
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-md);
 }
 
 @media (min-width: 1024px) {
@@ -33,13 +33,13 @@
 .offer-category-bar {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--space-xs);
 }
 
 .offer-category-bar:not(.expanded) {
   flex-wrap: nowrap;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: var(--space-xs);
   scrollbar-width: none;
 }
 
@@ -48,7 +48,7 @@
 }
 
 .cat-pill, .cat-show-more {
-  padding: 10px 22px;
+  padding: var(--space-xs) var(--space-md);
   border-radius: 50px;
   background: white;
   border: 1px solid #e2e8f0;
@@ -80,9 +80,9 @@
 .offer-sort-wrapper {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-xs);
   background: white;
-  padding: 8px 16px;
+  padding: var(--space-xs) var(--space-sm);
   border-radius: 50px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 2px 10px rgba(0,0,0,0.02);
@@ -103,7 +103,7 @@
   color: #0f172a;
   outline: none;
   cursor: pointer;
-  padding-right: 8px;
+  padding-right: var(--space-xs);
 }
 
 /* ==================================
@@ -112,24 +112,24 @@
 .offer-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
+  gap: var(--space-md);
   max-width: 1600px;
   margin: 0 auto;
-  padding: 0 2rem 4rem 2rem;
+  padding: 0 var(--container-padding) var(--space-2xl) var(--container-padding);
   justify-content: center;
 }
 
 .no-offers {
   grid-column: 1 / -1;
   text-align: center;
-  padding: 4rem 2rem;
+  padding: var(--space-2xl) var(--container-padding);
   color: #64748b;
 }
 
 .no-offers h2 {
   font-size: 1.5rem;
   color: #0f172a;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-xs);
 }
 
 /* ==================================
@@ -137,25 +137,25 @@
 ================================== */
 @media (max-width: 768px) {
   .offer-controls-section {
-    padding: 0 1.5rem;
+    padding: 0 var(--container-padding);
   }
   
   .offer-grid {
     grid-template-columns: repeat(auto-fill, 280px);
     justify-content: center;
-    gap: 1.5rem;
-    padding: 0 1.5rem 4rem 1.5rem;
+    gap: var(--space-md);
+    padding: 0 var(--container-padding) var(--space-2xl) var(--container-padding);
   }
 }
 
 @media (max-width: 480px) {
   .offer-controls-section {
-    padding: 0 1rem;
+    padding: 0 var(--container-padding);
   }
 
   .offer-grid {
     grid-template-columns: repeat(auto-fill, 280px);
-    gap: 1.2rem;
-    padding: 0 1rem 4rem 1rem;
+    gap: var(--space-sm);
+    padding: 0 var(--container-padding) var(--space-2xl) var(--container-padding);
   }
 }

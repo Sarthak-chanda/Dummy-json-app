@@ -3,7 +3,7 @@
 .pet-cart-page.wishlist-page {
   min-height: 100vh;
   background-color: #f7f9fa;
-  padding: 40px 16px;
+  padding: var(--space-2xl) var(--container-padding);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #1a1a1a;
 }
@@ -13,7 +13,7 @@
   margin: 0 auto;
   background: #ffffff;
   border-radius: 32px;
-  padding: 32px;
+  padding: var(--space-xl);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
   border: 1px solid #f0f2f5;
 }
@@ -22,8 +22,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 32px;
-  padding: 4px 0;
+  margin-bottom: var(--space-xl);
+  padding: var(--space-xs) 0;
 }
 
 .wishlist-page .header-more-btn {
@@ -50,17 +50,17 @@
 .wishlist-page .pet-cart-items-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--space-md);
 }
 
 .wishlist-page .pet-cart-item-card {
   background: #ffffff;
   border: 1px solid #f1f3f5;
   border-radius: 24px;
-  padding: 16px;
+  padding: var(--space-sm);
   display: grid;
   grid-template-columns: 140px 1fr;
-  gap: 24px;
+  gap: var(--space-lg);
   align-items: center;
 }
 
@@ -73,7 +73,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: var(--space-xs);
 }
 
 .wishlist-page .pet-cart-img {
@@ -104,7 +104,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 14px;
+  margin-top: var(--space-sm);
 }
 
 .wishlist-page .inline-remove-btn {
@@ -114,7 +114,7 @@
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 6px 12px;
+  padding: var(--space-xs) var(--space-sm);
   border-radius: 6px;
   transition: all 0.2s ease;
 }
@@ -126,24 +126,24 @@
 
 .wishlist-page .pet-empty-state {
   text-align: center;
-  padding: 60px 20px;
+  padding: var(--space-2xl) var(--container-padding);
 }
 
 .wishlist-page .empty-icon {
   font-size: 4rem;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-sm);
 }
 
 .wishlist-page .shop-now-btn {
   background: #111827;
   color: #ffffff;
-  padding: 12px 24px;
+  padding: var(--space-xs) var(--space-lg);
   border-radius: 12px;
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
   border: none;
-  margin-top: 20px;
+  margin-top: var(--space-md);
 }
 
 .pet-checkout-primary-btn {
@@ -164,16 +164,16 @@
 
 @media (max-width: 900px) {
   .pet-cart-page.wishlist-page {
-    padding: 20px 10px;
+    padding: var(--space-md) var(--space-xs);
   }
   .wishlist-page .pet-cart-container {
-    padding: 20px;
+    padding: var(--space-md);
     border-radius: 20px;
   }
   .wishlist-page .pet-cart-item-card {
     grid-template-columns: 110px 1fr;
-    gap: 16px;
-    padding: 12px;
+    gap: var(--space-sm);
+    padding: var(--space-xs);
   }
   .wishlist-page .pet-cart-image-frame {
     width: 110px;
@@ -187,14 +187,14 @@
   }
   .wishlist-page .pet-cart-item-card {
     grid-template-columns: 85px 1fr;
-    gap: 12px;
-    padding: 10px;
+    gap: var(--space-xs);
+    padding: var(--space-xs);
     border-radius: 18px;
   }
   .wishlist-page .pet-cart-image-frame {
     width: 85px;
     height: 85px;
-    padding: 8px;
+    padding: var(--space-xs);
     border-radius: 14px;
   }
   .wishlist-page .pet-item-title {
@@ -210,13 +210,13 @@
   .wishlist-page .item-interactive-footer {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
-    margin-top: 10px;
+    gap: var(--space-xs);
+    margin-top: var(--space-xs);
   }
   .wishlist-page .pet-checkout-primary-btn {
     width: 100% !important;
     font-size: 0.85rem;
-    padding: 10px 12px !important;
+    padding: var(--space-xs) var(--space-sm) !important;
   }
   .wishlist-page .inline-remove-btn {
     font-size: 0.8rem;

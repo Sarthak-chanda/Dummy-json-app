@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import ProductCard from "./ProductCard";
 import "./WishlistPage.css";
 
-const WishlistPage = ({ wishlist, toggleWishlist, addToCart }) => {
+const WishlistPage = ({ wishlist, toggleWishlist, addToCart, removeFromCart, cart }) => {
   const navigate = useNavigate();
 
   const removeFromWishlist = (id) => {

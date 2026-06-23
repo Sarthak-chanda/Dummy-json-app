@@ -4,7 +4,7 @@ import ProductCard from "./ProductCard";
 import Loading from "../Loading";
 import "./CategoryPage.css";
 
-const CategoryPage = ({ addToCart, cart, wishlist, toggleWishlist }) => {
+const CategoryPage = ({ addToCart, removeFromCart, cart, wishlist, toggleWishlist }) => {
   const { categoryName } = useParams();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -46,6 +46,7 @@ const CategoryPage = ({ addToCart, cart, wishlist, toggleWishlist }) => {
               key={product.id}
               product={product}
               addToCart={addToCart}
+              removeFromCart={removeFromCart}
               cart={cart}
               wishlist={wishlist}
               toggleWishlist={toggleWishlist}

@@ -30,6 +30,6 @@ button {
 
 @media (max-width: 992px) {
   .app-shell {
-    padding-bottom: 100px; /* Space for the floating bottom nav */
+    padding-bottom: 0px; /* Removed white gap under footer */
   }
 }

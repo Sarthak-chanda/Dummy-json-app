@@ -133,7 +133,7 @@ const categoryData = [
   },
 ];
 
-const CategorySection = ({ addToCart, cart, wishlist, toggleWishlist }) => {
+const CategorySection = ({ addToCart, removeFromCart, cart, wishlist, toggleWishlist }) => {
   const navigate = useNavigate();
   const { groupedProducts, loading } = useProductManager();
   const [selectedCategory, setSelectedCategory] = useState(categoryData[0].name);
@@ -176,8 +176,13 @@ const CategorySection = ({ addToCart, cart, wishlist, toggleWishlist }) => {
   const activeCategoryData = categoryData.find(cat => cat.name === selectedCategory) || categoryData[0];
 
   return (
-    <div className="category-section">
-      <div className="category-section-container">
+    <div 
+      className="category-section"
+      style={{ '--active-gradient': activeCategoryData.gradient }}
+    >
+      <div 
+        className="category-section-container"
+      >
         <div className="category-list">
           {categoryData.map((cat) => (
             <div 
@@ -211,7 +216,6 @@ const CategorySection = ({ addToCart, cart, wishlist, toggleWishlist }) => {
         {/* Selected Category Products Container */}
         <div 
           className="selected-category-container"
-          style={{ '--active-gradient': activeCategoryData.gradient }}
         >
           <div className="selected-category-header">
             <div className="header-title-wrapper">
@@ -241,6 +245,7 @@ const CategorySection = ({ addToCart, cart, wishlist, toggleWishlist }) => {
                   key={product.id} 
                   product={product}
                   addToCart={addToCart}
+                  removeFromCart={removeFromCart}
                   cart={cart}
                   wishlist={wishlist}
                   toggleWishlist={toggleWishlist}
