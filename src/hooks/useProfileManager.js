@@ -51,44 +51,43 @@ export const useProfileManager = () => {
       const uiAddrs = [];
       if (addressData && addressData.length > 0) {
         const dbAddr = addressData[0];
-        if (dbAddr.address_line_1) {
-          uiAddrs.push({
-            id: 'line1',
-            address_line_1: dbAddr.address_line_1,
-            city: dbAddr.city || '',
-            postal_code: dbAddr.postal_code || '',
-            address_type: dbAddr.address_type || 'Home',
-            availability: dbAddr.availability || 'All Day',
-            is_default: false
-          });
-        }
-        if (dbAddr.address_line_2) {
-          uiAddrs.push({
-            id: 'line2',
-            address_line_1: dbAddr.address_line_2,
-            city: dbAddr.city || '',
-            postal_code: dbAddr.postal_code || '',
-            address_type: dbAddr.address_type || 'Home',
-            availability: dbAddr.availability || 'All Day',
-            is_default: false
-          });
-        }
-        if (dbAddr.address_line_3) {
-          uiAddrs.push({
-            id: 'line3',
-            address_line_1: dbAddr.address_line_3,
-            city: dbAddr.city || '',
-            postal_code: dbAddr.postal_code || '',
-            address_type: dbAddr.address_type || 'Home',
-            availability: dbAddr.availability || 'All Day',
-            is_default: false
-          });
-        }
+        
+        const parseLine = (lineStr, idVal) => {
+          if (!lineStr) return null;
+          try {
+            const obj = JSON.parse(lineStr);
+            return {
+              id: idVal,
+              address_line_1: obj.address_line_1 || '',
+              address_line_2: obj.address_line_2 || '',
+              city: obj.city || '',
+              postal_code: obj.postal_code || '',
+              address_type: obj.address_type || 'Home',
+              availability: obj.availability || 'All Day',
+              is_default: obj.is_default || false
+            };
+          } catch (e) {
+            // Fallback for legacy plain text rows
+            return {
+              id: idVal,
+              address_line_1: lineStr,
+              address_line_2: '',
+              city: '',
+              postal_code: '',
+              address_type: 'Home',
+              availability: 'All Day',
+              is_default: false
+            };
+          }
+        };
 
-        const defaultLine = localStorage.getItem(`userid_${user.id}_default_line`) || 'line1';
-        uiAddrs.forEach(addr => {
-          addr.is_default = addr.id === defaultLine;
-        });
+        const addr1 = parseLine(dbAddr.address_line_1, 'line1');
+        const addr2 = parseLine(dbAddr.address_line_2, 'line2');
+        const addr3 = parseLine(dbAddr.address_line_3, 'line3');
+
+        if (addr1) uiAddrs.push(addr1);
+        if (addr2) uiAddrs.push(addr2);
+        if (addr3) uiAddrs.push(addr3);
       }
 
       if (profileData) {
@@ -165,10 +164,6 @@ export const useProfileManager = () => {
 
       const payload = {
         profile_id: user.id,
-        city: currentDb?.city || '',
-        postal_code: currentDb?.postal_code || '',
-        address_type: currentDb?.address_type || 'Home',
-        availability: currentDb?.availability || 'All Day',
       };
 
       if (currentDb) {
@@ -178,33 +173,58 @@ export const useProfileManager = () => {
         payload.address_line_3 = currentDb.address_line_3;
       }
 
+      const toObj = (str) => {
+        if (!str) return null;
+        try { return JSON.parse(str); } catch { return { address_line_1: str }; }
+      };
+
+      let obj1 = toObj(payload.address_line_1);
+      let obj2 = toObj(payload.address_line_2);
+      let obj3 = toObj(payload.address_line_3);
+
       const list = Array.isArray(addressList) ? addressList : [addressList];
       
       list.forEach(addr => {
-        if (addr.is_default) {
-          localStorage.setItem(`userid_${user.id}_default_line`, addr.id);
-        }
+        const newObj = {
+          address_line_1: addr.address_line_1,
+          address_line_2: addr.address_line_2 || '',
+          city: addr.city || '',
+          postal_code: addr.postal_code || '',
+          address_type: addr.address_type || 'Home',
+          availability: addr.availability || 'All Day',
+          is_default: addr.is_default || false
+        };
 
         if (addr.id === 'new') {
-          if (!payload.address_line_1) {
-            payload.address_line_1 = addr.address_line_1;
-          } else if (!payload.address_line_2) {
-            payload.address_line_2 = addr.address_line_1;
-          } else if (!payload.address_line_3) {
-            payload.address_line_3 = addr.address_line_1;
+          if (!obj1) {
+            obj1 = newObj;
+            if (!obj2 && !obj3) obj1.is_default = true;
+          } else if (!obj2) {
+            obj2 = newObj;
+          } else if (!obj3) {
+            obj3 = newObj;
           }
         } else {
-          if (addr.id === 'line1') payload.address_line_1 = addr.address_line_1;
-          if (addr.id === 'line2') payload.address_line_2 = addr.address_line_1;
-          if (addr.id === 'line3') payload.address_line_3 = addr.address_line_1;
+          if (addr.id === 'line1') obj1 = { ...obj1, ...newObj };
+          if (addr.id === 'line2') obj2 = { ...obj2, ...newObj };
+          if (addr.id === 'line3') obj3 = { ...obj3, ...newObj };
         }
-
-        // Update shared fields
-        payload.city = addr.city;
-        payload.postal_code = addr.postal_code;
-        payload.address_type = addr.address_type;
-        payload.availability = addr.availability;
       });
+
+      // Synchronize default statuses among all address lines
+      const hasDefaultSet = [obj1, obj2, obj3].some(o => o?.is_default);
+      if (hasDefaultSet) {
+        const defaultId = list.find(a => a.is_default)?.id;
+        if (defaultId) {
+          if (obj1) obj1.is_default = (defaultId === 'line1');
+          if (obj2) obj2.is_default = (defaultId === 'line2');
+          if (obj3) obj3.is_default = (defaultId === 'line3');
+        }
+      }
+
+      payload.address_line_1 = obj1 ? JSON.stringify(obj1) : null;
+      payload.address_line_2 = obj2 ? JSON.stringify(obj2) : null;
+      payload.address_line_3 = obj3 ? JSON.stringify(obj3) : null;
 
       const { data, error: addrError } = await supabase
         .from('addresses')
@@ -246,15 +266,40 @@ export const useProfileManager = () => {
           address_line_1: currentDb.address_line_1,
           address_line_2: currentDb.address_line_2,
           address_line_3: currentDb.address_line_3,
-          city: currentDb.city,
-          postal_code: currentDb.postal_code,
-          address_type: currentDb.address_type,
-          availability: currentDb.availability,
         };
 
-        if (id === 'line1') payload.address_line_1 = null;
-        if (id === 'line2') payload.address_line_2 = null;
-        if (id === 'line3') payload.address_line_3 = null;
+        const toObj = (str) => {
+          if (!str) return null;
+          try { return JSON.parse(str); } catch { return { address_line_1: str }; }
+        };
+
+        let obj1 = toObj(payload.address_line_1);
+        let obj2 = toObj(payload.address_line_2);
+        let obj3 = toObj(payload.address_line_3);
+
+        let wasDefault = false;
+        if (id === 'line1') {
+          wasDefault = obj1?.is_default;
+          obj1 = null;
+        }
+        if (id === 'line2') {
+          wasDefault = obj2?.is_default;
+          obj2 = null;
+        }
+        if (id === 'line3') {
+          wasDefault = obj3?.is_default;
+          obj3 = null;
+        }
+
+        if (wasDefault) {
+          if (obj1) obj1.is_default = true;
+          else if (obj2) obj2.is_default = true;
+          else if (obj3) obj3.is_default = true;
+        }
+
+        payload.address_line_1 = obj1 ? JSON.stringify(obj1) : null;
+        payload.address_line_2 = obj2 ? JSON.stringify(obj2) : null;
+        payload.address_line_3 = obj3 ? JSON.stringify(obj3) : null;
 
         const { error } = await supabase
           .from('addresses')
