@@ -48,14 +48,57 @@ export const useProfileManager = () => {
         console.warn("Addresses fetch warning:", addressError.message);
       }
 
+      const uiAddrs = [];
+      if (addressData && addressData.length > 0) {
+        const dbAddr = addressData[0];
+        if (dbAddr.address_line_1) {
+          uiAddrs.push({
+            id: 'line1',
+            address_line_1: dbAddr.address_line_1,
+            city: dbAddr.city || '',
+            postal_code: dbAddr.postal_code || '',
+            address_type: dbAddr.address_type || 'Home',
+            availability: dbAddr.availability || 'All Day',
+            is_default: false
+          });
+        }
+        if (dbAddr.address_line_2) {
+          uiAddrs.push({
+            id: 'line2',
+            address_line_1: dbAddr.address_line_2,
+            city: dbAddr.city || '',
+            postal_code: dbAddr.postal_code || '',
+            address_type: dbAddr.address_type || 'Home',
+            availability: dbAddr.availability || 'All Day',
+            is_default: false
+          });
+        }
+        if (dbAddr.address_line_3) {
+          uiAddrs.push({
+            id: 'line3',
+            address_line_1: dbAddr.address_line_3,
+            city: dbAddr.city || '',
+            postal_code: dbAddr.postal_code || '',
+            address_type: dbAddr.address_type || 'Home',
+            availability: dbAddr.availability || 'All Day',
+            is_default: false
+          });
+        }
+
+        const defaultLine = localStorage.getItem(`userid_${user.id}_default_line`) || 'line1';
+        uiAddrs.forEach(addr => {
+          addr.is_default = addr.id === defaultLine;
+        });
+      }
+
       if (profileData) {
         const savedLocation = localStorage.getItem(`userid_${user.id}_location`) || '';
         setProfile({ ...profileData, location: savedLocation });
-        setAddresses(addressData || []);
+        setAddresses(uiAddrs);
       } else {
         // Fallback if trigger hasn't finished: profile is null
         setProfile(null);
-        setAddresses(addressData || []);
+        setAddresses(uiAddrs);
       }
       hasLoadedOnce.current = true;
     } catch (err) {
@@ -113,29 +156,64 @@ export const useProfileManager = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No authenticated user");
 
-      const formattedAddresses = (Array.isArray(addressList) ? addressList : [addressList]).map(addr => ({
-        ...addr,
-        profile_id: user.id
-      }));
+      const { data: currentRows } = await supabase
+        .from('addresses')
+        .select('*')
+        .eq('profile_id', user.id);
+        
+      const currentDb = currentRows && currentRows.length > 0 ? currentRows[0] : null;
+
+      const payload = {
+        profile_id: user.id,
+        city: currentDb?.city || '',
+        postal_code: currentDb?.postal_code || '',
+        address_type: currentDb?.address_type || 'Home',
+        availability: currentDb?.availability || 'All Day',
+      };
+
+      if (currentDb) {
+        payload.id = currentDb.id;
+        payload.address_line_1 = currentDb.address_line_1;
+        payload.address_line_2 = currentDb.address_line_2;
+        payload.address_line_3 = currentDb.address_line_3;
+      }
+
+      const list = Array.isArray(addressList) ? addressList : [addressList];
+      
+      list.forEach(addr => {
+        if (addr.is_default) {
+          localStorage.setItem(`userid_${user.id}_default_line`, addr.id);
+        }
+
+        if (addr.id === 'new') {
+          if (!payload.address_line_1) {
+            payload.address_line_1 = addr.address_line_1;
+          } else if (!payload.address_line_2) {
+            payload.address_line_2 = addr.address_line_1;
+          } else if (!payload.address_line_3) {
+            payload.address_line_3 = addr.address_line_1;
+          }
+        } else {
+          if (addr.id === 'line1') payload.address_line_1 = addr.address_line_1;
+          if (addr.id === 'line2') payload.address_line_2 = addr.address_line_1;
+          if (addr.id === 'line3') payload.address_line_3 = addr.address_line_1;
+        }
+
+        // Update shared fields
+        payload.city = addr.city;
+        payload.postal_code = addr.postal_code;
+        payload.address_type = addr.address_type;
+        payload.availability = addr.availability;
+      });
 
       const { data, error: addrError } = await supabase
         .from('addresses')
-        .upsert(formattedAddresses, { onConflict: 'id' })
+        .upsert(payload)
         .select();
 
       if (addrError) throw addrError;
-      
-      // Update local state by merging or replacing
-      setAddresses(prev => {
-        const newAddrs = [...prev];
-        data.forEach(updated => {
-            const idx = newAddrs.findIndex(a => a.id === updated.id);
-            if (idx > -1) newAddrs[idx] = updated;
-            else newAddrs.push(updated);
-        });
-        return newAddrs;
-      });
-      
+
+      await fetchProfileData();
       return { success: true, data };
     } catch (err) {
       console.error("[useProfileManager] Address Sync Error:", err.message);
@@ -151,14 +229,41 @@ export const useProfileManager = () => {
   const deleteAddress = async (id) => {
     try {
       setLoading(true);
-      const { error } = await supabase
-        .from('addresses')
-        .delete()
-        .eq('id', id);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No authenticated user");
 
-      if (error) throw error;
-      
-      setAddresses(prev => prev.filter(a => a.id !== id));
+      const { data: currentRows } = await supabase
+        .from('addresses')
+        .select('*')
+        .eq('profile_id', user.id);
+
+      const currentDb = currentRows && currentRows.length > 0 ? currentRows[0] : null;
+
+      if (currentDb) {
+        const payload = {
+          id: currentDb.id,
+          profile_id: user.id,
+          address_line_1: currentDb.address_line_1,
+          address_line_2: currentDb.address_line_2,
+          address_line_3: currentDb.address_line_3,
+          city: currentDb.city,
+          postal_code: currentDb.postal_code,
+          address_type: currentDb.address_type,
+          availability: currentDb.availability,
+        };
+
+        if (id === 'line1') payload.address_line_1 = null;
+        if (id === 'line2') payload.address_line_2 = null;
+        if (id === 'line3') payload.address_line_3 = null;
+
+        const { error } = await supabase
+          .from('addresses')
+          .upsert(payload);
+
+        if (error) throw error;
+      }
+
+      await fetchProfileData();
       return { success: true };
     } catch (err) {
       console.error("[useProfileManager] Delete Address Error:", err.message);
@@ -210,16 +315,7 @@ export const useProfileManager = () => {
         },
         (payload) => {
           console.log('Realtime Address Update:', payload);
-          if (payload.eventType === 'INSERT') {
-            setAddresses(prev => {
-              if (prev.some(a => a.id === payload.new.id)) return prev;
-              return [...prev, payload.new];
-            });
-          } else if (payload.eventType === 'UPDATE') {
-            setAddresses(prev => prev.map(a => a.id === payload.new.id ? payload.new : a));
-          } else if (payload.eventType === 'DELETE') {
-            setAddresses(prev => prev.filter(a => a.id !== payload.old.id));
-          }
+          fetchProfileData();
         }
       )
       .subscribe();
