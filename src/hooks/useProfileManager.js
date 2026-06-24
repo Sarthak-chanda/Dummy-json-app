@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../Login/supabaseClient';
 
 /**
@@ -10,13 +10,16 @@ export const useProfileManager = () => {
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const hasLoadedOnce = useRef(false);
 
   /**
    * Fetch profile and addresses in a single relational query.
    */
   const fetchProfileData = useCallback(async () => {
     try {
-      setLoading(true);
+      if (!hasLoadedOnce.current) {
+        setLoading(true);
+      }
       setError(null);
 
       const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -54,6 +57,7 @@ export const useProfileManager = () => {
         setProfile(null);
         setAddresses(addressData || []);
       }
+      hasLoadedOnce.current = true;
     } catch (err) {
       console.error("[useProfileManager] Fetch Error:", err.message);
       setError(err.message);

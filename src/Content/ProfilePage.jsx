@@ -127,7 +127,7 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
 
   const handleSetDefaultAddress = async (id) => {
     const updatedAddresses = addresses.map(a => ({
-      id: a.id,
+      ...a,
       is_default: a.id === id
     }));
     await upsertAddresses(updatedAddresses);
@@ -229,14 +229,14 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
               {isEditing ? (
                 <>
                   <EditField label="Display Name" value={editedData.name} onChange={(e) => setEditedData({...editedData, name: e.target.value})} />
-                  <EditField label="Email Address" value={profile?.email || ""} disabled />
+                   <EditField label="Email Address" value={profile?.email || userdet.email || ""} disabled />
                   <EditField label="Phone Number" value={editedData.phone} onChange={(e) => setEditedData({...editedData, phone: e.target.value})} />
                   <EditField label="Default Location" value={editedData.location} onChange={(e) => setEditedData({...editedData, location: e.target.value})} />
                 </>
               ) : (
                 <>
                   <DetailCard label="Full Name" value={profile?.name} />
-                  <DetailCard label="Registered Email" value={profile?.email} />
+                  <DetailCard label="Registered Email" value={profile?.email || userdet.email} />
                   <DetailCard label="Contact Number" value={profile?.phone} />
                   <DetailCard label="Current Location" value={profile?.location} />
                 </>
@@ -250,13 +250,18 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
           <div className="animate-fade-in p-2 md:p-4">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg md:text-xl font-bold text-slate-800">Address Book</h2>
-              {editingAddressId === null && (
+              {editingAddressId === null && addresses.length < 3 && (
                 <button 
                   onClick={() => setEditingAddressId('new')}
                   className="px-4 py-2 bg-slate-900 text-white rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-slate-800 transition-colors"
                 >
                   <span className="text-lg leading-none">+</span> Add New
                 </button>
+              )}
+              {addresses.length >= 3 && (
+                <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg">
+                  Maximum of 3 addresses reached
+                </span>
               )}
             </div>
             
