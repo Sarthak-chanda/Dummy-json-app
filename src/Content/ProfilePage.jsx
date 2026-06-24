@@ -96,6 +96,7 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
+      navigate('/login');
     } catch (err) {
       console.error('Logout error:', err);
     }

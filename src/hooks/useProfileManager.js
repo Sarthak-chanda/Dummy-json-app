@@ -27,26 +27,32 @@ export const useProfileManager = () => {
         return;
       }
 
-      // Single query using foreign key relationship (Profiles -> addresses)
-      const { data, error: fetchError } = await supabase
+      // Query profile and addresses separately to avoid PostgREST relationship errors
+      const { data: profileData, error: profileError } = await supabase
         .from('Profiles')
-        .select(`
-          *,
-          addresses (*)
-        `)
+        .select('*')
         .eq('id', user.id)
-        .maybeSingle(); // Better than .single() as it won't throw error if missing
+        .maybeSingle();
 
-      if (fetchError) throw fetchError;
+      if (profileError) throw profileError;
 
-      if (data) {
-        const { addresses: addr, ...prof } = data;
-        setProfile(prof);
-        setAddresses(addr || []);
+      const { data: addressData, error: addressError } = await supabase
+        .from('addresses')
+        .select('*')
+        .eq('profile_id', user.id);
+        
+      if (addressError) {
+        console.warn("Addresses fetch warning:", addressError.message);
+      }
+
+      if (profileData) {
+        const savedLocation = localStorage.getItem(`userid_${user.id}_location`) || '';
+        setProfile({ ...profileData, location: savedLocation });
+        setAddresses(addressData || []);
       } else {
         // Fallback if trigger hasn't finished: profile is null
         setProfile(null);
-        setAddresses([]);
+        setAddresses(addressData || []);
       }
     } catch (err) {
       console.error("[useProfileManager] Fetch Error:", err.message);
@@ -65,19 +71,27 @@ export const useProfileManager = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No authenticated user");
       
+      const { location, ...dbUpdates } = updates;
+      if (location !== undefined) {
+        localStorage.setItem(`userid_${user.id}_location`, location);
+      }
+
       const { data, error: upsertError } = await supabase
         .from('Profiles')
         .upsert({
           id: user.id,
-          ...updates,
+          ...dbUpdates,
           email: user.email,
         })
         .select()
         .single();
 
       if (upsertError) throw upsertError;
-      setProfile(data);
-      return { success: true, data };
+      
+      const savedLocation = localStorage.getItem(`userid_${user.id}_location`) || '';
+      const updatedProfile = { ...data, location: savedLocation };
+      setProfile(updatedProfile);
+      return { success: true, data: updatedProfile };
     } catch (err) {
       console.error("[useProfileManager] Profile Update Error:", err.message);
       return { success: false, error: err.message };

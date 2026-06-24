@@ -140,7 +140,7 @@ const App = () => {
       image: user.user_metadata?.avatar_url || '',
       accessToken: session.access_token,
       phone: dbProfile?.phone || '',
-      location: dbProfile?.location || '',
+      location: dbProfile?.location || localStorage.getItem(`userid_${user.id}_location`) || '',
       addresses: dbAddresses,
       firstName: user.user_metadata?.first_name || '',
       lastName: user.user_metadata?.last_name || '',
@@ -206,68 +206,9 @@ const App = () => {
     }
   }, [wishlist, userdet.id]);
 
-  // Supabase Profile Sync (Debounced Automatic Sync)
-  useEffect(() => {
-    if (!userdet.id) return;
-    const updateProfile = async () => {
-      try {
-        await supabase.from('Profiles').upsert({
-          id: userdet.id,
-          name: userdet.username,
-          phone: userdet.phone,
-          location: userdet.location,
-          email: userdet.email
-        });
-      } catch (err) {
-        console.error("Profile auto-sync error:", err);
-      }
-    };
-    const timer = setTimeout(updateProfile, 3000); // 3s debounce for profile edits
-    return () => clearTimeout(timer);
-  }, [userdet.username, userdet.phone, userdet.location, userdet.id, userdet.email]);
 
-  // Supabase Sync (Optional backup)
-  useEffect(() => {
-    if (!userdet.id) return;
-    const syncCart = async () => {
-      try {
-        const { data } = await supabase.from('carts').select('cart_items').eq('user_id', userdet.id).maybeSingle();
-        if (data?.cart_items) setCart(data.cart_items);
-      } catch (err) { console.error("Cart sync error:", err); }
-    };
-    syncCart();
-  }, [userdet.id]);
 
-  useEffect(() => {
-    if (!userdet.id) return;
-    const updateCart = async () => {
-      try { await supabase.from('carts').upsert({ user_id: userdet.id, cart_items: cart }, { onConflict: 'user_id' }); }
-      catch (err) { console.error("Cart update error:", err); }
-    };
-    const timer = setTimeout(updateCart, 2000);
-    return () => clearTimeout(timer);
-  }, [cart, userdet.id]);
 
-  useEffect(() => {
-    if (!userdet.id) return;
-    const syncWishlist = async () => {
-      try {
-        const { data } = await supabase.from('wishlists').select('wishlist_items').eq('user_id', userdet.id).maybeSingle();
-        if (data?.wishlist_items) setWishlist(data.wishlist_items);
-      } catch (err) { console.error("Wishlist sync error:", err); }
-    };
-    syncWishlist();
-  }, [userdet.id]);
-
-  useEffect(() => {
-    if (!userdet.id) return;
-    const updateWishlist = async () => {
-      try { await supabase.from('wishlists').upsert({ user_id: userdet.id, wishlist_items: wishlist }, { onConflict: 'user_id' }); }
-      catch (err) { console.error("Wishlist update error:", err); }
-    };
-    const timer = setTimeout(updateWishlist, 2000);
-    return () => clearTimeout(timer);
-  }, [wishlist, userdet.id]);
 
   // --- ACTIONS ---
 
@@ -320,7 +261,7 @@ const App = () => {
         </Routes>
       </div>
       {loading && <div className="global-loader"><Loading />{notfound && <NotFound />}</div>}
-      <Footer userdet={userdet} />
+      {!hideNav && <Footer userdet={userdet} />}
     </div>
   )
 }

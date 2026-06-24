@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../../Login/supabaseClient'
 import Cart from './Cart'
 import WishlistIcon from './WishlistIcon'
 import Logo from './Logo'
@@ -233,6 +234,7 @@ const Nav = ({ cart, wishlist = [], setSearchResult, setLoading, setNotfound, us
                 try {
                   await supabase.auth.signOut();
                   setIsMenuOpen(false);
+                  navigate('/login');
                 } catch (err) {
                   console.error('Logout error:', err);
                 }
