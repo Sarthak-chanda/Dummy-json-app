@@ -88,6 +88,12 @@ export const useProfileManager = () => {
         if (addr1) uiAddrs.push(addr1);
         if (addr2) uiAddrs.push(addr2);
         if (addr3) uiAddrs.push(addr3);
+
+        const defaultLineNum = dbAddr.default_add || 1;
+        const defaultLineId = `line${defaultLineNum}`;
+        uiAddrs.forEach(addr => {
+          addr.is_default = addr.id === defaultLineId;
+        });
       }
 
       if (profileData) {
@@ -171,6 +177,9 @@ export const useProfileManager = () => {
         payload.address_line_1 = currentDb.address_line_1;
         payload.address_line_2 = currentDb.address_line_2;
         payload.address_line_3 = currentDb.address_line_3;
+        payload.default_add = currentDb.default_add || 1;
+      } else {
+        payload.default_add = 1;
       }
 
       const toObj = (str) => {
@@ -185,6 +194,12 @@ export const useProfileManager = () => {
       const list = Array.isArray(addressList) ? addressList : [addressList];
       
       list.forEach(addr => {
+        if (addr.is_default) {
+          if (addr.id === 'line1') payload.default_add = 1;
+          if (addr.id === 'line2') payload.default_add = 2;
+          if (addr.id === 'line3') payload.default_add = 3;
+        }
+
         const newObj = {
           address_line_1: addr.address_line_1,
           address_line_2: addr.address_line_2 || '',
@@ -192,13 +207,12 @@ export const useProfileManager = () => {
           postal_code: addr.postal_code || '',
           address_type: addr.address_type || 'Home',
           availability: addr.availability || 'All Day',
-          is_default: addr.is_default || false
         };
 
         if (addr.id === 'new') {
           if (!obj1) {
             obj1 = newObj;
-            if (!obj2 && !obj3) obj1.is_default = true;
+            payload.default_add = 1;
           } else if (!obj2) {
             obj2 = newObj;
           } else if (!obj3) {
@@ -211,16 +225,9 @@ export const useProfileManager = () => {
         }
       });
 
-      // Synchronize default statuses among all address lines
-      const hasDefaultSet = [obj1, obj2, obj3].some(o => o?.is_default);
-      if (hasDefaultSet) {
-        const defaultId = list.find(a => a.is_default)?.id;
-        if (defaultId) {
-          if (obj1) obj1.is_default = (defaultId === 'line1');
-          if (obj2) obj2.is_default = (defaultId === 'line2');
-          if (obj3) obj3.is_default = (defaultId === 'line3');
-        }
-      }
+      if (obj1) obj1.is_default = (payload.default_add === 1);
+      if (obj2) obj2.is_default = (payload.default_add === 2);
+      if (obj3) obj3.is_default = (payload.default_add === 3);
 
       payload.address_line_1 = obj1 ? JSON.stringify(obj1) : null;
       payload.address_line_2 = obj2 ? JSON.stringify(obj2) : null;
@@ -266,6 +273,7 @@ export const useProfileManager = () => {
           address_line_1: currentDb.address_line_1,
           address_line_2: currentDb.address_line_2,
           address_line_3: currentDb.address_line_3,
+          default_add: currentDb.default_add || 1,
         };
 
         const toObj = (str) => {
@@ -279,23 +287,28 @@ export const useProfileManager = () => {
 
         let wasDefault = false;
         if (id === 'line1') {
-          wasDefault = obj1?.is_default;
+          wasDefault = (payload.default_add === 1);
           obj1 = null;
         }
         if (id === 'line2') {
-          wasDefault = obj2?.is_default;
+          wasDefault = (payload.default_add === 2);
           obj2 = null;
         }
         if (id === 'line3') {
-          wasDefault = obj3?.is_default;
+          wasDefault = (payload.default_add === 3);
           obj3 = null;
         }
 
         if (wasDefault) {
-          if (obj1) obj1.is_default = true;
-          else if (obj2) obj2.is_default = true;
-          else if (obj3) obj3.is_default = true;
+          if (obj1) payload.default_add = 1;
+          else if (obj2) payload.default_add = 2;
+          else if (obj3) payload.default_add = 3;
+          else payload.default_add = null;
         }
+
+        if (obj1) obj1.is_default = (payload.default_add === 1);
+        if (obj2) obj2.is_default = (payload.default_add === 2);
+        if (obj3) obj3.is_default = (payload.default_add === 3);
 
         payload.address_line_1 = obj1 ? JSON.stringify(obj1) : null;
         payload.address_line_2 = obj2 ? JSON.stringify(obj2) : null;
