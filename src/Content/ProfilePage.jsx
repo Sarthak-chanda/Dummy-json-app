@@ -168,17 +168,46 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
   const AddressEditForm = ({ address, onSave, onCancel }) => {
     const [formData, setFormData] = useState(address || { 
       address_line_1: "", 
+      address_line_2: "", 
       city: "", 
       postal_code: "",
+      address_type: "Home",
+      availability: "All Day",
       is_default: false 
     });
     
     return (
       <div className="p-4 md:p-5 rounded-xl border bg-slate-50 border-slate-300 shadow-inner">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-          <EditField label="Street Address" value={formData.address_line_1} onChange={e => setFormData({...formData, address_line_1: e.target.value})} />
-          <EditField label="City" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} />
-          <EditField label="Postal Code" value={formData.postal_code} onChange={e => setFormData({...formData, postal_code: e.target.value})} />
+          <EditField label="Address Line 1" value={formData.address_line_1 || ""} onChange={e => setFormData({...formData, address_line_1: e.target.value})} />
+          <EditField label="Address Line 2 (Optional)" value={formData.address_line_2 || ""} onChange={e => setFormData({...formData, address_line_2: e.target.value})} />
+          <EditField label="City" value={formData.city || ""} onChange={e => setFormData({...formData, city: e.target.value})} />
+          <EditField label="Postal Code" value={formData.postal_code || ""} onChange={e => setFormData({...formData, postal_code: e.target.value})} />
+          
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider ml-1">Address Type</label>
+            <select 
+              value={formData.address_type || "Home"} 
+              onChange={e => setFormData({...formData, address_type: e.target.value})}
+              className="w-full p-3 rounded-xl border border-slate-300 bg-white text-slate-900 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+            >
+              <option value="Home">Home</option>
+              <option value="Office">Office</option>
+            </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider ml-1">Availability</label>
+            <select 
+              value={formData.availability || "All Day"} 
+              onChange={e => setFormData({...formData, availability: e.target.value})}
+              className="w-full p-3 rounded-xl border border-slate-300 bg-white text-slate-900 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+            >
+              <option value="All Day">All Day (9 AM - 9 PM)</option>
+              <option value="Morning">Morning (9 AM - 12 PM)</option>
+              <option value="Night">Night (6 PM - 9 PM)</option>
+            </select>
+          </div>
         </div>
         <div className="flex gap-2 justify-end">
           <button onClick={onCancel} className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-300 transition-colors">Cancel</button>
@@ -284,13 +313,21 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
                 ) : (
                   <div key={addr.id} className={`p-4 md:p-5 rounded-xl border transition-all flex flex-col md:flex-row justify-between md:items-center gap-4 ${addr.is_default ? 'bg-blue-50/50 border-blue-200 shadow-sm ring-1 ring-blue-500' : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'}`}>
                     <div>
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
                         <Icons.MapPin />
                         <span className="font-semibold text-slate-800">{addr.city}</span>
-                        {addr.is_default && <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ml-2">Default</span>}
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${addr.address_type === 'Office' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'}`}>
+                          {addr.address_type || 'Home'}
+                        </span>
+                        <span className="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                          {addr.availability || 'All Day'}
+                        </span>
+                        {addr.is_default && <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Default</span>}
                       </div>
-                      <p className="text-slate-600 text-sm">{addr.address_line_1}</p>
-                      <p className="text-slate-600 text-sm">{addr.city}, {addr.postal_code}</p>
+                      <p className="text-slate-600 text-sm font-medium">{addr.address_line_1}</p>
+                      {addr.address_line_2 && <p className="text-slate-500 text-xs mt-0.5">{addr.address_line_2}</p>}
+                      {addr.address_line_3 && <p className="text-slate-500 text-xs mt-0.5">{addr.address_line_3}</p>}
+                      <p className="text-slate-600 text-sm mt-1">{addr.city}, {addr.postal_code}</p>
                     </div>
                     <div className="flex flex-wrap gap-2 md:flex-col md:items-end">
                       {!addr.is_default && (

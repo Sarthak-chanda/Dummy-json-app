@@ -211,11 +211,14 @@ export const useProfileManager = () => {
         (payload) => {
           console.log('Realtime Address Update:', payload);
           if (payload.eventType === 'INSERT') {
-            setAddresses(prev => [...prev, payload.new]);
+            setAddresses(prev => {
+              if (prev.some(a => a.id === payload.new.id)) return prev;
+              return [...prev, payload.new];
+            });
           } else if (payload.eventType === 'UPDATE') {
             setAddresses(prev => prev.map(a => a.id === payload.new.id ? payload.new : a));
           } else if (payload.eventType === 'DELETE') {
-            setAddresses(prev => prev.filter(a => a.id === payload.old.id));
+            setAddresses(prev => prev.filter(a => a.id !== payload.old.id));
           }
         }
       )
