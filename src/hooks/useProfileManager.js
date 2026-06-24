@@ -209,7 +209,7 @@ export const useProfileManager = () => {
           availability: addr.availability || 'All Day',
         };
 
-        if (addr.id === 'new') {
+        if (addr.id === 'new' || !addr.id) {
           if (!obj1) {
             obj1 = newObj;
             payload.default_add = 1;

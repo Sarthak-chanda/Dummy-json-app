@@ -136,12 +136,9 @@ export default function ProfilePage({ userdet, setUserdet, cart = [], wishlist =
   const handleSaveAddress = async (id, newAddressData) => {
     const addressToSave = {
       ...newAddressData,
-      is_default: id === 'new' ? addresses.length === 0 : newAddressData.is_default
+      is_default: id === 'new' ? addresses.length === 0 : newAddressData.is_default,
+      id: id
     };
-    
-    if (id !== 'new') {
-        addressToSave.id = id;
-    }
 
     const result = await upsertAddresses(addressToSave);
     if (result.success) {
