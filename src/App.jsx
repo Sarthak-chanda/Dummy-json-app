@@ -21,6 +21,15 @@ import ProductPage from './Content/ProductPage.jsx'
 import Footer from './Content/Footer.jsx'
 import DummyDisclaimerPage from './Content/DummyDisclaimerPage.jsx'
 
+const getDisplayAvatarUrl = (url) => {
+  if (!url) return '';
+  const isDev = import.meta.env.DEV;
+  if (isDev && url.includes('https://ypvzlwkmdoueswvcagkq.supabase.co')) {
+    return url.replace('https://ypvzlwkmdoueswvcagkq.supabase.co', window.location.origin + '/api/supabase');
+  }
+  return url;
+};
+
 // --- STORAGE HELPERS ---
 
 const getSavedCart = (userId) => {
@@ -126,7 +135,51 @@ const App = () => {
     let dbAddresses = [];
     try {
         const { data } = await supabase.from('addresses').select('*').eq('profile_id', user.id);
-        if (data) dbAddresses = data;
+        if (data && data.length > 0) {
+          const dbAddr = data[0];
+          
+          const parseLine = (lineStr, idVal) => {
+            if (!lineStr) return null;
+            try {
+              const obj = JSON.parse(lineStr);
+              return {
+                id: idVal,
+                address_line_1: obj.address_line_1 || '',
+                address_line_2: obj.address_line_2 || '',
+                city: obj.city || '',
+                postal_code: obj.postal_code || '',
+                address_type: obj.address_type || 'Home',
+                availability: obj.availability || 'All Day',
+                is_default: obj.is_default || false
+              };
+            } catch {
+              return {
+                id: idVal,
+                address_line_1: lineStr,
+                address_line_2: '',
+                city: '',
+                postal_code: '',
+                address_type: 'Home',
+                availability: 'All Day',
+                is_default: false
+              };
+            }
+          };
+
+          const addr1 = parseLine(dbAddr.address_line_1, 'line1');
+          const addr2 = parseLine(dbAddr.address_line_2, 'line2');
+          const addr3 = parseLine(dbAddr.address_line_3, 'line3');
+
+          if (addr1) dbAddresses.push(addr1);
+          if (addr2) dbAddresses.push(addr2);
+          if (addr3) dbAddresses.push(addr3);
+
+          const defaultLineNum = dbAddr.default_add || 1;
+          const defaultLineId = `line${defaultLineNum}`;
+          dbAddresses.forEach(addr => {
+            addr.is_default = addr.id === defaultLineId;
+          });
+        }
     } catch (err) {
         console.error("Error fetching addresses:", err);
     }
@@ -137,36 +190,85 @@ const App = () => {
       username: dbProfile?.name || user.user_metadata?.full_name || user.user_metadata?.name || '',
       email: user.email,
       emailPrefix: emailPrefix,
-      image: user.user_metadata?.avatar_url || '',
+      image: getDisplayAvatarUrl(dbProfile?.avatar_url || user.user_metadata?.avatar_url) || `https://ui-avatars.com/api/?name=${encodeURIComponent(emailPrefix)}&background=0f172a&color=fff`,
       accessToken: session.access_token,
       phone: dbProfile?.phone || '',
-      location: dbProfile?.location || localStorage.getItem(`userid_${user.id}_location`) || '',
+      location: dbProfile?.Location || '',
       addresses: dbAddresses,
       firstName: user.user_metadata?.first_name || '',
       lastName: user.user_metadata?.last_name || '',
       gender: '',
     };
     
-    // 4. Update state and localStorage for persistence
+    // 4. Fetch Cart & Wishlist from Supabase
+    let dbCart = [];
+    let dbWishlist = [];
+    try {
+      const { data, error } = await supabase
+        .from('cart_wishlist')
+        .select('*')
+        .eq('profile_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching cart/wishlist:", error);
+        dbCart = getSavedCart(user.id);
+        dbWishlist = getSavedWishlist(user.id);
+      } else if (data) {
+        if (data.cart_items) {
+          try { dbCart = JSON.parse(data.cart_items); } catch { dbCart = []; }
+        }
+        if (data.wishlist_items) {
+          try { dbWishlist = JSON.parse(data.wishlist_items); } catch { dbWishlist = []; }
+        }
+      } else {
+        // Fallback to local storage on initial migration, and create the row
+        dbCart = getSavedCart(user.id);
+        dbWishlist = getSavedWishlist(user.id);
+        
+        await supabase
+          .from('cart_wishlist')
+          .insert({
+            profile_id: user.id,
+            cart_items: JSON.stringify(dbCart),
+            wishlist_items: JSON.stringify(dbWishlist)
+          });
+      }
+    } catch (err) {
+      console.error("Cart/Wishlist fetch exception:", err);
+      dbCart = getSavedCart(user.id);
+      dbWishlist = getSavedWishlist(user.id);
+    }
+
+    // 5. Update state and localStorage for persistence
     localStorage.setItem('userdet', JSON.stringify(mappedData));
     localStorage.setItem(`userid_${user.id}_userdata`, JSON.stringify(mappedData));
     
     setUserdet(mappedData);
-    setCart(getSavedCart(user.id));
-    setWishlist(getSavedWishlist(user.id));
+    setCart(dbCart);
+    setWishlist(dbWishlist);
   };
 
   useEffect(() => {
     const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) await handleSessionUpdate(session);
+      const { data, error } = await supabase.auth.getSession();
+      if (data?.session) {
+        await handleSessionUpdate(data.session);
+      } else {
+        console.warn("[App] No active session found on init. Clearing local session state.");
+        const resetUser = { id: '', username: '', email: '', emailPrefix: '', image: '', accessToken: '', phone: '', location: '', addresses: [], firstName: '', lastName: '', gender: '' };
+        setUserdet(resetUser);
+        localStorage.removeItem('userdet');
+        setCart([]);
+        setWishlist([]);
+      }
       setAuthLoading(false);
     };
 
     initAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session) {
+      if ((event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') && session) {
         await handleSessionUpdate(session);
         setAuthLoading(false);
       } else if (event === 'SIGNED_OUT') {
@@ -192,18 +294,60 @@ const App = () => {
     }
   }, [userdet]);
 
-  // Sync Cart
+  // Sync Cart to Supabase and LocalStorage
   useEffect(() => {
-    if (userdet.id) {
-      localStorage.setItem(`userid_${userdet.id}_cart`, JSON.stringify(cart));
-    }
+    if (!userdet.id) return;
+    
+    // Always save to localStorage immediately for performance
+    localStorage.setItem(`userid_${userdet.id}_cart`, JSON.stringify(cart));
+
+    const syncCartToDb = async () => {
+      try {
+        const { error } = await supabase
+          .from('cart_wishlist')
+          .update({
+            cart_items: JSON.stringify(cart),
+            updated_at: new Date().toISOString()
+          })
+          .eq('profile_id', userdet.id);
+
+        if (error) console.error("Error syncing cart to database:", error.message);
+      } catch (err) {
+        console.error("Cart sync exception:", err);
+      }
+    };
+
+    // Debounce database write by 1 second to avoid excessive database calls
+    const handler = setTimeout(syncCartToDb, 1000);
+    return () => clearTimeout(handler);
   }, [cart, userdet.id]);
 
-  // Sync Wishlist
+  // Sync Wishlist to Supabase and LocalStorage
   useEffect(() => {
-    if (userdet.id) {
-      localStorage.setItem(`userid_${userdet.id}_wishlist`, JSON.stringify(wishlist));
-    }
+    if (!userdet.id) return;
+
+    // Always save to localStorage immediately for performance
+    localStorage.setItem(`userid_${userdet.id}_wishlist`, JSON.stringify(wishlist));
+
+    const syncWishlistToDb = async () => {
+      try {
+        const { error } = await supabase
+          .from('cart_wishlist')
+          .update({
+            wishlist_items: JSON.stringify(wishlist),
+            updated_at: new Date().toISOString()
+          })
+          .eq('profile_id', userdet.id);
+
+        if (error) console.error("Error syncing wishlist to database:", error.message);
+      } catch (err) {
+        console.error("Wishlist sync exception:", err);
+      }
+    };
+
+    // Debounce database write by 1 second to avoid excessive database calls
+    const handler = setTimeout(syncWishlistToDb, 1000);
+    return () => clearTimeout(handler);
   }, [wishlist, userdet.id]);
 
 

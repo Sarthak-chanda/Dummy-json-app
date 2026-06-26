@@ -1,154 +1,263 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../Login/supabaseClient';
+
+/**
+ * Helper to run any promise with a timeout.
+ * Prevents Supabase requests from hanging indefinitely.
+ */
+const runWithTimeout = async (promise, timeoutMs = 30000) => {
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error("Supabase request timed out")), timeoutMs);
+  });
+  try {
+    const result = await Promise.race([promise, timeoutPromise]);
+    return result;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
+
+const getDisplayAvatarUrl = (url) => {
+  if (!url) return '';
+  const isDev = import.meta.env.DEV;
+  if (isDev && url.includes('https://ypvzlwkmdoueswvcagkq.supabase.co')) {
+    return url.replace('https://ypvzlwkmdoueswvcagkq.supabase.co', window.location.origin + '/api/supabase');
+  }
+  return url;
+};
+
+/**
+ * Parses raw addresses database row into structured UI array.
+ */
+const parseAddressRow = (dbAddr) => {
+  if (!dbAddr) return [];
+  
+  const parseLine = (lineStr, idVal) => {
+    if (!lineStr) return null;
+    try {
+      const obj = JSON.parse(lineStr);
+      return {
+        id: idVal,
+        address_line_1: obj.address_line_1 || '',
+        address_line_2: obj.address_line_2 || '',
+        city: obj.city || '',
+        postal_code: obj.postal_code || '',
+        address_type: obj.address_type || 'Home',
+        availability: obj.availability || 'All Day',
+        is_default: obj.is_default || false
+      };
+    } catch {
+      // Fallback for legacy plain text rows
+      return {
+        id: idVal,
+        address_line_1: lineStr,
+        address_line_2: '',
+        city: '',
+        postal_code: '',
+        address_type: 'Home',
+        availability: 'All Day',
+        is_default: false
+      };
+    }
+  };
+
+  const uiAddrs = [];
+  const addr1 = parseLine(dbAddr.address_line_1, 'line1');
+  const addr2 = parseLine(dbAddr.address_line_2, 'line2');
+  const addr3 = parseLine(dbAddr.address_line_3, 'line3');
+
+  if (addr1) uiAddrs.push(addr1);
+  if (addr2) uiAddrs.push(addr2);
+  if (addr3) uiAddrs.push(addr3);
+
+  const defaultLineNum = dbAddr.default_add || 1;
+  const defaultLineId = `line${defaultLineNum}`;
+  uiAddrs.forEach(addr => {
+    addr.is_default = addr.id === defaultLineId;
+  });
+
+  return uiAddrs;
+};
 
 /**
  * Bulletproof hook for managing Supabase Profile and Addresses.
  * Handles fetching, upserting, and state management.
+ * Initializes from and synchronizes with App's userdet state.
  */
-export const useProfileManager = () => {
-  const [profile, setProfile] = useState(null);
-  const [addresses, setAddresses] = useState([]);
-  const [loading, setLoading] = useState(true);
+export const useProfileManager = (userdet, setUserdet) => {
+  const userId = userdet?.id;
+
+  const [profile, setProfile] = useState(() => {
+    if (userdet && userdet.id) {
+      return {
+        id: userdet.id,
+        name: userdet.username || '',
+        email: userdet.email || '',
+        phone: userdet.phone || '',
+        location: userdet.location || '',
+        Location: userdet.location || '',
+        avatar_url: userdet.image || '',
+      };
+    }
+    return null;
+  });
+
+  const [addresses, setAddresses] = useState(() => {
+    return userdet?.addresses || [];
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [isUpdatingAddress, setIsUpdatingAddress] = useState(false);
+  const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false);
   const [error, setError] = useState(null);
-  const hasLoadedOnce = useRef(false);
+
+  // Sync state whenever the userId changes (e.g. login / logout / reload)
+  useEffect(() => {
+    if (userdet && userdet.id) {
+      setProfile({
+        id: userdet.id,
+        name: userdet.username || '',
+        email: userdet.email || '',
+        phone: userdet.phone || '',
+        location: userdet.location || '',
+        Location: userdet.location || '',
+        avatar_url: userdet.image || '',
+      });
+      setAddresses(userdet.addresses || []);
+      setLoading(false);
+    } else {
+      setProfile(null);
+      setAddresses([]);
+      setLoading(false);
+    }
+  }, [userId]);
 
   /**
-   * Fetch profile and addresses in a single relational query.
+   * Fetch profile and addresses with timeout.
    */
-  const fetchProfileData = useCallback(async () => {
+  const fetchProfileData = useCallback(async (showLoading = false) => {
     try {
-      if (!hasLoadedOnce.current) {
-        setLoading(true);
-      }
+      if (showLoading) setLoading(true);
       setError(null);
 
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError) throw authError;
-      if (!user) {
+      if (!userId) {
         setProfile(null);
         setAddresses([]);
         return;
       }
 
-      // Query profile and addresses separately to avoid PostgREST relationship errors
-      const { data: profileData, error: profileError } = await supabase
-        .from('Profiles')
-        .select('*')
-        .eq('id', user.id)
-        .maybeSingle();
+      console.log("[useProfileManager] Background fetching profile row for id:", userId);
+      const { data: profileData, error: profileError } = await runWithTimeout(
+        supabase
+          .from('Profiles')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle(),
+        90000
+      );
 
       if (profileError) throw profileError;
 
-      const { data: addressData, error: addressError } = await supabase
-        .from('addresses')
-        .select('*')
-        .eq('profile_id', user.id);
-        
+      console.log("[useProfileManager] Background fetching addresses for profile_id:", userId);
+      const { data: addressData, error: addressError } = await runWithTimeout(
+        supabase
+          .from('addresses')
+          .select('*')
+          .eq('profile_id', userId),
+        90000
+      );
+
       if (addressError) {
         console.warn("Addresses fetch warning:", addressError.message);
       }
 
-      const uiAddrs = [];
-      if (addressData && addressData.length > 0) {
-        const dbAddr = addressData[0];
-        
-        const parseLine = (lineStr, idVal) => {
-          if (!lineStr) return null;
-          try {
-            const obj = JSON.parse(lineStr);
-            return {
-              id: idVal,
-              address_line_1: obj.address_line_1 || '',
-              address_line_2: obj.address_line_2 || '',
-              city: obj.city || '',
-              postal_code: obj.postal_code || '',
-              address_type: obj.address_type || 'Home',
-              availability: obj.availability || 'All Day',
-              is_default: obj.is_default || false
-            };
-          } catch (e) {
-            // Fallback for legacy plain text rows
-            return {
-              id: idVal,
-              address_line_1: lineStr,
-              address_line_2: '',
-              city: '',
-              postal_code: '',
-              address_type: 'Home',
-              availability: 'All Day',
-              is_default: false
-            };
-          }
-        };
-
-        const addr1 = parseLine(dbAddr.address_line_1, 'line1');
-        const addr2 = parseLine(dbAddr.address_line_2, 'line2');
-        const addr3 = parseLine(dbAddr.address_line_3, 'line3');
-
-        if (addr1) uiAddrs.push(addr1);
-        if (addr2) uiAddrs.push(addr2);
-        if (addr3) uiAddrs.push(addr3);
-
-        const defaultLineNum = dbAddr.default_add || 1;
-        const defaultLineId = `line${defaultLineNum}`;
-        uiAddrs.forEach(addr => {
-          addr.is_default = addr.id === defaultLineId;
-        });
-      }
+      const uiAddrs = parseAddressRow(addressData && addressData.length > 0 ? addressData[0] : null);
 
       if (profileData) {
-        const savedLocation = localStorage.getItem(`userid_${user.id}_location`) || '';
-        setProfile({ ...profileData, location: savedLocation });
+        const displayAvatarUrl = getDisplayAvatarUrl(profileData.avatar_url);
+        const mergedProfile = { ...profileData, location: profileData.Location || '', avatar_url: displayAvatarUrl };
+        setProfile(mergedProfile);
         setAddresses(uiAddrs);
-      } else {
-        // Fallback if trigger hasn't finished: profile is null
-        setProfile(null);
-        setAddresses(uiAddrs);
+
+        if (setUserdet) {
+          setUserdet(prev => {
+            if (
+              prev.username === mergedProfile.name &&
+              prev.phone === mergedProfile.phone &&
+              prev.location === mergedProfile.location &&
+              prev.image === displayAvatarUrl &&
+              JSON.stringify(prev.addresses) === JSON.stringify(uiAddrs)
+            ) {
+              return prev;
+            }
+            return {
+              ...prev,
+              username: mergedProfile.name,
+              phone: mergedProfile.phone,
+              location: mergedProfile.location,
+              image: displayAvatarUrl || prev.image,
+              addresses: uiAddrs
+            };
+          });
+        }
       }
-      hasLoadedOnce.current = true;
     } catch (err) {
-      console.error("[useProfileManager] Fetch Error:", err.message);
+      console.error("[useProfileManager] Background Fetch Error:", err.message);
       setError(err.message);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
-  }, []);
+  }, [userId, setUserdet]);
 
   /**
    * Update Profile Information (Name, Phone, Location)
    */
   const updateProfile = async (updates) => {
     try {
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No authenticated user");
+      setIsUpdatingProfile(true);
+      setError(null);
+      if (!userId) throw new Error("No authenticated user ID");
       
-      const { location, ...dbUpdates } = updates;
-      if (location !== undefined) {
-        localStorage.setItem(`userid_${user.id}_location`, location);
-      }
+      const { location, name, phone } = updates;
 
-      const { data, error: upsertError } = await supabase
-        .from('Profiles')
-        .upsert({
-          id: user.id,
-          ...dbUpdates,
-          email: user.email,
-        })
-        .select()
-        .single();
+      const { data, error: upsertError } = await runWithTimeout(
+        supabase
+          .from('Profiles')
+          .upsert({
+            id: userId,
+            email: profile?.email || userdet?.email || '',
+            name: name,
+            phone: phone,
+            Location: location,
+          })
+          .select()
+          .single(),
+        30000
+      );
 
       if (upsertError) throw upsertError;
       
-      const savedLocation = localStorage.getItem(`userid_${user.id}_location`) || '';
-      const updatedProfile = { ...data, location: savedLocation };
+      const updatedProfile = { ...data, location: data.Location || '' };
       setProfile(updatedProfile);
+
+      if (setUserdet) {
+        setUserdet(prev => ({
+          ...prev,
+          username: updatedProfile.name,
+          phone: updatedProfile.phone,
+          location: updatedProfile.location
+        }));
+      }
+      
       return { success: true, data: updatedProfile };
     } catch (err) {
       console.error("[useProfileManager] Profile Update Error:", err.message);
+      setError(err.message);
       return { success: false, error: err.message };
     } finally {
-      setLoading(false);
+      setIsUpdatingProfile(false);
     }
   };
 
@@ -157,19 +266,22 @@ export const useProfileManager = () => {
    */
   const upsertAddresses = async (addressList) => {
     try {
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No authenticated user");
+      setIsUpdatingAddress(true);
+      setError(null);
+      if (!userId) throw new Error("No authenticated user ID");
 
-      const { data: currentRows } = await supabase
-        .from('addresses')
-        .select('*')
-        .eq('profile_id', user.id);
+      const { data: currentRows } = await runWithTimeout(
+        supabase
+          .from('addresses')
+          .select('*')
+          .eq('profile_id', userId),
+        30000
+      );
         
       const currentDb = currentRows && currentRows.length > 0 ? currentRows[0] : null;
 
       const payload = {
-        profile_id: user.id,
+        profile_id: userId,
       };
 
       if (currentDb) {
@@ -233,20 +345,33 @@ export const useProfileManager = () => {
       payload.address_line_2 = obj2 ? JSON.stringify(obj2) : null;
       payload.address_line_3 = obj3 ? JSON.stringify(obj3) : null;
 
-      const { data, error: addrError } = await supabase
-        .from('addresses')
-        .upsert(payload)
-        .select();
+      const { data, error: addrError } = await runWithTimeout(
+        supabase
+          .from('addresses')
+          .upsert(payload)
+          .select(),
+        30000
+      );
 
       if (addrError) throw addrError;
 
-      await fetchProfileData();
+      const uiAddrs = parseAddressRow(data && data.length > 0 ? data[0] : null);
+      setAddresses(uiAddrs);
+
+      if (setUserdet) {
+        setUserdet(prev => ({
+          ...prev,
+          addresses: uiAddrs
+        }));
+      }
+
       return { success: true, data };
     } catch (err) {
       console.error("[useProfileManager] Address Sync Error:", err.message);
+      setError(err.message);
       return { success: false, error: err.message };
     } finally {
-      setLoading(false);
+      setIsUpdatingAddress(false);
     }
   };
 
@@ -255,21 +380,24 @@ export const useProfileManager = () => {
    */
   const deleteAddress = async (id) => {
     try {
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No authenticated user");
+      setIsUpdatingAddress(true);
+      setError(null);
+      if (!userId) throw new Error("No authenticated user ID");
 
-      const { data: currentRows } = await supabase
-        .from('addresses')
-        .select('*')
-        .eq('profile_id', user.id);
+      const { data: currentRows } = await runWithTimeout(
+        supabase
+          .from('addresses')
+          .select('*')
+          .eq('profile_id', userId),
+        30000
+      );
 
       const currentDb = currentRows && currentRows.length > 0 ? currentRows[0] : null;
 
       if (currentDb) {
         const payload = {
           id: currentDb.id,
-          profile_id: user.id,
+          profile_id: userId,
           address_line_1: currentDb.address_line_1,
           address_line_2: currentDb.address_line_2,
           address_line_3: currentDb.address_line_3,
@@ -314,84 +442,268 @@ export const useProfileManager = () => {
         payload.address_line_2 = obj2 ? JSON.stringify(obj2) : null;
         payload.address_line_3 = obj3 ? JSON.stringify(obj3) : null;
 
-        const { error } = await supabase
-          .from('addresses')
-          .upsert(payload);
+        const { data, error } = await runWithTimeout(
+          supabase
+            .from('addresses')
+            .upsert(payload)
+            .select(),
+          30000
+        );
 
         if (error) throw error;
+
+        const uiAddrs = parseAddressRow(data && data.length > 0 ? data[0] : null);
+        setAddresses(uiAddrs);
+
+        if (setUserdet) {
+          setUserdet(prev => ({
+            ...prev,
+            addresses: uiAddrs
+          }));
+        }
       }
 
-      await fetchProfileData();
       return { success: true };
     } catch (err) {
       console.error("[useProfileManager] Delete Address Error:", err.message);
+      setError(err.message);
       return { success: false, error: err.message };
     } finally {
-      setLoading(false);
+      setIsUpdatingAddress(false);
     }
   };
 
-  useEffect(() => {
-    fetchProfileData();
-    
-    // 1. Listen for Auth Changes
-    const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN' || event === 'USER_UPDATED') fetchProfileData();
-      if (event === 'SIGNED_OUT') {
-        setProfile(null);
-        setAddresses([]);
-      }
-    });
+  /**
+   * Upload Avatar to Supabase Storage and update Profile
+   */
+  const uploadAvatar = async (file) => {
+    try {
+      setIsUpdatingAvatar(true);
+      setError(null);
+      if (!userId) throw new Error("No authenticated user ID");
 
-    // 2. Realtime Database Subscription
-    // This creates a "Channel" to listen for any changes in the DB
-    const profileChannel = supabase
-      .channel('profile_realtime_changes')
-      .on(
-        'postgres_changes',
-        { 
-          event: '*', // Listen to INSERT, UPDATE, and DELETE
-          schema: 'public', 
-          table: 'Profiles' 
-        },
-        (payload) => {
-          console.log('Realtime Profile Update:', payload);
-          // Update local state with the new data from DB
-          if (payload.eventType === 'DELETE') {
-            setProfile(null);
-          } else {
-            setProfile(payload.new);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `avatar_${Date.now()}.${fileExt}`;
+      const filePath = `${userId}/${fileName}`;
+
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log("[useProfileManager] Current Supabase Session in browser:", session);
+      if (!session) {
+         console.warn("[useProfileManager] Warning: No active session found! Request will go as anonymous.");
+      } else {
+         console.log("[useProfileManager] Authenticated user role:", session.user?.role);
+      }
+
+      console.log("[useProfileManager] Uploading avatar to storage...");
+      
+      let bucketName = 'avatar';
+      let uploadResult;
+
+      try {
+        uploadResult = await runWithTimeout(
+          supabase.storage
+            .from(bucketName)
+            .upload(filePath, file, { upsert: true }),
+          30000
+        );
+      } catch (err) {
+        if (err.message.includes("timed out")) throw err;
+        uploadResult = { error: err };
+      }
+
+      // Fallback: If upload failed and error indicates bucket issue, retry with 'avatars' (plural)
+      if (uploadResult.error) {
+        console.warn("[useProfileManager] Primary upload error details:", uploadResult.error);
+        const errMsg = uploadResult.error.message || "";
+        const errStatus = uploadResult.error.status;
+        if (
+          errMsg.toLowerCase().includes("bucket") ||
+          errMsg.toLowerCase().includes("not found") ||
+          errStatus === 404 ||
+          errStatus === 400
+        ) {
+          console.warn(`[useProfileManager] Upload to bucket '${bucketName}' failed. Retrying with 'avatars'...`);
+          bucketName = 'avatars';
+          const retryRes = await runWithTimeout(
+            supabase.storage
+              .from(bucketName)
+              .upload(filePath, file, { upsert: true }),
+            30000
+          );
+          if (retryRes.error) {
+            console.error("[useProfileManager] Retry upload error details:", retryRes.error);
+            throw retryRes.error;
+          }
+        } else {
+          throw uploadResult.error;
+        }
+      }
+
+      // Get the public URL
+      const { data: publicUrlData } = supabase.storage
+        .from(bucketName)
+        .getPublicUrl(filePath);
+
+      let avatarUrl = publicUrlData.publicUrl;
+      
+      // If we are in dev using proxy, convert the relative proxy URL back to absolute for saving in DB
+      if (avatarUrl.startsWith('/api/supabase')) {
+         avatarUrl = avatarUrl.replace('/api/supabase', 'https://ypvzlwkmdoueswvcagkq.supabase.co');
+      } else if (avatarUrl.startsWith('http://localhost') || avatarUrl.startsWith('http://127.0.0.1')) {
+         // Fallback if it included the localhost origin
+         const urlObj = new URL(avatarUrl);
+         avatarUrl = avatarUrl.replace(urlObj.origin + '/api/supabase', 'https://ypvzlwkmdoueswvcagkq.supabase.co');
+      }
+
+      console.log("[useProfileManager] Updating avatar URL in profiles table...");
+      // Update Profiles table
+      const { error: profileUpdateError } = await runWithTimeout(
+        supabase
+          .from('Profiles')
+          .update({ avatar_url: avatarUrl })
+          .eq('id', userId),
+        30000
+      );
+
+      if (profileUpdateError) {
+        // Fallback: If row doesn't exist, upsert it
+        await runWithTimeout(
+          supabase.from('Profiles').upsert({
+            id: userId,
+            email: profile?.email || userdet?.email || '',
+            avatar_url: avatarUrl
+          }),
+          30000
+        );
+      }
+
+      const displayAvatarUrl = getDisplayAvatarUrl(avatarUrl);
+      setProfile(prev => prev ? { ...prev, avatar_url: displayAvatarUrl } : { id: userId, avatar_url: displayAvatarUrl });
+      
+      if (setUserdet) {
+        setUserdet(prev => ({
+          ...prev,
+          image: displayAvatarUrl
+        }));
+      }
+
+      return { success: true, url: displayAvatarUrl };
+    } catch (err) {
+      console.error("[useProfileManager] Avatar Upload Error:", err);
+      if (err.status) console.error("[useProfileManager] Error Status:", err.status);
+      if (err.statusCode) console.error("[useProfileManager] Error StatusCode:", err.statusCode);
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setIsUpdatingAvatar(false);
+    }
+  };
+
+  /**
+   * Delete Avatar from Storage and remove URL from Profile
+   */
+  const removeAvatar = async () => {
+    try {
+      setIsUpdatingAvatar(true);
+      setError(null);
+      if (!userId) throw new Error("No authenticated user ID");
+
+      // Extract filePath and bucketName dynamically from current avatar_url if possible
+      if (!profile?.avatar_url) throw new Error("No avatar to remove");
+      
+      let bucketName = 'avatar';
+      let filePath = '';
+      
+      if (profile.avatar_url.includes('/storage/v1/object/public/')) {
+        const urlParts = profile.avatar_url.split('/storage/v1/object/public/');
+        if (urlParts.length > 1) {
+          const pathAndBucket = urlParts[1];
+          const components = pathAndBucket.split('/');
+          if (components.length > 1) {
+            bucketName = components[0];
+            filePath = components.slice(1).join('/');
           }
         }
-      )
-      .on(
-        'postgres_changes',
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'addresses' 
-        },
-        (payload) => {
-          console.log('Realtime Address Update:', payload);
-          fetchProfileData();
+      }
+      
+      // Fallback for legacy split
+      if (!filePath) {
+        const urlParts = profile.avatar_url.split('/avatar/');
+        if (urlParts.length > 1) {
+          bucketName = 'avatar';
+          filePath = urlParts[1];
+        } else {
+          const urlPartsPlural = profile.avatar_url.split('/avatars/');
+          if (urlPartsPlural.length > 1) {
+            bucketName = 'avatars';
+            filePath = urlPartsPlural[1];
+          }
         }
-      )
-      .subscribe();
+      }
 
-    return () => {
-      authSub.unsubscribe();
-      supabase.removeChannel(profileChannel);
-    };
-  }, [fetchProfileData]);
+      if (filePath) {
+        console.log(`[useProfileManager] Removing avatar from bucket '${bucketName}' at path '${filePath}'...`);
+        try {
+          await runWithTimeout(
+            supabase.storage.from(bucketName).remove([filePath]),
+            30000
+          );
+        } catch (storageErr) {
+          console.warn("Could not delete file from storage bucket:", storageErr.message);
+        }
+      }
+
+      // Update Profiles table
+      const { error } = await runWithTimeout(
+        supabase
+          .from('Profiles')
+          .update({ avatar_url: null })
+          .eq('id', userId),
+        30000
+      );
+
+      if (error) throw error;
+
+      setProfile(prev => prev ? { ...prev, avatar_url: null } : { id: userId, avatar_url: null });
+      
+      if (setUserdet) {
+        const defaultImage = `https://ui-avatars.com/api/?name=${encodeURIComponent(userdet.emailPrefix || 'U')}&background=0f172a&color=fff`;
+        setUserdet(prev => ({
+          ...prev,
+          image: prev.username ? `https://ui-avatars.com/api/?name=${encodeURIComponent(prev.username)}&background=0f172a&color=fff` : defaultImage
+        }));
+      }
+
+      return { success: true };
+    } catch (err) {
+      console.error("[useProfileManager] Avatar Remove Error:", err.message);
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setIsUpdatingAvatar(false);
+    }
+  };
+
+  // Perform background sync on mount
+  useEffect(() => {
+    if (userId) {
+      fetchProfileData(false);
+    }
+  }, [userId, fetchProfileData]);
 
   return {
     profile,
     addresses,
     loading,
+    isUpdatingProfile,
+    isUpdatingAddress,
+    isUpdatingAvatar,
     error,
-    refresh: fetchProfileData,
+    refresh: () => fetchProfileData(true),
     updateProfile,
     upsertAddresses,
-    deleteAddress
+    deleteAddress,
+    uploadAvatar,
+    removeAvatar
   };
 };
