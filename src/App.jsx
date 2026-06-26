@@ -22,12 +22,7 @@ import Footer from './Content/Footer.jsx'
 import DummyDisclaimerPage from './Content/DummyDisclaimerPage.jsx'
 
 const getDisplayAvatarUrl = (url) => {
-  if (!url) return '';
-  const isDev = import.meta.env.DEV;
-  if (isDev && url.includes('https://ypvzlwkmdoueswvcagkq.supabase.co')) {
-    return url.replace('https://ypvzlwkmdoueswvcagkq.supabase.co', window.location.origin + '/api/supabase');
-  }
-  return url;
+  return url || '';
 };
 
 // --- STORAGE HELPERS ---

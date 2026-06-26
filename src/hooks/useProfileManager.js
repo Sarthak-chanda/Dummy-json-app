@@ -19,12 +19,7 @@ const runWithTimeout = async (promise, timeoutMs = 30000) => {
 };
 
 const getDisplayAvatarUrl = (url) => {
-  if (!url) return '';
-  const isDev = import.meta.env.DEV;
-  if (isDev && url.includes('https://ypvzlwkmdoueswvcagkq.supabase.co')) {
-    return url.replace('https://ypvzlwkmdoueswvcagkq.supabase.co', window.location.origin + '/api/supabase');
-  }
-  return url;
+  return url || '';
 };
 
 /**
