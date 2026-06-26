@@ -192,7 +192,7 @@ export const useProfileManager = (userdet, setUserdet) => {
               username: mergedProfile.name,
               phone: mergedProfile.phone,
               location: mergedProfile.location,
-              image: displayAvatarUrl || prev.image,
+              image: displayAvatarUrl || '',
               addresses: uiAddrs
             };
           });
@@ -550,27 +550,20 @@ export const useProfileManager = (userdet, setUserdet) => {
          avatarUrl = avatarUrl.replace(urlObj.origin + '/api/supabase', 'https://ypvzlwkmdoueswvcagkq.supabase.co');
       }
 
-      console.log("[useProfileManager] Updating avatar URL in profiles table...");
-      // Update Profiles table
+      console.log("[useProfileManager] Upserting avatar URL in profiles table...");
+      // Upsert to Profiles table directly to handle both existing and new users
       const { error: profileUpdateError } = await runWithTimeout(
         supabase
           .from('Profiles')
-          .update({ avatar_url: avatarUrl })
-          .eq('id', userId),
-        30000
-      );
-
-      if (profileUpdateError) {
-        // Fallback: If row doesn't exist, upsert it
-        await runWithTimeout(
-          supabase.from('Profiles').upsert({
+          .upsert({
             id: userId,
             email: profile?.email || userdet?.email || '',
             avatar_url: avatarUrl
           }),
-          30000
-        );
-      }
+        30000
+      );
+
+      if (profileUpdateError) throw profileUpdateError;
 
       const displayAvatarUrl = getDisplayAvatarUrl(avatarUrl);
       setProfile(prev => prev ? { ...prev, avatar_url: displayAvatarUrl } : { id: userId, avatar_url: displayAvatarUrl });
@@ -648,12 +641,15 @@ export const useProfileManager = (userdet, setUserdet) => {
         }
       }
 
-      // Update Profiles table
+      // Upsert to Profiles table to clear avatar_url
       const { error } = await runWithTimeout(
         supabase
           .from('Profiles')
-          .update({ avatar_url: null })
-          .eq('id', userId),
+          .upsert({
+            id: userId,
+            email: profile?.email || userdet?.email || '',
+            avatar_url: null
+          }),
         30000
       );
 

@@ -185,7 +185,11 @@ const App = () => {
       username: dbProfile?.name || user.user_metadata?.full_name || user.user_metadata?.name || '',
       email: user.email,
       emailPrefix: emailPrefix,
-      image: getDisplayAvatarUrl(dbProfile?.avatar_url || user.user_metadata?.avatar_url) || `https://ui-avatars.com/api/?name=${encodeURIComponent(emailPrefix)}&background=0f172a&color=fff`,
+      image: getDisplayAvatarUrl(
+        dbProfile 
+          ? (dbProfile.avatar_url || '') 
+          : (user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(emailPrefix)}&background=0f172a&color=fff`)
+      ),
       accessToken: session.access_token,
       phone: dbProfile?.phone || '',
       location: dbProfile?.Location || '',
