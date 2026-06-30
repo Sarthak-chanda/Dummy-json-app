@@ -90,7 +90,7 @@ const ProductPage = ({ addToCart, removeFromCart, cart = [], wishlist = [], togg
           {/* Left: Image Gallery */}
           <div className="pp-image-gallery">
             <div className="pp-main-image-frame">
-              <img src={selectedImage} alt={product.title} />
+              <img src={selectedImage} alt={product.title} decoding="async" />
               <button 
                 className={`pp-wishlist-float ${isLiked ? 'active' : ''}`} 
                 onClick={() => toggleWishlist(product)}
@@ -108,7 +108,7 @@ const ProductPage = ({ addToCart, removeFromCart, cart = [], wishlist = [], togg
                     className={`pp-thumb-btn ${selectedImage === img ? "active" : ""}`} 
                     onClick={() => setSelectedImage(img)}
                   >
-                    <img src={img} alt={`Thumbnail ${i}`} />
+                    <img src={img} alt={`Thumbnail ${i}`} loading="lazy" decoding="async" />
                   </button>
                   <span className="pp-thumb-label">View {i + 1}</span>
                 </div>

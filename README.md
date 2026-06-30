@@ -1,18 +1,141 @@
-# React + Vite
+# eCart: Next-Gen E-Commerce Platform 🚀
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+eCart is a modern, high-performance, and feature-rich E-Commerce Storefront application built using the latest frontend technologies (**React 19**, **Vite 8**, and **React Router 7**) integrated with **Supabase** for backend-as-a-service. It serves as a showcase of modern web engineering, incorporating automatic memoization via the **React Compiler**, persistent multi-device session handling, and fluid micro-interactions.
 
-Currently, two official plugins are available:
+Developed with the assistance of **Antigravity**, a powerful agentic AI coding assistant from Google DeepMind.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🌟 Key Features
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+- **🔐 Robust User Authentication & Profiles:** Powered by Supabase. Supports custom email prefix detection, dynamic avatars (with local fallback or automated initials), phone verification, and editable personal profiles.
+- **📍 Address Management System:** Multi-address profile storage allowing users to save, prioritize, and toggle a default address directly synced with the database.
+- **🛒 Dynamic Cart & Wishlist Sync:** Real-time state synchronization. Cart and wishlist items are saved in standard LocalStorage for guest checkout and automatically merged and synced to Supabase database tables (`cart_wishlist` table) upon logging in.
+- **🔍 Advanced Search & Categorization:** Integrates with the DummyJSON API to provide live searches, nested category browsing, and smooth listing filters.
+- **⚡ Peak Performance (React Compiler):** Equipped with the new React Compiler (`babel-plugin-react-compiler`) for automatic dependency tracking and render optimizations—eliminating manual `useMemo` and `useCallback` boilerplate.
+- **🎭 Premium Animations:** Integrates `@lottiefiles/dotlottie-react` for interactive welcome banners, loaded indicators, and visual feedbacks.
+- **🎨 Modern Glassmorphism UI:** Tailored user experience with dark-navy backgrounds, glassmorphic layout elements, modern typography, responsive grids, and interactive button transitions.
 
-Note: This will impact Vite dev & build performances.
+---
 
-## Expanding the ESLint configuration
+## 🛠️ Technology Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+| Layer | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Frontend Core** | React 19 (RC/Stable) | Declarative UI structure and hook-based state management. |
+| **Routing** | React Router 7 | Dynamic page navigation with scroll restoration and transition support. |
+| **Styling** | TailwindCSS & Vanilla CSS | Modular responsive layouts, custom utility configurations, and animations. |
+| **Backend / DB** | Supabase | User Authentication, persistent relational database, and real-time synchronization. |
+| **API Source** | DummyJSON API | Dummy products, categories, search, and detail page contents. |
+| **Build & Tooling** | Vite 8 & Rollup | Fast bundling, hot module reloading (HMR), and Babel compiler pipelines. |
+| **Animations** | DotLottie (LottieFiles) | Interactive animations for loadings, empty states, and welcome events. |
+
+---
+
+## 📂 Architecture & File Structure
+
+```text
+Dummyjson_app/
+├── src/
+│   ├── Login/               # Authentication, login pages, and Supabase client
+│   │   ├── Login.jsx
+│   │   ├── Welcome.jsx
+│   │   └── supabaseClient.js
+│   ├── Content/             # Storefront sections and pages
+│   │   ├── Navbar/          # Search, Profile, Wishlist & Cart icons
+│   │   ├── Cartpage.jsx
+│   │   ├── WishlistPage.jsx
+│   │   ├── HomePage.jsx     # Main landing page & product displays
+│   │   ├── ProductPage.jsx  # Detailed description, rating, reviews
+│   │   └── ProfilePage.jsx  # Settings, addresses, and account details
+│   ├── App.jsx              # Routing and unified authentication/cart state coordinator
+│   ├── main.jsx             # React DOM root bootstrapping
+│   └── index.css            # Tailwind variables & global styles
+├── tailwind.config.js       # Custom design system configurations
+└── vite.config.js           # Babel React Compiler integrations & dev server setup
+```
+
+---
+
+## ⚙️ Setup & Installation
+
+Follow these steps to run the project locally on your machine:
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/your-username/dummy-json-app.git
+cd dummy-json-app
+```
+
+### 2. Install Dependencies
+Ensure you have [Node.js](https://nodejs.org/) installed (v18+ recommended):
+```bash
+npm install
+```
+
+### 3. Configure Supabase Environment Variables
+Create a `.env` file in the root directory (or update your project configuration) with your Supabase credentials:
+```env
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anonymous-key
+```
+
+### 4. Database Schema Setup
+Your Supabase instance should contain the following tables:
+
+#### **Profiles Table**
+```sql
+create table public.Profiles (
+  id uuid references auth.users on delete cascade primary key,
+  name text,
+  avatar_url text,
+  phone text,
+  "Location" text
+);
+```
+
+#### **Addresses Table**
+```sql
+create table public.addresses (
+  id bigint generated by default as identity primary key,
+  profile_id uuid references auth.users on delete cascade,
+  address_line_1 text,
+  address_line_2 text,
+  address_line_3 text,
+  default_add smallint default 1
+);
+```
+
+#### **Cart/Wishlist Table**
+```sql
+create table public.cart_wishlist (
+  id bigint generated by default as identity primary key,
+  profile_id uuid references auth.users on delete cascade unique,
+  cart_items jsonb default '[]'::jsonb,
+  wishlist_items jsonb default '[]'::jsonb
+);
+```
+
+### 5. Run Development Server
+Start the local server with Vite:
+```bash
+npm run dev
+```
+Open your browser and navigate to `http://localhost:5173`.
+
+---
+
+## ⚡ Production Build
+To generate a production-ready build:
+```bash
+npm run build
+```
+The optimized bundle will be compiled into the `dist/` directory, ready to be hosted on Vercel, Netlify, or GitHub Pages.
+
+---
+
+## 🤝 Contribution & AI Collaboration
+
+This application was developed as part of a student developer portfolio, illustrating a collaborative pair-programming workflow between the student and **Antigravity (by Google DeepMind)**.
+
+Feel free to open issues or submit pull requests for code changes, feature enhancements, or additional styling!

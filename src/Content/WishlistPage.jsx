@@ -52,6 +52,8 @@ const WishlistPage = ({ wishlist, toggleWishlist, addToCart, removeFromCart, car
                     className="pet-cart-img"
                     src={product.thumbnail}
                     alt={product.title}
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
 

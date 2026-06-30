@@ -66,12 +66,13 @@ export default function CartPage({ cart = [], setCart }) {
               {cart.map((product) => (
                 <div key={product.id} className="pet-cart-item-card">
                   
-                  {/* Decorative background container block for image */}
                   <div className="pet-cart-image-frame">
                     <img
                       className="pet-cart-img"
                       src={product.thumbnail}
                       alt={product.title}
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
 

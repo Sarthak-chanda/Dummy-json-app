@@ -1,25 +1,28 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, lazy, Suspense } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from './Login/supabaseClient'
 import './App.css'
 
 import Nav from './Content/Navbar/Nav'
-import SearchResult from './Content/SearchResult'
 import Loading from './Loading'
 import NotFound from './NotFound'
-import Cartpage from './Content/Cartpage.jsx'
-import WishlistPage from './Content/WishlistPage.jsx'
-import CategoryPage from './Content/CategoryPage.jsx'
-import Categories from './Content/Categories.jsx'
-import HomePage from './Content/HomePage'
-import Products from './Content/Products'
-import OfferPage from './Content/OfferPage'
-import Login from './Login/Login.jsx'
-import WelcomePage from './Login/Welcome.jsx'
-import ProfilePage from './Content/ProfilePage.jsx'
-import ProductPage from './Content/ProductPage.jsx'
 import Footer from './Content/Footer.jsx'
-import DummyDisclaimerPage from './Content/DummyDisclaimerPage.jsx'
+
+// Lazy loaded page components
+const HomePage = lazy(() => import('./Content/HomePage'));
+const Products = lazy(() => import('./Content/Products'));
+const Categories = lazy(() => import('./Content/Categories'));
+const OfferPage = lazy(() => import('./Content/OfferPage'));
+const CategoryPage = lazy(() => import('./Content/CategoryPage'));
+const SearchResult = lazy(() => import('./Content/SearchResult'));
+const Cartpage = lazy(() => import('./Content/Cartpage.jsx'));
+const WishlistPage = lazy(() => import('./Content/WishlistPage.jsx'));
+const ProductPage = lazy(() => import('./Content/ProductPage.jsx'));
+const ProfilePage = lazy(() => import('./Content/ProfilePage.jsx'));
+const Login = lazy(() => import('./Login/Login.jsx'));
+const WelcomePage = lazy(() => import('./Login/Welcome.jsx'));
+const DummyDisclaimerPage = lazy(() => import('./Content/DummyDisclaimerPage.jsx'));
+
 
 const getDisplayAvatarUrl = (url) => {
   return url || '';
@@ -385,23 +388,25 @@ const App = () => {
       <ScrollToTop />
       {!hideNav && <Nav userdet={userdet} cart={cart} wishlist={wishlist} setSearchResult={setSearchResult} setLoading={setLoading} setNotfound={setNotfound} />}
       <div className={location.pathname !== '/' && !hideNav ? "pt-[60px]" : ""}>
-        <Routes>
-          <Route path="/" element={<HomePage addToCart={addToCart} removeFromCart={removeFromCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
-          <Route path="/products" element={<Products addToCart={addToCart} removeFromCart={removeFromCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
-          <Route path="/categories" element={<Categories addToCart={addToCart} removeFromCart={removeFromCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
-          <Route path="/offer/:offerId" element={<OfferPage addToCart={addToCart} removeFromCart={removeFromCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
-          <Route path="/category/:categoryName" element={<CategoryPage addToCart={addToCart} removeFromCart={removeFromCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
-          <Route path="/home" element={<Navigate to="/" replace />} />
-          <Route path="/searchresult/:p_name" element={<SearchResult searchResult={searchResult} addToCart={addToCart} removeFromCart={removeFromCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} clearSearch={() => setSearchResult([])} />} />
-          <Route path="/:emailPrefix/cart" element={<Cartpage cart={cart} setCart={setCart} />} />
-          <Route path="/:emailPrefix/wishlist" element={<WishlistPage wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart} removeFromCart={removeFromCart} />} />
-          <Route path="/p/:p_name/:p_id" element={<ProductPage addToCart={addToCart} removeFromCart={removeFromCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
-          <Route path="/:emailPrefix/profile" element={userdet.id ? <ProfilePage userdet={userdet} setUserdet={setUserdet} cart={cart} wishlist={wishlist} /> : <Navigate to="/login" replace />} />
-          <Route path="/login" element={<Login setUserdet={setUserdet} authLoading={authLoading} />} />
-          <Route path="/welcome" element={<WelcomePage userdet={userdet} setUserdet={setUserdet} onContinue={() => setHasSeenWelcome(true)} authLoading={authLoading} />} />
-          <Route path="/disclaimer" element={<DummyDisclaimerPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <Suspense fallback={<div className="global-loader"><Loading /></div>}>
+          <Routes>
+            <Route path="/" element={<HomePage addToCart={addToCart} removeFromCart={removeFromCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+            <Route path="/products" element={<Products addToCart={addToCart} removeFromCart={removeFromCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+            <Route path="/categories" element={<Categories addToCart={addToCart} removeFromCart={removeFromCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+            <Route path="/offer/:offerId" element={<OfferPage addToCart={addToCart} removeFromCart={removeFromCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+            <Route path="/category/:categoryName" element={<CategoryPage addToCart={addToCart} removeFromCart={removeFromCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+            <Route path="/home" element={<Navigate to="/" replace />} />
+            <Route path="/searchresult/:p_name" element={<SearchResult searchResult={searchResult} addToCart={addToCart} removeFromCart={removeFromCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} clearSearch={() => setSearchResult([])} />} />
+            <Route path="/:emailPrefix/cart" element={<Cartpage cart={cart} setCart={setCart} />} />
+            <Route path="/:emailPrefix/wishlist" element={<WishlistPage wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart} removeFromCart={removeFromCart} />} />
+            <Route path="/p/:p_name/:p_id" element={<ProductPage addToCart={addToCart} removeFromCart={removeFromCart} cart={cart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+            <Route path="/:emailPrefix/profile" element={userdet.id ? <ProfilePage userdet={userdet} setUserdet={setUserdet} cart={cart} wishlist={wishlist} /> : <Navigate to="/login" replace />} />
+            <Route path="/login" element={<Login setUserdet={setUserdet} authLoading={authLoading} />} />
+            <Route path="/welcome" element={<WelcomePage userdet={userdet} setUserdet={setUserdet} onContinue={() => setHasSeenWelcome(true)} authLoading={authLoading} />} />
+            <Route path="/disclaimer" element={<DummyDisclaimerPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </div>
       {loading && <div className="global-loader"><Loading />{notfound && <NotFound />}</div>}
       {!hideNav && <Footer userdet={userdet} />}

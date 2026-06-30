@@ -14,7 +14,7 @@ const InterstitialBanner = ({ offer }) => {
     <div className="interstitial-banner">
       <picture>
         <source media="(max-width: 768px)" srcSet={offer.images.mobile} />
-        <img src={offer.images.desktop} alt={offer.title} className="banner-bg-img" />
+        <img src={offer.images.desktop} alt={offer.title} className="banner-bg-img" loading="lazy" decoding="async" />
       </picture>
       <div className="banner-overlay" style={{ background: `linear-gradient(90deg, ${offer.gradient} 0%, rgba(15, 23, 42, 0.4) 100%)` }} />
       <div className="banner-inner-content">

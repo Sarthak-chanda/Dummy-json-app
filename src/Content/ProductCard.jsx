@@ -184,7 +184,7 @@ const ProductCard = ({ product, addToCart, removeFromCart, cart = [], wishlist =
         <div className="ec-pc-carousel-track" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
           {images.map((img, index) => (
             <div className="ec-pc-slide" key={index}>
-              <img src={img} alt={product.title} draggable="false" className="sample-style-img" />
+              <img src={img} alt={product.title} draggable="false" className="sample-style-img" loading="lazy" decoding="async" />
             </div>
           ))}
         </div>
