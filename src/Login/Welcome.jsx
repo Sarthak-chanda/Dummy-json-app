@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
-import loginBg from '/image/login-bg.png';
-import logo from '/image/logo.png'; 
+import loginBg from '/image/login-bg.webp';
+import logo from '/image/logo.webp'; 
 import './WelcomePage.css';
 
 const WelcomePage = ({ userdet, setUserdet, onContinue, authLoading }) => {

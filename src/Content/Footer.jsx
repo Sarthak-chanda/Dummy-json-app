@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./Footer.css";
-import logo from "../../image/logo.png";
+import logo from "../../image/logo.webp";
 
 const Footer = ({ userdet }) => {
   const isLogged = !!userdet?.id;

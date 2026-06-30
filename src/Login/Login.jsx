@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
-import loginBg from '/image/login-bg.png';
-import bannerImg from '/image/login-right.png'; // The neon cart image
+import loginBg from '/image/login-bg.webp';
+import bannerImg from '/image/login-right.webp'; // The neon cart image
 import './Login.css';
 
 const Login = ({ setUserdet, authLoading }) => {

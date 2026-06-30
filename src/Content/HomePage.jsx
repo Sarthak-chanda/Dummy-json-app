@@ -7,7 +7,7 @@ import CategorySection from "./CategorySection";
 import Loading from "../Loading";
 import { useProductManager } from "../hooks/useProductManager";
 import { useOffersManager } from "../hooks/useOffersManager";
-import recommendationImg from "/image/Recomendation.png";
+import recommendationImg from "/image/Recomendation.webp";
 import TrustBanner from "./TrustBanner";
 
 const BudgetFriendlyContainer = ({ products, getProductsByPriceRange, sortProducts, addToCart, removeFromCart, cart, wishlist, toggleWishlist }) => {

@@ -1,6 +1,6 @@
 
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import logo from '/image/logo.png';
+import logo from '/image/logo.webp';
 import './Loading.css';
 
 const Loading = () => {
